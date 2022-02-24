@@ -122,7 +122,7 @@ Based upon the ABLUnit framework (need to be installed locally), you can specify
 ```
 
 ## Greetings
-Largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
+Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
 Also inspired by vscode-go and vscode-rust extensions.
 
 Thanks to all the contributors: mscheblein
