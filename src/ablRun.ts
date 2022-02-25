@@ -6,7 +6,7 @@ import { createProArgs, setupEnvironmentVariables } from './shared/ablPath';
 
 export function run(filename: string, ablConfig: OpenEdgeProjectConfig): Promise<any> {
     outputChannel.clear();
-    let cwd = path.dirname(filename);
+    const cwd = path.dirname(filename);
 
     const cmd = ablConfig.getExecutable(); 
     const env = setupEnvironmentVariables(process.env, ablConfig);

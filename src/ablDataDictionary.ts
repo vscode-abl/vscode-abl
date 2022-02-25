@@ -43,7 +43,7 @@ export function readDataDictionary(oeConfig: OpenEdgeProjectConfig) {
         startupProcedure: path.join(__dirname, '../resources/abl-src/dict-dump.p'),
         workspaceRoot: genericPath(),
     });
-    let cwd = oeConfig.rootDir
+    const cwd = oeConfig.rootDir
     vscode.window.showInformationMessage('Updating data dictionary...');
     create(cmd, args, { env: env, cwd: cwd }, outputChannel).then((res) => {
         vscode.window.showInformationMessage('Data dictionary ' + (res.success ? 'updated' : 'failed'));

@@ -19,7 +19,7 @@ let client: LanguageClient;
 let oeRuntimes: Array<any>;
 let defaultRuntime;
 let langServDebug: boolean;
-let projects: Array<OpenEdgeProjectConfig> = new Array();
+const projects: Array<OpenEdgeProjectConfig> = new Array();
 let defaultProject: OpenEdgeProjectConfig;
 let oeStatusBarItem: vscode.StatusBarItem;
 
@@ -93,7 +93,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         readDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.run.currentFile', () => {
-        let cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         run(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
@@ -140,7 +140,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(event =>  { readGlobalOpenEdgeRuntimes() });
 
     readWorkspaceOEConfigFiles();
-    let watcher = vscode.workspace.createFileSystemWatcher('**/.openedge.json');
+    const watcher = vscode.workspace.createFileSystemWatcher('**/.openedge.json');
     watcher.onDidChange(uri => readWorkspaceOEConfigFiles());
     watcher.onDidCreate(uri => readWorkspaceOEConfigFiles());
     watcher.onDidDelete(uri => readWorkspaceOEConfigFiles());
@@ -152,7 +152,7 @@ function readWorkspaceOEConfigFiles() {
             console.log("OpenEdge project config file found: " + uri.fsPath);
             loadConfigFile(uri.fsPath).then(config => {
                 // FIXME Way too verbose, there's probably a much better way to do that
-                var prjConfig = new OpenEdgeProjectConfig();
+                const prjConfig = new OpenEdgeProjectConfig();
                 prjConfig.dlc = getDlcDirectory(config.version);
                 prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
                 prjConfig.version = config.version;
@@ -201,7 +201,7 @@ function getDlcDirectory(version: string): string {
 }
 
 export function getProject(path: string): OpenEdgeProjectConfig {
-    let retVal = projects.find(config => path.startsWith(config.rootDir));
+    const retVal = projects.find(config => path.startsWith(config.rootDir));
     return (retVal != null) ? retVal : defaultProject;
 }
 
