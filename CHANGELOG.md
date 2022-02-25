@@ -1,3 +1,7 @@
+1.3.x
+=====
+- Extension overhaul, lots of functionalities moved to ABL Language Server
+
 1.1
 =====
 - Code completion and Outline pane
