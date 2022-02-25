@@ -45,9 +45,11 @@ export function activate(ctx: vscode.ExtensionContext): void {
             '--add-opens=java.base/sun.nio.fs=ALL-UNNAMED',
             '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
             '-jar',
-            path.join(__dirname, '/../abl-lsp.jar')
+            path.join(__dirname, '../resources/abl-lsp.jar')
             // 'C:\\Users\\gquer\\projets\\abl-language-server\\bootstrap\\target\\abl-lsp-bootstrap-1.0.0-SNAPSHOT.jar'
             // '-classpath', 'C:\\Users\\gquer\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\gquer\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar', 'eu.rssw.openedge.ls.proparse.Main'
+            // '-classpath', 'C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar',
+            // 'eu.rssw.openedge.ls.proparse.Main'
         ] };
     const serverOptions: ServerOptions = serverExec;
 

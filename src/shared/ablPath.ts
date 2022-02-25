@@ -56,7 +56,7 @@ export function setupEnvironmentVariables(env: any, openEdgeConfig: OpenEdgeProj
     env.VSABL_PROPATH = openEdgeConfig.propath.join(',')
     env.VSABL_PROPATH_MODE = openEdgeConfig.propathMode;
     env.VSABL_OE_STARTUP_PROCEDURE = '';
-    env.VSABL_SRC = path.join(__dirname, '../abl-src');
+    env.VSABL_SRC = path.join(__dirname, '../resources/abl-src');
     env.VSABL_WORKSPACE = openEdgeConfig.rootDir;
     // Enable debugger: https://docs.progress.com/bundle/openedge-developer-studio-olh-117/page/Enable-debugging.html
     env.ENABLE_OPENEDGE_DEBUGGER = 1;

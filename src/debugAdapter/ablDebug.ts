@@ -349,10 +349,10 @@ class AblDebugSession extends LoggingDebugSession {
                 debugPort: args.port,
                 param: args.args ? args.args.join(' ') : '',
                 parameterFiles: oeConfig.parameterFiles,
-                startupProcedure: path.join(__dirname, '../abl-src/run-debug.p'),
+                startupProcedure: path.join(__dirname, '../resources/abl-src/run-debug.p'),
             });
 
-            // prepareProArguments(path.join(__dirname, '../abl-src/run-debug.p'), filename, true, true).then(proArgs => {
+            // prepareProArguments(path.join(__dirname, '../resources/abl-src/run-debug.p'), filename, true, true).then(proArgs => {
             const spawnOptions = { env, cwd };
             // spawnOptions.stdio = 'pipe';
             const spawnedProcess = spawn(cmd, proArgs, spawnOptions);
