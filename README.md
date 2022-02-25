@@ -1,10 +1,10 @@
-# OpenEdge ABL language support for Visual Studio Code (with Language Server support)
+# OpenEdge ABL language support for Visual Studio Code (with Language Server)
 This extension provides rich OpenEdge ABL language support for Visual Studio Code. Now you can write and run ABL procedures using the excellent IDE-like interface that Visual Studio Code provides.
 
 ## Features
 
 * Syntax highlighting
-* Syntax checking
+* Compile on save + recompile include file references & class dependencies
 * Run
 * Debugger
 * Auto-complete (tables, fields, methods)
@@ -13,51 +13,32 @@ This extension provides rich OpenEdge ABL language support for Visual Studio Cod
 
 ![debugger demo](./resources/images/debug.gif "Debugger")
 
-## Using
+## Migration steps from 1.2
 
-### Migration steps
-
-Since version XXX, the `dlc` attribute is not used anymore in `.openedge.json`. OpenEdge runtimes have to be declared in the global VSCode configuration,
-and the `OpenEdgeVersion` attribute has to reference one of those version numbers in `.openedge.json`.
+Since version 1.3.1, the new configuration file name is `openedge-project.json`. Multiple properties have changed or renamed, so check the configuration below:
 ### Prerequisites
 
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 ![Settings](resources/images/settings.png)
 
-### Config file
-You can create a local config file for your project named `.openedge.json`, with the following structure:
-```JSON
+```json
 {
-    "workingDirectory": "${workspaceFolder}\\Home",
-    "proPath": [
-        "c:\\temp",
-        "${workspaceFolder}"
-    ],
-    "dlc": "C:\\Progress\\OpenEdge", // *** Deprecated *** Use OpenEdgeVersion
-    "OpenEdgeVersion": "12.2", // Reference to version number in global config
-    "proPathMode": "append", // overwrite, prepend
-    "parameterFiles": [ // -pf
-        "default.pf"
-    ],
-    "startupProcedure" : "${workspaceFolder}/vsc-oe-startup.p",
-    "dbDictionary": [
-        "myDatabaseForAutoComplete"
-    ],
-    "format": {
-        "trim": "right" // none
-    }
+  "version": "12.2", # Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
+  "graphicalMode": true, # True for prowin[32], false for _progres
+  "extraParameters": "", # Extra Progress command line parameters
+  "buildPath": [
+    # Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Pct attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
+    { "type": "source", "path": "src/procedures" },
+    { "type": "source", "path": "src/classes" },
+    { "type": "propath", "path": "OpenEdge.net.pl" }
+  ],
+  "buildDirectory": "build", # Optional global build directory. 
+  "dbConnections": ["-db db/sp2k -RO"], # One entry per database
+  "dumpFiles": ["dump/sp2k.df"], # Required by the parser and lint rules
+  "aliases": "sp2k,foo,bar", # Required by the parser and lint rules
+  "numThreads": 1 # Number of OpenEdge sessions handling build
 }
 ```
-
-`startupProcedure`, `proPath` and `workingDirectory` are optional. Default values:
-- `startupProcedure`: ''
-- `proPath`: workspaceRoot (of VSCode)
-- `workingDirectory`: folder of active source code
-- `dbDictionary` are the logical names of database files for the auto-complete option (command: ABL Read Dictionary Structure)
-- `format` are formatter options
-
-#### Parameter "startupProcedure"
-The optional Startup Procedure for OpenEdge can be used to execute 4GL code before a check syntax/debug/run operation. Can be used to create Database aliases or instantiate Singleton Classes. The Procedure is executed everytime the IDE starts a check syntax/debug/run operation.
 
 ### Debugger
 You can use the debugger to connect to a remote running process (assuming it is debug-ready), or run locally with debugger.
