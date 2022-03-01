@@ -1,6 +1,6 @@
 import path = require('path');
 import * as vscode from 'vscode';
-import { openDataDictionary, readDataDictionary } from './ablDataDictionary';
+import { openDataDictionary } from './ablDataDictionary';
 import { run } from './ablRun';
 import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
@@ -87,10 +87,20 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         updateStatusBarItem();
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', () => {
-        openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dictionary.dumpDefinition', () => {
-        readDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+        if (vscode.window.activeTextEditor != undefined) {
+            openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+        } else {
+            const list = projects.map(str => str.rootDir).map(label => ({label}));
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.canSelectMany = false;
+            quickPick.title = "Open Data Dictionary - Select project:";
+            quickPick.items = list;
+            quickPick.onDidChangeSelection(([{label}]) => {
+                openDataDictionary(getProject(label));
+                quickPick.hide();
+            });
+            quickPick.show();
+        }
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.run.currentFile', () => {
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
@@ -164,6 +174,7 @@ function readWorkspaceOEConfigFiles() {
                 prjConfig.dbDictionary = []
                 // prjConfig.test = config.test
                 prjConfig.format = config.format
+                prjConfig.dbConnections = config.dbConnections
 
                 if (prjConfig.dlc != "") {
                     console.log("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);

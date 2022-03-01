@@ -1,51 +1,28 @@
-import * as vscode from 'vscode';
+import * as fs from 'fs';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
-import { outputChannel } from './ablStatus';
-import { create } from './OutputChannelProcess';
-import { createProArgs, setupEnvironmentVariables } from './shared/ablPath';
-
-function genericPath(): string {
-    if (vscode.window.activeTextEditor) {
-        const folder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
-        if (folder) {
-            return folder.uri.fsPath;
-        }
-    }
-    /* if (genericWorkspaceFolder) {
-        return genericWorkspaceFolder.uri.fsPath;
-    } */
-    return vscode.workspace.rootPath;
-}
+import * as crypto from 'crypto';
+import { tmpdir } from 'os';
 
 export function openDataDictionary(project: OpenEdgeProjectConfig) {
-    const cwd = genericPath();
     const env = process.env;
+    env.DLC = project.dlc;
 
-    const cmd = project.getExecutable(true)
-    // TODO : reuse the openedgeconfig file and pf files defined
-    const args = createProArgs({
-        parameterFiles: project.parameterFiles,
-        startupProcedure: '_dict.p',
-    });
-    cp.spawn(cmd, args, { env, cwd, detached: true });
+    const prmFileName = path.join(tmpdir(), 'datadict-' + crypto.randomBytes(16).toString('hex') + '.json');
+    const cfgFile = {
+        verbose: false,
+        databases: project.dbConnections.map(str => { const obj = {}; obj["connect"] = str; obj["aliases"] = []; return obj; }),
+        propath: [],
+        parameters: [],
+        returnValue: '',
+        super: false,
+        output: [],
+        procedure: '_dict.p'
+    };
+    fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
+    const prms = ["-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
+
+    cp.spawn(project.getExecutable(true), prms, { env: env, cwd: project.rootDir, detached: true });
 }
 
-export function readDataDictionary(oeConfig: OpenEdgeProjectConfig) {
-    const cmd = oeConfig.getExecutable()
-    const env = setupEnvironmentVariables(process.env, oeConfig);
-    const dbs = oeConfig.dbDictionary.join(',');
-    const args = createProArgs({
-        batchMode: true,
-        param: dbs,
-        parameterFiles: oeConfig.parameterFiles,
-        startupProcedure: path.join(__dirname, '../resources/abl-src/dict-dump.p'),
-        workspaceRoot: genericPath(),
-    });
-    const cwd = oeConfig.rootDir
-    vscode.window.showInformationMessage('Updating data dictionary...');
-    create(cmd, args, { env: env, cwd: cwd }, outputChannel).then((res) => {
-        vscode.window.showInformationMessage('Data dictionary ' + (res.success ? 'updated' : 'failed'));
-    });
-}

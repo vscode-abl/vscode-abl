@@ -51,6 +51,7 @@ export class OpenEdgeProjectConfig {
   dbDictionary?: string[];
   test?: TestConfig;
   format?: OpenEdgeFormatOptions;
+  dbConnections?: string[];
 
   getExecutable(gui?: boolean): string {
     if (gui || this.gui) {
