@@ -1,7 +1,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 import { openDataDictionary } from './ablDataDictionary';
-import { runTTY, runGUI } from './ablRun';
+import { runTTY, runGUI, openInAB } from './ablRun';
 import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { initDocumentController } from './parser/documentController';
@@ -106,6 +106,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
             });
             quickPick.show();
         }
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', () => {
         if (vscode.window.activeTextEditor == undefined)

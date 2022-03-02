@@ -71,6 +71,11 @@
         ],
         "commands": [
             {
+                "command": "abl.openInAB",
+                "title": "ABL: Open file in AppBuilder",
+                "description": "Open current file in AppBuilder"
+            },
+            {
                 "command": "abl.runProgres.currentFile",
                 "title": "ABL: Run with _progres",
                 "description": "Run current file in TTY session"
