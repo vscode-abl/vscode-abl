@@ -1,7 +1,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 import { openDataDictionary } from './ablDataDictionary';
-import { run } from './ablRun';
+import { runTTY, runGUI } from './ablRun';
 import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { initDocumentController } from './parser/documentController';
@@ -102,9 +102,17 @@ function registerCommands(ctx: vscode.ExtensionContext) {
             quickPick.show();
         }
     }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.run.currentFile', () => {
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        run(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+        runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
         const ablConfig = vscode.workspace.getConfiguration('abl');
@@ -167,7 +175,7 @@ function readWorkspaceOEConfigFiles() {
                 prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
                 prjConfig.version = config.version;
                 prjConfig.gui = config.graphicalMode;
-                prjConfig.propath = []
+                prjConfig.propath = config.buildPath.map( str => str.path )
                 prjConfig.propathMode = 'append';
                 prjConfig.startupProc = ''
                 prjConfig.parameterFiles = []

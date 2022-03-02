@@ -1,6 +1,6 @@
 import { ChildProcess, spawn, SpawnOptions } from 'child_process';
 import { Readable } from 'stream';
-import { OutputChannel, window } from 'vscode';
+import { OutputChannel } from 'vscode';
 
 export interface Success {
     success: true;

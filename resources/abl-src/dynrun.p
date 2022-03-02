@@ -104,7 +104,6 @@ IF pctVerbose THEN
 RunBlock:
 DO ON QUIT UNDO, RETRY:
   IF RETRY THEN DO:
-    MESSAGE "QUIT statement found".
     IF noErrorOnQuit THEN i = 0. ELSE i = 66.
     LEAVE RunBlock.
   END.

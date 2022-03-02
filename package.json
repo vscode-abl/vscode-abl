@@ -73,9 +73,14 @@
         ],
         "commands": [
             {
-                "command": "abl.run.currentFile",
-                "title": "ABL: Run",
-                "description": "Run the current .p file"
+                "command": "abl.runProgres.currentFile",
+                "title": "ABL: Run with _progres",
+                "description": "Run current file in TTY session"
+            },
+            {
+                "command": "abl.runProwin.currentFile",
+                "title": "ABL: Run with prowin",
+                "description": "Run current file in GUI session"
             },
             {
                 "command": "abl.test",
@@ -284,7 +289,7 @@
         "menus": {
             "commandPalette": [
                 {
-                    "command": "abl.run.currentFile",
+                    "command": "abl.runProgres.currentFile",
                     "when": "editorLangId == 'abl'"
                 },
                 {
@@ -306,7 +311,7 @@
         "keybindings": [
             {
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.run.currentFile",
+                "command": "abl.runProgres.currentFile",
                 "key": "F2"
             }
         ]

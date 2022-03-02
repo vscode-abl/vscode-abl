@@ -53,6 +53,13 @@ export class OpenEdgeProjectConfig {
   format?: OpenEdgeFormatOptions;
   dbConnections?: string[];
 
+  getTTYExecutable(): string {
+    if (fs.existsSync(path.join(this.dlc, 'bin', '_progres.exe')))
+      return path.join(this.dlc, 'bin', '_progres.exe');
+    else
+      return path.join(this.dlc, 'bin', '_progres')
+  }
+
   getExecutable(gui?: boolean): string {
     if (gui || this.gui) {
       if (fs.existsSync(path.join(this.dlc, 'bin', 'prowin.exe')))
