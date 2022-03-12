@@ -1,0 +1,9 @@
+{
+    "workbench.colorTheme": "Light High Contrast Theme",
+    "editor.fontSize": 11,
+    "editor.fontFamily": "JetBrains Mono, Consolas, 'Courier New', monospace",
+    "workbench.editor.enablePreview": false,
+    "explorer.autoReveal": false,
+    "workbench.productIconTheme": "fluent-icons",
+    "workbench.startupEditor": "none"
+}

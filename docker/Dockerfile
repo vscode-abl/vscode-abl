@@ -1,19 +1,19 @@
-FROM rssw/dlc:12.2 AS dlc
+FROM rssw/dlcora:12.2 AS dlc
 
-FROM codercom/code-server
+FROM codercom/code-server:4.1.0
 USER root
-RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
-COPY --from=dlc /opt/dlc-12.2/ /opt/dlc-12.2/
-COPY --from=dlc /opt/amazon-corretto-11.0.7.10.1-linux-x64/ /opt/amazon-corretto-11.0.7.10.1-linux-x64/
+COPY --from=dlc /opt/progress/dlc/ /opt/progress/dlc/
+COPY --from=dlc /opt/java/openjdk/ /opt/java/openjdk/
 
 USER coder
 COPY --chown=coder:coder openedge-abl-1.3.1.vsix /home/coder
 COPY --chown=coder:coder stephenwassell.light-high-contrast-theme-1.1.5.vsix /home/coder
-# COPY --chown=coder:coder *.bin /home/coder/.rssw/
 WORKDIR /home/coder
 RUN code-server --install-extension openedge-abl-1.3.1.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix
 EXPOSE 8080
-COPY --chown=coder:coder settings.json /home/coder/.local/share/code-server/User/settings.json
+COPY --chown=coder:coder user-settings.json /home/coder/.local/share/code-server/User/settings.json
+COPY --chown=coder:coder machine-settings.json /home/coder/.local/share/code-server/Machine/settings.json
 RUN mkdir /home/coder/ws
-ENV JAVA_HOME=/opt/amazon-corretto-11.0.7.10.1-linux-x64 PATH=$PATH:/opt/amazon-corretto-11.0.7.10.1-linux-x64/bin
+ENV JAVA_HOME=/opt/java/openjdk PATH=$PATH:/opt/java/openjdk/bin
 ENTRYPOINT [ "/usr/bin/entrypoint.sh", "--auth=password", "--bind-addr=0.0.0.0:8080", "/home/coder/ws" ]
+
