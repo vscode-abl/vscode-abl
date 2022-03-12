@@ -42,6 +42,7 @@ export class OpenEdgeProjectConfig {
   // Real project config, created from OpenEdgeConfig
   rootDir: string;
   version: string;
+  extraParameters: string;
   gui: boolean;
   dlc: string;
   propath: string[]

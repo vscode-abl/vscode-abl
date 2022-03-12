@@ -25,9 +25,8 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
         procedure: filename
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
-    const prms = ["-b", "-clientlog", path.join(project.rootDir, ".builder\\runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
 
-    create(project.getTTYExecutable(), prms, { env: env, cwd: project.rootDir, detached: true }, outputChannel);
+    create(project.getTTYExecutable(), project.extraParameters.split(' ').concat(["-b", "-clientlog", path.join(project.rootDir, ".builder\\runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]), { env: env, cwd: project.rootDir, detached: true }, outputChannel);
 }
 
 export function runGUI(filename: string, project: OpenEdgeProjectConfig) {

@@ -178,6 +178,7 @@ function readWorkspaceOEConfigFiles() {
                 const prjConfig = new OpenEdgeProjectConfig();
                 prjConfig.dlc = getDlcDirectory(config.version);
                 prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
+                prjConfig.extraParameters = config.extraParameters
                 prjConfig.version = config.version;
                 prjConfig.gui = config.graphicalMode;
                 prjConfig.propath = config.buildPath.map( str => str.path )
@@ -210,6 +211,7 @@ function readGlobalOpenEdgeRuntimes() {
         defaultProject.dlc = defaultRuntime.path;
         defaultProject.rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
         defaultProject.version = defaultRuntime.name;
+        defaultProject.extraParameters = '';
         defaultProject.gui = false;
         defaultProject.propath = [];
     }
