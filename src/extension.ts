@@ -32,8 +32,13 @@ export function activate(ctx: vscode.ExtensionContext): void {
     initProviders(ctx);
     registerCommands(ctx);
 
+    let execPath = 'java';
+    if ('JAVA_HOME' in process.env) {
+        // FIXME Just a temporary workaround for the Docker image
+        execPath = process.env.JAVA_HOME + (process.platform === "win32" ? "\\bin\\java" : "/bin/java");
+    }
     const serverExec: Executable = {
-        command: 'java',
+        command: execPath,
         args: [
             '--add-opens=java.base/java.lang=ALL-UNNAMED',
             '--add-opens=java.base/java.math=ALL-UNNAMED',
