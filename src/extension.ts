@@ -5,10 +5,8 @@ import { runTTY, runGUI, openInAB } from './ablRun';
 import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { initDocumentController } from './parser/documentController';
-import { ABLCompletionItemProvider, getTableCollection, watchDictDumpFiles } from './providers/ablCompletionProvider';
-import { ABLDefinitionProvider } from './providers/ablDefinitionProvider';
+import { getTableCollection, watchDictDumpFiles } from './providers/ablCompletionProvider';
 import { ABLFormattingProvider } from './providers/ablFormattingProvider';
-import { ABLHoverProvider } from './providers/ablHoverProvider';
 import { loadConfigFile, OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 
@@ -242,9 +240,6 @@ function deactivate() {
 }
 
 function initProviders(context: vscode.ExtensionContext) {
-    new ABLCompletionItemProvider(context);
-    new ABLHoverProvider(context);
-    new ABLDefinitionProvider(context);
     new ABLFormattingProvider(context);
 }
 
