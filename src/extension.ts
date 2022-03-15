@@ -31,7 +31,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
     registerCommands(ctx);
 
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    oeStatusBarItem.text = 'OE pending tasks';
+    oeStatusBarItem.text = '$(megaphone) No pending tasks';
+    oeStatusBarItem.tooltip = 'Click to refresh';
     oeStatusBarItem.command = 'abl.showProcesses';
     oeStatusBarItem.show();
     ctx.subscriptions.push(oeStatusBarItem);
@@ -81,7 +82,7 @@ function createLanguageClient(): LanguageClient {
 
 function updateStatusBarItem(): void {
     client.sendRequest("proparse/pendingTasks").then (data => {
-        oeStatusBarItem.text = `$(megaphone) ${data} processes`;
+        oeStatusBarItem.text = `$(megaphone) ${data} pending tasks`;
         oeStatusBarItem.show();
     });
 }
