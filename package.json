@@ -104,6 +104,11 @@
                 "command": "abl.dataDictionary",
                 "title": "ABL: Open DataDictionary",
                 "description": "Open the DataDictionary external tool"
+            },
+            {
+                "command": "abl.restart.langserv",
+                "title": "ABL: Restart Language Server",
+                "description": "Restart ABL Language Server"
             }
         ],
         "breakpoints": [

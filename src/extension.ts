@@ -30,6 +30,17 @@ export function activate(ctx: vscode.ExtensionContext): void {
     initProviders(ctx);
     registerCommands(ctx);
 
+    oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    oeStatusBarItem.text = 'OE pending tasks';
+    oeStatusBarItem.command = 'abl.showProcesses';
+    oeStatusBarItem.show();
+    ctx.subscriptions.push(oeStatusBarItem);
+
+    client = createLanguageClient();
+    client.start();
+}
+
+function createLanguageClient(): LanguageClient {
     let execPath = 'java';
     if ('JAVA_HOME' in process.env) {
         // FIXME Just a temporary workaround for the Docker image
@@ -50,7 +61,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
             '-jar',
             path.join(__dirname, '../resources/abl-lsp.jar')
             // 'C:\\Users\\gquer\\projets\\abl-language-server\\bootstrap\\target\\abl-lsp-bootstrap-1.0.0-SNAPSHOT.jar'
-            // '-classpath', 'C:\\Users\\gquer\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\gquer\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar', 'eu.rssw.openedge.ls.proparse.Main'
+            // '-classpath', 'C:\\Users\\gquer\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\gquer\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar',
             // '-classpath', 'C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar',
             // 'eu.rssw.openedge.ls.proparse.Main'
         ] };
@@ -65,17 +76,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
         }
     };
 
-    // Create the language client and start the client.
-    client = new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
-
-    // Start the client. This will also launch the server
-    client.start();
-
-	oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    oeStatusBarItem.text = 'Click to refresh';
-    oeStatusBarItem.command = 'abl.showProcesses';
-    oeStatusBarItem.show();
-	ctx.subscriptions.push(oeStatusBarItem);
+    return new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
 }
 
 function updateStatusBarItem(): void {
@@ -85,7 +86,16 @@ function updateStatusBarItem(): void {
     });
 }
 
+function restartLangServer(): void {
+    client.stop();
+    client = createLanguageClient();
+    client.start();
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
+        restartLangServer();
+    }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.showProcesses', () => {
         updateStatusBarItem();
     }));
