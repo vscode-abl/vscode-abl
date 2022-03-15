@@ -79,7 +79,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
 }
 
 function updateStatusBarItem(): void {
-    client.sendRequest("proparse/pendingProcesses").then (data => {
+    client.sendRequest("proparse/pendingTasks").then (data => {
         oeStatusBarItem.text = `$(megaphone) ${data} processes`;
         oeStatusBarItem.show();
     });
