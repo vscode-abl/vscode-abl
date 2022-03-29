@@ -109,6 +109,11 @@
                 "command": "abl.restart.langserv",
                 "title": "ABL: Restart Language Server",
                 "description": "Restart ABL Language Server"
+            },
+            {
+                "command": "abl.project.rebuild",
+                "title": "ABL: Rebuild Project",
+                "description": "Rebuild Project"
             }
         ],
         "breakpoints": [

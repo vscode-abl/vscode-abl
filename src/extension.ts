@@ -97,6 +97,22 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
         restartLangServer();
     }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', () => {
+        const list = projects.map(str => str.rootDir).map(label => ({label}));
+        if (list.length == 1) {
+            client.sendRequest("proparse/rebuildProject", { uri: getProject(list[0].label).rootDir });
+        } else {
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.canSelectMany = false;
+            quickPick.title = "Rebuild project:";
+            quickPick.items = list;
+            quickPick.onDidChangeSelection(([{label}]) => {
+                client.sendRequest("proparse/rebuildProject", { uri: getProject(label).rootDir });
+                quickPick.hide();
+            });
+            quickPick.show();
+        }
+    }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.showProcesses', () => {
         updateStatusBarItem();
     }));
