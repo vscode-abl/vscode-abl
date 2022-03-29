@@ -12,7 +12,7 @@ const config = {
   // the entry point of this extension -> https://webpack.js.org/configuration/entry-context/
   entry: {
     'extension': './src/extension.ts',
-    'ablDebug': './src/debugAdapter/ablDebug.ts'
+    'debugAdapter': './src/debugAdapter/ablDebug.ts'
   },
   // the bundle is stored in the 'dist' folder (check package.json) -> https://webpack.js.org/configuration/output/
   output: {
