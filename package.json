@@ -114,6 +114,11 @@
                 "command": "abl.project.rebuild",
                 "title": "ABL: Rebuild Project",
                 "description": "Rebuild Project"
+            },
+            {
+                "command": "abl.project.switch.profile",
+                "title": "ABL: Switch project to profile",
+                "description": "Switch project profile"
             }
         ],
         "breakpoints": [

@@ -31,11 +31,17 @@ export interface OpenEdgeConfig {
     aliases?: string;
     numThreads: number;
     format?: OpenEdgeFormatOptions;
+    profiles?: OEProfile[];
 }
 
 export interface BuildPathEntry {
   type: string;
   path: string;
+}
+
+export interface OEProfile {
+  name: string;
+  inherits: string;
 }
 
 export class OpenEdgeProjectConfig {
@@ -53,6 +59,7 @@ export class OpenEdgeProjectConfig {
   test?: TestConfig;
   format?: OpenEdgeFormatOptions;
   dbConnections?: string[];
+  profiles?: OEProfile[];
 
   getTTYExecutable(): string {
     if (fs.existsSync(path.join(this.dlc, 'bin', '_progres.exe')))

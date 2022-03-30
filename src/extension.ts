@@ -1,5 +1,6 @@
 import path = require('path');
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { openDataDictionary } from './ablDataDictionary';
 import { runTTY, runGUI, openInAB } from './ablRun';
 import { ablTest } from './ablTest';
@@ -93,9 +94,38 @@ function restartLangServer(): void {
     client.start();
 }
 
+function switchProfile(project: OpenEdgeProjectConfig): void {
+    const list = [{ label : "default"}].concat(project.profiles.map(p => p.name).map(label => ({label})));
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = false;
+    quickPick.title = "Switch project to profile:";
+    quickPick.items = list;
+    quickPick.onDidChangeSelection(([{label}]) => {
+        fs.writeFileSync(path.join(project.rootDir, ".vscode", "profile.json"), JSON.stringify({profile: label}));
+        quickPick.hide();
+    });
+    quickPick.show();
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
         restartLangServer();
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', () => {
+        if (projects.length == 1) {
+            switchProfile(projects[0]);
+        } else if (projects.length > 1) {
+            const list1 = projects.map(str => str.rootDir).map(label => ({label}));
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.canSelectMany = false;
+            quickPick.title = "Select project:";
+            quickPick.items = list1;
+            quickPick.onDidChangeSelection(([{label}]) => {
+                quickPick.hide();
+                switchProfile(getProject(label));
+            });
+            quickPick.show();
+        }
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', () => {
         const list = projects.map(str => str.rootDir).map(label => ({label}));
@@ -220,6 +250,7 @@ function readWorkspaceOEConfigFiles() {
                 // prjConfig.test = config.test
                 prjConfig.format = config.format
                 prjConfig.dbConnections = config.dbConnections
+                prjConfig.profiles = config.profiles;
 
                 if (prjConfig.dlc != "") {
                     console.log("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
