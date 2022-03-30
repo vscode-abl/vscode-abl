@@ -101,8 +101,11 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
     quickPick.title = "Switch project to profile:";
     quickPick.items = list;
     quickPick.onDidChangeSelection(([{label}]) => {
-        fs.writeFileSync(path.join(project.rootDir, ".vscode", "profile.json"), JSON.stringify({profile: label}));
         quickPick.hide();
+        const vsCodeDir = path.join(project.rootDir, ".vscode");
+        fs.mkdirSync(vsCodeDir, { recursive: true });
+        fs.writeFileSync(path.join(vsCodeDir, "profile.json"), JSON.stringify({profile: label}));
+        restartLangServer();
     });
     quickPick.show();
 }
