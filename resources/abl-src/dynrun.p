@@ -21,14 +21,18 @@ END FUNCTION.
 DEFINE VARIABLE jsonParser AS CLASS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE configJson AS CLASS JsonObject NO-UNDO.
 
-DEFINE VARIABLE ppEntries AS CLASS JsonArray NO-UNDO.
-DEFINE VARIABLE dbEntries AS CLASS JsonArray NO-UNDO.
-DEFINE VARIABLE dbEntry   AS CLASS JsonObject NO-UNDO.
-DEFINE VARIABLE prmEntries AS CLASS JsonArray NO-UNDO.
-DEFINE VARIABLE prmEntry   AS CLASS JsonObject NO-UNDO.
+DEFINE VARIABLE ppEntries   AS CLASS JsonArray NO-UNDO.
+DEFINE VARIABLE dbEntries   AS CLASS JsonArray NO-UNDO.
+DEFINE VARIABLE prmEntries  AS CLASS JsonArray NO-UNDO.
+DEFINE VARIABLE procEntries AS CLASS JsonArray NO-UNDO.
+DEFINE VARIABLE procEntry   AS CLASS JsonObject NO-UNDO.
+DEFINE VARIABLE dbEntry     AS CLASS JsonObject NO-UNDO.
+DEFINE VARIABLE prmEntry    AS CLASS JsonObject NO-UNDO.
 DEFINE VARIABLE outprmEntries AS CLASS JsonArray NO-UNDO.
 DEFINE VARIABLE zz AS INTEGER     NO-UNDO.
 DEFINE VARIABLE xx AS INTEGER     NO-UNDO.
+DEFINE VARIABLE yy AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE ww AS HANDLE      NO-UNDO.
 DEFINE VARIABLE out1 AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE out2 AS CHARACTER   NO-UNDO.
 
@@ -96,6 +100,24 @@ ASSIGN outprmEntries = configJson:GetJsonArray("output").
 
 IF configJson:getLogical("super") THEN DO:
   SESSION:ADD-SUPER-PROCEDURE(THIS-PROCEDURE).
+END.
+
+// Startup procedures
+ASSIGN procEntries = configJson:GetJsonArray("procedures").
+DO zz = 1 to procEntries:Length:
+  ASSIGN procEntry = procEntries:GetJsonObject(zz).
+  DO ON ERROR UNDO, LEAVE:
+    ASSIGN yy = procEntry:getCharacter("mode").
+    IF (yy EQ "once") THEN
+      RUN VALUE(procEntry:getCharacter("name")).
+    ELSE IF (yy EQ "persistent") THEN DO:
+      RUN VALUE(procEntry:getCharacter("name")) PERSISTENT.
+    END.
+    ELSE DO:
+      RUN VALUE(procEntry:getCharacter("name")) PERSISTENT SET ww.
+      SESSION:ADD-SUPER-PROCEDURE(ww).
+    END.
+  END.
 END.
 
 // Execute procedure

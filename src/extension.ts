@@ -8,7 +8,7 @@ import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurat
 import { initDocumentController } from './parser/documentController';
 import { getTableCollection, watchDictDumpFiles } from './providers/ablCompletionProvider';
 import { ABLFormattingProvider } from './providers/ablFormattingProvider';
-import { loadConfigFile, OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
+import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 
 let errorDiagnosticCollection: vscode.DiagnosticCollection;
@@ -40,6 +40,11 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     client = createLanguageClient();
     client.start();
+}
+
+export function getProject(p: string): OpenEdgeProjectConfig {
+    const retVal = projects.find(config => p.startsWith(config.rootDir));
+    return (retVal != null) ? retVal : defaultProject;
 }
 
 function createLanguageClient(): LanguageClient {
@@ -95,7 +100,7 @@ function restartLangServer(): void {
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = [{ label : "default"}].concat(project.profiles.map(p => p.name).map(label => ({label})));
+    const list = Array.from(project.profiles.keys()).map(label => ({label}));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
@@ -169,7 +174,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         if (vscode.window.activeTextEditor == undefined)
             return;
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+        const cfg2 = cfg.profiles.get(cfg.activeProfile);
+        openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', () => {
         if (vscode.window.activeTextEditor == undefined)
@@ -238,23 +244,7 @@ function readWorkspaceOEConfigFiles() {
         list.forEach ( uri => {
             console.log("OpenEdge project config file found: " + uri.fsPath);
             loadConfigFile(uri.fsPath).then(config => {
-                // FIXME Way too verbose, there's probably a much better way to do that
-                const prjConfig = new OpenEdgeProjectConfig();
-                prjConfig.dlc = getDlcDirectory(config.version);
-                prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
-                prjConfig.extraParameters = config.extraParameters
-                prjConfig.version = config.version;
-                prjConfig.gui = config.graphicalMode;
-                prjConfig.propath = config.buildPath.map( str => str.path )
-                prjConfig.propathMode = 'append';
-                prjConfig.startupProc = ''
-                prjConfig.parameterFiles = []
-                prjConfig.dbDictionary = []
-                // prjConfig.test = config.test
-                prjConfig.format = config.format
-                prjConfig.dbConnections = config.dbConnections
-                prjConfig.profiles = config.profiles;
-
+                const prjConfig = parseOpenEdgeProjectConfig(uri, config);
                 if (prjConfig.dlc != "") {
                     console.log("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
                     projects.push(prjConfig);
@@ -262,6 +252,64 @@ function readWorkspaceOEConfigFiles() {
             });
         });
     });
+}
+
+function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig): OpenEdgeProjectConfig {
+    const prjConfig = new OpenEdgeProjectConfig();
+    prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
+    prjConfig.dlc = getDlcDirectory(config.oeversion);
+    prjConfig.extraParameters = config.extraParameters
+    prjConfig.oeversion = config.oeversion;
+    prjConfig.gui = config.graphicalMode;
+    prjConfig.propath = config.buildPath.map( str => str.path )
+    prjConfig.propathMode = 'append';
+    prjConfig.startupProc = ''
+    prjConfig.parameterFiles = []
+    prjConfig.dbDictionary = []
+    prjConfig.dbConnections = config.dbConnections
+    prjConfig.procedures = config.procedures
+
+    prjConfig.profiles.set("default", prjConfig);
+    if (config.profiles) {
+        config.profiles.forEach(profile => {
+            const p = parseOpenEdgeConfig(profile.value);
+            if (profile.inherits && prjConfig.profiles.get(profile.inherits)) {
+                p.overwriteValues(prjConfig.profiles.get(profile.inherits));
+            }
+            prjConfig.profiles.set(profile.name, p);
+        });
+    }
+
+    // Active profile
+    if (fs.existsSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"))) {
+        const txt = JSON.parse(fs.readFileSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"), { encoding: 'utf8' }));
+        const actProf = txt['profile'];
+        if (prjConfig.profiles.has(actProf)) {
+            prjConfig.activeProfile = actProf;
+        } else {
+            prjConfig.activeProfile = "default";
+        }
+    } else {
+        prjConfig.activeProfile = "default";
+    }
+    return prjConfig;
+}
+
+function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
+    const retVal = new ProfileConfig();
+    retVal.dlc = getDlcDirectory(cfg.oeversion);
+    retVal.extraParameters = cfg.extraParameters
+    retVal.oeversion = cfg.oeversion;
+    retVal.gui = cfg.graphicalMode;
+    retVal.propath = cfg.buildPath.map( str => str.path )
+    retVal.propathMode = 'append';
+    retVal.startupProc = ''
+    retVal.parameterFiles = []
+    retVal.dbDictionary = []
+    retVal.dbConnections = cfg.dbConnections
+    retVal.procedures = cfg.procedures;
+
+    return retVal;
 }
 
 function readGlobalOpenEdgeRuntimes() {
@@ -275,7 +323,7 @@ function readGlobalOpenEdgeRuntimes() {
         defaultProject = new OpenEdgeProjectConfig();
         defaultProject.dlc = defaultRuntime.path;
         defaultProject.rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        defaultProject.version = defaultRuntime.name;
+        defaultProject.oeversion = defaultRuntime.name;
         defaultProject.extraParameters = '';
         defaultProject.gui = false;
         defaultProject.propath = [];
@@ -289,11 +337,6 @@ function getDlcDirectory(version: string): string {
         dlc = runtime.path
     });
   return dlc;
-}
-
-export function getProject(path: string): OpenEdgeProjectConfig {
-    const retVal = projects.find(config => path.startsWith(config.rootDir));
-    return (retVal != null) ? retVal : defaultProject;
 }
 
 function deactivate() {

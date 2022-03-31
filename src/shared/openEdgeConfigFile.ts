@@ -1,5 +1,4 @@
-import { readFileSync } from 'fs';
-import * as jsonminify from 'jsonminify'; // Remove comments from JSON file
+import * as jsonminify from 'jsonminify';
 import * as path from 'path';
 import * as fs from 'fs';
 import { OpenEdgeFormatOptions } from '../misc/OpenEdgeFormatOptions';
@@ -20,8 +19,8 @@ export interface Command {
 }
 
 export interface OpenEdgeConfig {
-    // JSON mapping of openedge-project.json
-    version?: string;
+    oeversion?: string;
+    numThreads: number;
     graphicalMode?: boolean;
     extraParameters?: string;
     buildPath?: BuildPathEntry[];
@@ -29,37 +28,61 @@ export interface OpenEdgeConfig {
     dumpFiles?: string[];
     dbConnections?: string[];
     aliases?: string;
-    numThreads: number;
-    format?: OpenEdgeFormatOptions;
-    profiles?: OEProfile[];
+    procedures: Procedure[];
 }
 
+export interface OpenEdgeMainConfig extends OpenEdgeConfig {
+    // JSON mapping of openedge-project.json
+    name: string;
+    version: string;
+    profiles?: OEProfile[];
+}
 export interface BuildPathEntry {
   type: string;
   path: string;
 }
 
+export interface Procedure {
+  name: string;
+  mode: string;
+}
 export interface OEProfile {
   name: string;
   inherits: string;
+  value: OpenEdgeConfig;
 }
 
-export class OpenEdgeProjectConfig {
-  // Real project config, created from OpenEdgeConfig
-  rootDir: string;
-  version: string;
+export class ProfileConfig {
+  oeversion: string;
   extraParameters: string;
-  gui: boolean;
+  gui: Boolean;
   dlc: string;
   propath: string[]
-  propathMode: 'append' | 'overwrite' | 'prepend';
-  startupProc: string
-  parameterFiles: string[]
-  dbDictionary?: string[];
-  test?: TestConfig;
-  format?: OpenEdgeFormatOptions;
+  propathMode: 'append' | 'overwrite' | 'prepend'; // Deprecated
+  startupProc: string // Deprecated
+  parameterFiles: string[] // Deprecated
+  dbDictionary?: string[]; // Deprecated
+  test?: TestConfig; // Deprecated
+  format?: OpenEdgeFormatOptions; // Deprecated
   dbConnections?: string[];
-  profiles?: OEProfile[];
+  procedures: Procedure[];
+
+  public overwriteValues(parent: ProfileConfig) {
+    if (!this.oeversion) {
+      this.oeversion = parent.oeversion;
+      this.dlc = parent.dlc;
+    }
+    if (!this.extraParameters)
+      this.extraParameters = parent.extraParameters;
+    if (!this.gui)
+      this.gui = parent.gui;
+    if (!this.propath)
+      this.propath = parent.propath;
+    if (!this.dbConnections)
+      this.dbConnections = parent.dbConnections;
+    if (!this.procedures)
+      this.procedures = parent.procedures;
+  }
 
   getTTYExecutable(): string {
     if (fs.existsSync(path.join(this.dlc, 'bin', '_progres.exe')))
@@ -81,15 +104,22 @@ export class OpenEdgeProjectConfig {
         return path.join(this.dlc, 'bin', '_progres')
     }
   }
+
 }
 
-export async function loadConfigFile(filename: string): Promise<OpenEdgeConfig> {
+export class OpenEdgeProjectConfig extends ProfileConfig {
+  activeProfile: string;
+  rootDir: string;
+  profiles: Map<string, ProfileConfig> = new Map<string, ProfileConfig>();
+
+}
+
+export async function loadConfigFile(filename: string): Promise<OpenEdgeMainConfig> {
     if (!filename) {
         return Promise.reject();
     }
     try {
-        const text = readFileSync(filename, { encoding: 'utf8' });
-        return JSON.parse(jsonminify(text));
+        return JSON.parse(jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })));
     } catch (caught) {
         return Promise.reject();
     }

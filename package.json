@@ -331,6 +331,11 @@
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
                 "command": "abl.runProgres.currentFile",
                 "key": "F2"
+            },
+            {
+                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+                "command": "abl.openInAB",
+                "key": "shift+f8"
             }
         ]
     },
