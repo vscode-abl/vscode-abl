@@ -6,10 +6,10 @@ COPY --from=dlc /opt/progress/dlc/ /opt/progress/dlc/
 COPY --from=dlc /opt/java/openjdk/ /opt/java/openjdk/
 
 USER coder
-COPY --chown=coder:coder openedge-abl-1.3.1.vsix /home/coder
+COPY --chown=coder:coder openedge-abl-1.3.2.vsix /home/coder
 COPY --chown=coder:coder stephenwassell.light-high-contrast-theme-1.1.5.vsix /home/coder
 WORKDIR /home/coder
-RUN code-server --install-extension openedge-abl-1.3.1.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix
+RUN code-server --install-extension openedge-abl-1.3.2.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix
 EXPOSE 8080
 COPY --chown=coder:coder user-settings.json /home/coder/.local/share/code-server/User/settings.json
 COPY --chown=coder:coder machine-settings.json /home/coder/.local/share/code-server/Machine/settings.json
