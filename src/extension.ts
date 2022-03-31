@@ -32,11 +32,12 @@ export function activate(ctx: vscode.ExtensionContext): void {
     registerCommands(ctx);
 
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    oeStatusBarItem.text = '$(megaphone) No pending tasks';
-    oeStatusBarItem.tooltip = 'Click to refresh';
-    oeStatusBarItem.command = 'abl.showProcesses';
+    oeStatusBarItem.text = 'No pending tasks';
     oeStatusBarItem.show();
     ctx.subscriptions.push(oeStatusBarItem);
+
+    // Refresh status bar every second
+    setInterval(() => { updateStatusBarItem() }, 1000);
 
     client = createLanguageClient();
     client.start();
@@ -88,7 +89,10 @@ function createLanguageClient(): LanguageClient {
 
 function updateStatusBarItem(): void {
     client.sendRequest("proparse/pendingTasks").then (data => {
-        oeStatusBarItem.text = `$(megaphone) ${data} pending tasks`;
+        if (data == 0) 
+            oeStatusBarItem.text = `No pending tasks`;
+        else
+            oeStatusBarItem.text = `$(sync~spin) ${data} pending tasks`;
         oeStatusBarItem.show();
     });
 }
@@ -150,9 +154,6 @@ function registerCommands(ctx: vscode.ExtensionContext) {
             });
             quickPick.show();
         }
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.showProcesses', () => {
-        updateStatusBarItem();
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', () => {
         if (vscode.window.activeTextEditor != undefined) {
@@ -301,7 +302,8 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
     retVal.extraParameters = cfg.extraParameters
     retVal.oeversion = cfg.oeversion;
     retVal.gui = cfg.graphicalMode;
-    retVal.propath = cfg.buildPath.map( str => str.path )
+    if (cfg.buildPath)
+        retVal.propath = cfg.buildPath.map( str => str.path )
     retVal.propathMode = 'append';
     retVal.startupProc = ''
     retVal.parameterFiles = []
