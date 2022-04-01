@@ -4,7 +4,7 @@
   "definitions": {},
   "id": "openedge.json",
   "properties": {
-    "version": {
+    "oeversion": {
       "id": "/properties/oeversion",
       "description": "OpenEdge version for this project",
       "enum": [
@@ -62,7 +62,7 @@
     },
     "aliases": {
       "id": "/properties/aliases",
-      "description": "Semi-colon separated list of aliases",
+      "description": "Semi-colon separated list of aliases. Eeach entry is a comma-separated list, where first entry is the DB name followed by all aliases",
       "type": "string"
     },
     "numThreads": {
