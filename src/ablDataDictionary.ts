@@ -12,7 +12,8 @@ export function openDataDictionary(project: OpenEdgeProjectConfig) {
     const prmFileName = path.join(tmpdir(), 'datadict-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections.map(str => { const obj = {}; obj["connect"] = str; obj["aliases"] = []; return obj; }),
+        databases: project.dbConnections,
+        aliases: project.aliases,
         propath: [],
         parameters: [],
         returnValue: '',
@@ -21,7 +22,7 @@ export function openDataDictionary(project: OpenEdgeProjectConfig) {
         procedure: '_dict.p'
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
-    const prms = ["-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
+    const prms = ["-clientlog", path.join(project.rootDir, ".builder\\dictionary.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
 
     cp.spawn(project.getExecutable(true), prms, { env: env, cwd: project.rootDir, detached: true });
 }
