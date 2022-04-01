@@ -65,6 +65,7 @@ export class ProfileConfig {
   test?: TestConfig; // Deprecated
   format?: OpenEdgeFormatOptions; // Deprecated
   dbConnections?: string[];
+  aliases?: string;
   procedures: Procedure[];
 
   public overwriteValues(parent: ProfileConfig) {
@@ -80,6 +81,8 @@ export class ProfileConfig {
       this.propath = parent.propath;
     if (!this.dbConnections)
       this.dbConnections = parent.dbConnections;
+    if (!this.aliases)
+      this.aliases = parent.aliases;
     if (!this.procedures)
       this.procedures = parent.procedures;
   }

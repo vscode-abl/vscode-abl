@@ -16,7 +16,8 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     const prmFileName = path.join(tmpdir(), 'runtty-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections.map(str => { const obj = {}; obj["connect"] = str; obj["aliases"] = []; return obj; }),
+        databases: project.dbConnections,
+        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',
@@ -36,7 +37,8 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     const prmFileName = path.join(tmpdir(), 'rungui-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections.map(str => { const obj = {}; obj["connect"] = str; obj["aliases"] = []; return obj; }),
+        databases: project.dbConnections,
+        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',
@@ -57,7 +59,8 @@ export function openInAB(filename: string, rootDir: string, project: ProfileConf
     const prmFileName = path.join(tmpdir(), 'openInAB-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections.map(str => { const obj = {}; obj["connect"] = str; obj["aliases"] = []; return obj; }),
+        databases: project.dbConnections,
+        aliases: project.aliases,
         propath: project.propath,
         parameters: [ {name: 'window', value: filename}],
         returnValue: '',

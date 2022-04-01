@@ -26,10 +26,11 @@ DEFINE VARIABLE dbEntries   AS CLASS JsonArray NO-UNDO.
 DEFINE VARIABLE prmEntries  AS CLASS JsonArray NO-UNDO.
 DEFINE VARIABLE procEntries AS CLASS JsonArray NO-UNDO.
 DEFINE VARIABLE procEntry   AS CLASS JsonObject NO-UNDO.
-DEFINE VARIABLE dbEntry     AS CLASS JsonObject NO-UNDO.
+DEFINE VARIABLE dbEntry     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE prmEntry    AS CLASS JsonObject NO-UNDO.
 DEFINE VARIABLE outprmEntries AS CLASS JsonArray NO-UNDO.
 DEFINE VARIABLE zz AS INTEGER     NO-UNDO.
+DEFINE VARIABLE zz2 AS INTEGER     NO-UNDO.
 DEFINE VARIABLE xx AS INTEGER     NO-UNDO.
 DEFINE VARIABLE yy AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE ww AS HANDLE      NO-UNDO.
@@ -40,49 +41,36 @@ ASSIGN jsonParser = NEW ObjectModelParser().
 ASSIGN configJson = CAST(jsonParser:ParseFile(SESSION:PARAMETER), JsonObject).
 OS-DELETE VALUE(SESSION:PARAMETER).
 
-ASSIGN pctVerbose = configJson:getLogical("verbose").
-
 // DB connections + aliases
 ASSIGN dbEntries = configJson:GetJsonArray("databases").
 DO zz = 1 TO dbEntries:Length:
-  ASSIGN dbEntry = dbEntries:GetJsonObject(zz).
-  IF pctVerbose THEN
-    MESSAGE "Connecting to '" + dbEntry:getCharacter("connect") + "'".
-  CONNECT VALUE(dbEntry:getCharacter("connect")) NO-ERROR.
+  ASSIGN dbEntry = dbEntries:GetCharacter(zz).
+  LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Connecting to '&1'", dbEntry)).
+  CONNECT VALUE(dbEntry) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN DO:
     IF (ERROR-STATUS:NUM-MESSAGES > 1) OR (ERROR-STATUS:GET-NUMBER(1) NE 1552) THEN DO:
-      MESSAGE "Unable to connect to '" + dbEntry:getCharacter("connect") + "'".
+      LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Unable to connect to '&1'" , dbEntry )).
       DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-        MESSAGE ERROR-STATUS:GET-MESSAGE(i).
+        LOG-MANAGER:WRITE-MESSAGE( ERROR-STATUS:GET-MESSAGE(i)).
       END.
-      RUN returnValue(14).
       QUIT.
     END.
   END.
-  DO xx = 1 TO dbEntry:getJsonArray("aliases"):Length:
-    IF pctVerbose THEN
-      MESSAGE SUBSTITUTE("Creating alias &1 for database #&2 &3", dbEntry:getJsonArray("aliases"):getCharacter(xx),
-                         zz, LDBNAME(zz)).
-    CREATE ALIAS VALUE(dbEntry:getJsonArray("aliases"):getCharacter(xx)) FOR DATABASE VALUE(LDBNAME(zz)) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN DO:
-      MESSAGE SUBSTITUTE("Unable to create alias '&1' for database '&2'",
-                         dbEntry:getJsonArray("aliases"):getCharacter(xx), LDBNAME(zz)).
-      DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-        MESSAGE ERROR-STATUS:GET-MESSAGE(i).
-      END.
-      RUN returnValue(15).
-      QUIT.
-    END.
+END.
+ASSIGN dbEntry = configJson:GetCharacter("aliases").
+DO zz = 1 TO NUM-ENTRIES(dbEntry, ';'):
+  DO zz2 = 2 TO NUM-ENTRIES(ENTRY(zz, dbEntry, ';')):
+    LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Create alias '&1' for '&2'",  ENTRY(zz2, ENTRY(zz, dbEntry, ';')),     ENTRY(1, ENTRY(zz, dbEntry, ';')))).
+    CREATE ALIAS VALUE(ENTRY(zz2, ENTRY(zz, dbEntry, ';'))) FOR DATABASE            VALUE(ENTRY(1, ENTRY(zz, dbEntry, ';'))).
   END.
 END.
 
 // PROPATH entries
 ASSIGN ppEntries = configJson:GetJsonArray("propath").
 DO zz = 1 TO ppEntries:Length:
-    ASSIGN PROPATH = ppEntries:getCharacter(zz) + "," + PROPATH.
+  ASSIGN PROPATH = ppEntries:getCharacter(ppEntries:Length + 1 - zz) + "," + PROPATH.
 END.
-IF pctVerbose THEN
-  MESSAGE "PROPATH : " + PROPATH.
+LOG-MANAGER:WRITE-MESSAGE("PROPATH: " + PROPATH).
 
 // Input parameters
 ASSIGN prmEntries = configJson:GetJsonArray("parameters").
@@ -103,26 +91,27 @@ IF configJson:getLogical("super") THEN DO:
 END.
 
 // Startup procedures
-ASSIGN procEntries = configJson:GetJsonArray("procedures").
-DO zz = 1 to procEntries:Length:
-  ASSIGN procEntry = procEntries:GetJsonObject(zz).
-  DO ON ERROR UNDO, LEAVE:
-    ASSIGN yy = procEntry:getCharacter("mode").
-    IF (yy EQ "once") THEN
-      RUN VALUE(procEntry:getCharacter("name")).
-    ELSE IF (yy EQ "persistent") THEN DO:
-      RUN VALUE(procEntry:getCharacter("name")) PERSISTENT.
-    END.
-    ELSE DO:
-      RUN VALUE(procEntry:getCharacter("name")) PERSISTENT SET ww.
-      SESSION:ADD-SUPER-PROCEDURE(ww).
+IF (configJson:has("procedures")) THEN DO:
+  ASSIGN procEntries = configJson:GetJsonArray("procedures").
+  DO zz = 1 to procEntries:Length:
+    ASSIGN procEntry = procEntries:GetJsonObject(zz).
+    DO ON ERROR UNDO, LEAVE:
+      ASSIGN yy = procEntry:getCharacter("mode").
+      IF (yy EQ "once") THEN
+        RUN VALUE(procEntry:getCharacter("name")).
+      ELSE IF (yy EQ "persistent") THEN DO:
+        RUN VALUE(procEntry:getCharacter("name")) PERSISTENT.
+      END.
+      ELSE DO:
+        RUN VALUE(procEntry:getCharacter("name")) PERSISTENT SET ww.
+        SESSION:ADD-SUPER-PROCEDURE(ww).
+      END.
     END.
   END.
 END.
 
 // Execute procedure
-IF pctVerbose THEN
-  MESSAGE "RUN " + configJson:getCharacter("procedure").
+LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("RUN &1", configJson:getCharacter("procedure"))).
 RunBlock:
 DO ON QUIT UNDO, RETRY:
   IF RETRY THEN DO:
@@ -155,8 +144,7 @@ PROCEDURE returnValue PRIVATE.
   DEFINE INPUT PARAMETER retVal AS INTEGER NO-UNDO.
 
   IF configJson:getCharacter("returnValue") EQ '' THEN RETURN.
-  IF pctVerbose THEN
-    MESSAGE SUBSTITUTE("Return value : &1", retVal).
+  LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Return value : &1", retVal)).
   OUTPUT TO VALUE(configJson:getCharacter("returnValue")) CONVERT TARGET "utf-8".
   PUT UNFORMATTED retVal SKIP.
   OUTPUT CLOSE.
@@ -167,8 +155,7 @@ PROCEDURE writeOutputParam PRIVATE.
   DEFINE INPUT PARAMETER prm AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER outFile AS CHARACTER NO-UNDO.
 
-  IF pctVerbose THEN
-    MESSAGE SUBSTITUTE("OUTPUT PARAMETER : &1", prm).
+  LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("OUTPUT PARAMETER : &1", prm)).
   OUTPUT TO VALUE(outFile) CONVERT TARGET "utf-8".
   PUT UNFORMATTED prm SKIP.
   OUTPUT CLOSE.
