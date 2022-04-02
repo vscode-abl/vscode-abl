@@ -97,12 +97,16 @@ IF (configJson:has("procedures")) THEN DO:
     ASSIGN procEntry = procEntries:GetJsonObject(zz).
     DO ON ERROR UNDO, LEAVE:
       ASSIGN yy = procEntry:getCharacter("mode").
-      IF (yy EQ "once") THEN
+      IF (yy EQ "once") THEN DO:
+        LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("RunOnce '&1'", procEntry:getCharacter("name"))).
         RUN VALUE(procEntry:getCharacter("name")).
+      END.
       ELSE IF (yy EQ "persistent") THEN DO:
+        LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("RunPersistent '&1'", procEntry:getCharacter("name"))).
         RUN VALUE(procEntry:getCharacter("name")) PERSISTENT.
       END.
       ELSE DO:
+        LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("RunSuper '&1'", procEntry:getCharacter("name"))).
         RUN VALUE(procEntry:getCharacter("name")) PERSISTENT SET ww.
         SESSION:ADD-SUPER-PROCEDURE(ww).
       END.
