@@ -262,7 +262,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    prjConfig.propath = config.buildPath.map( str => str.path )
+    prjConfig.propath = config.buildPath.map( str => str.path.replace('${DLC}', prjConfig.dlc) )
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
     prjConfig.parameterFiles = []
@@ -304,7 +304,7 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
     retVal.oeversion = cfg.oeversion;
     retVal.gui = cfg.graphicalMode;
     if (cfg.buildPath)
-        retVal.propath = cfg.buildPath.map( str => str.path )
+        retVal.propath = cfg.buildPath.map( str => str.path.replace('${DLC}', retVal.dlc) )
     retVal.propathMode = 'append';
     retVal.startupProc = ''
     retVal.parameterFiles = []
