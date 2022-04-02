@@ -4,7 +4,14 @@
   "definitions": {},
   "id": "openedge.json",
   "type": "object",
-  "required": ["name", "version", "oeversion", "charset", "graphicalMode", "buildPath"],
+  "required": [
+    "name",
+    "version",
+    "oeversion",
+    "charset",
+    "graphicalMode",
+    "buildPath"
+  ],
   "properties": {
     "name": {
       "id": "/properties/name",
@@ -58,7 +65,10 @@
       "description": "Source and PROPATH entries",
       "items": {
         "type": "object",
-        "required": ["type", "path"],
+        "required": [
+          "type",
+          "path"
+        ],
         "properties": {
           "type": {
             "description": "Entry type",
@@ -79,10 +89,44 @@
           "xref": {
             "description": "Optional XREF directory (relative to root directory). Defaults to .builder/pct",
             "type": "string"
+          },
+          "includes": {
+            "description": "Only for source entries. Ant-style include patterns (comma-separated list). Defaults to **/*.p,**/*.w,**/*.cls",
+            "type": "string"
+          },
+          "excludes": {
+            "description": "Only for source entries. Ant-style exclude patterns (comma-separated list).",
+            "type": "string"
           }
         }
       },
       "type": "array"
+    },
+    "procedures": {
+      "id": "/properties/procedures",
+      "description": "List of startup procedures, executed after DB connections and propath, but before main entry point",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "mode"
+        ],
+        "properties": {
+          "name": {
+            "description": "Procedure name",
+            "type": "string"
+          },
+          "mode": {
+            "description": "RUN mode",
+            "enum": [
+              "once",
+              "persistent",
+              "super"
+            ],
+            "type": "string"
+          }
+        }
+      }
     },
     "dumpFiles": {
       "id": "/properties/dumpFiles",
@@ -117,7 +161,10 @@
       "description": "Extra profiles",
       "items": {
         "type": "object",
-        "required": ["name", "value"],
+        "required": [
+          "name",
+          "value"
+        ],
         "properties": {
           "name": {
             "description": "Profile name",
@@ -168,7 +215,10 @@
                 "description": "Source and PROPATH entries",
                 "items": {
                   "type": "object",
-                  "required": ["type", "path"],
+                  "required": [
+                    "type",
+                    "path"
+                  ],
                   "properties": {
                     "type": {
                       "description": "Entry type",
