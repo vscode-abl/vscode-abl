@@ -13,6 +13,11 @@ This extension is based on the existing Christophe Camicas work, but going throu
 * ABLUnit Support (currently not active)
 * Code completion (work in progress)
 
+## Requirements
+This extension requires:
+* At least one OpenEdge installation, with a developer license. The extension is currently tested with 11.7, 12.2 and later. It may or may not work with older versions.
+* Java Virtual Machine version 11: the language server is written in Java. It is started directly with `java` or with `$JAVA_HOME/bin/java` if the `JAVA_HOME` environment variable is set.
+
 ## Global Configuration
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 ![Settings](resources/images/settings.png)
