@@ -4,7 +4,7 @@
   "definitions": {},
   "id": "openedge.json",
   "type": "object",
-  "required": ["name", "version", "oeversion", "graphicalMode", "buildPath"],
+  "required": ["name", "version", "oeversion", "charset", "graphicalMode", "buildPath"],
   "properties": {
     "name": {
       "id": "/properties/name",
@@ -30,6 +30,11 @@
         "12.5",
         "ESAP"
       ],
+      "type": "string"
+    },
+    "charset": {
+      "id": "/properties/charset",
+      "description": "Charset used by the language server to read source code. Not used by VSCode session.",
       "type": "string"
     },
     "graphicalMode": {
