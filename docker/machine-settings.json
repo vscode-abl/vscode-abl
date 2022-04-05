@@ -2,5 +2,6 @@
   "abl.checkProgressBinary": false,
   "abl.configuration.runtimes": [
       { "name": "12.2", "path": "/opt/progress/dlc"}
-  ]
+  ],
+  "abl.langServerJavaExecutable": "/opt/java/openjdk/bin/java"
 }

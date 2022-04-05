@@ -49,30 +49,25 @@ export function getProject(p: string): OpenEdgeProjectConfig {
 }
 
 function createLanguageClient(): LanguageClient {
-    let execPath = 'java';
-    if ('JAVA_HOME' in process.env) {
-        // FIXME Just a temporary workaround for the Docker image
-        execPath = process.env.JAVA_HOME + (process.platform === "win32" ? "\\bin\\java" : "/bin/java");
-    }
+    let defaultExecOptions = [
+        '--add-opens=java.base/java.lang=ALL-UNNAMED',
+        '--add-opens=java.base/java.math=ALL-UNNAMED',
+        '--add-opens=java.base/java.util=ALL-UNNAMED',
+        '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+        '--add-opens=java.base/java.net=ALL-UNNAMED',
+        '--add-opens=java.base/java.text=ALL-UNNAMED',
+        '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
+        '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
+    ];
+
+    const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
+    const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
+    const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
+
     const serverExec: Executable = {
-        command: execPath,
-        args: [
-            '--add-opens=java.base/java.lang=ALL-UNNAMED',
-            '--add-opens=java.base/java.math=ALL-UNNAMED',
-            '--add-opens=java.base/java.util=ALL-UNNAMED',
-            '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
-            '--add-opens=java.base/java.net=ALL-UNNAMED',
-            '--add-opens=java.base/java.text=ALL-UNNAMED',
-            '--add-opens=java.sql/java.sql=ALL-UNNAMED',
-            '--add-opens=java.base/sun.nio.fs=ALL-UNNAMED',
-            '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
-            '-jar',
-            path.join(__dirname, '../resources/abl-lsp.jar')
-            // 'C:\\Users\\gquer\\projets\\abl-language-server\\bootstrap\\target\\abl-lsp-bootstrap-1.0.0-SNAPSHOT.jar'
-            // '-classpath', 'C:\\Users\\gquer\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\gquer\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar',
-            // '-classpath', 'C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\langserv\\target\\classes;C:\\Users\\GillesQuerret\\Projets\\abl-language-server\\shade\\target\\abl-lsp-shaded-1.0.0-SNAPSHOT-shaded.jar',
-            // 'eu.rssw.openedge.ls.proparse.Main'
-        ] };
+        command: langServExecutable,
+        args: langServOptions
+    };
     const serverOptions: ServerOptions = serverExec;
 
     // Options to control the language client

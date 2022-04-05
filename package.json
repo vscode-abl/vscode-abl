@@ -261,6 +261,18 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.langServerJavaExecutable": {
+                    "type": "string",
+                    "default": "java",
+                    "description": "Language Server Java executable"
+                },
+                "abl.langServerJavaArgs": {
+                    "type": "array",
+                    "description": "Language Server Java arguments",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "abl.configuration.runtimes": {
                     "type": "array",
                     "description": "Map OpenEdge Execution Environments to local installation",
