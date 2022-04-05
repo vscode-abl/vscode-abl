@@ -83,8 +83,8 @@ function createLanguageClient(): LanguageClient {
 }
 
 function updateStatusBarItem(): void {
-    client.sendRequest("proparse/pendingTasks").then (data => {
-        if (data == 0) 
+    client.sendRequest("proparse/pendingTasks").then(data => {
+        if (data == 0)
             oeStatusBarItem.text = `No pending tasks`;
         else
             oeStatusBarItem.text = `$(sync~spin) ${data} pending tasks`;
@@ -99,16 +99,16 @@ function restartLangServer(): void {
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = Array.from(project.profiles.keys()).map(label => ({label}));
+    const list = Array.from(project.profiles.keys()).map(label => ({ label }));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
     quickPick.items = list;
-    quickPick.onDidChangeSelection(([{label}]) => {
+    quickPick.onDidChangeSelection(([{ label }]) => {
         quickPick.hide();
         const vsCodeDir = path.join(project.rootDir, ".vscode");
         fs.mkdirSync(vsCodeDir, { recursive: true });
-        fs.writeFileSync(path.join(vsCodeDir, "profile.json"), JSON.stringify({profile: label}));
+        fs.writeFileSync(path.join(vsCodeDir, "profile.json"), JSON.stringify({ profile: label }));
         restartLangServer();
     });
     quickPick.show();
@@ -122,12 +122,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         if (projects.length == 1) {
             switchProfile(projects[0]);
         } else if (projects.length > 1) {
-            const list1 = projects.map(str => str.rootDir).map(label => ({label}));
+            const list1 = projects.map(str => str.rootDir).map(label => ({ label }));
             const quickPick = vscode.window.createQuickPick();
             quickPick.canSelectMany = false;
             quickPick.title = "Select project:";
             quickPick.items = list1;
-            quickPick.onDidChangeSelection(([{label}]) => {
+            quickPick.onDidChangeSelection(([{ label }]) => {
                 quickPick.hide();
                 switchProfile(getProject(label));
             });
@@ -135,7 +135,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', () => {
-        const list = projects.map(str => str.rootDir).map(label => ({label}));
+        const list = projects.map(str => str.rootDir).map(label => ({ label }));
         if (list.length == 1) {
             client.sendRequest("proparse/rebuildProject", { uri: getProject(list[0].label).rootDir });
         } else {
@@ -143,7 +143,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
             quickPick.canSelectMany = false;
             quickPick.title = "Rebuild project:";
             quickPick.items = list;
-            quickPick.onDidChangeSelection(([{label}]) => {
+            quickPick.onDidChangeSelection(([{ label }]) => {
                 client.sendRequest("proparse/rebuildProject", { uri: getProject(label).rootDir });
                 quickPick.hide();
             });
@@ -154,12 +154,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         if (vscode.window.activeTextEditor != undefined) {
             openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
         } else {
-            const list = projects.map(str => str.rootDir).map(label => ({label}));
+            const list = projects.map(str => str.rootDir).map(label => ({ label }));
             const quickPick = vscode.window.createQuickPick();
             quickPick.canSelectMany = false;
             quickPick.title = "Open Data Dictionary - Select project:";
             quickPick.items = list;
-            quickPick.onDidChangeSelection(([{label}]) => {
+            quickPick.onDidChangeSelection(([{ label }]) => {
                 openDataDictionary(getProject(label));
                 quickPick.hide();
             });
@@ -226,7 +226,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     readGlobalOpenEdgeRuntimes();
     // FIXME Check if it's possible to reload only when a specific section is changed
-    vscode.workspace.onDidChangeConfiguration(event =>  { readGlobalOpenEdgeRuntimes() });
+    vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
 
     readWorkspaceOEConfigFiles();
     const watcher = vscode.workspace.createFileSystemWatcher('**/.openedge.json');
@@ -236,8 +236,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 }
 
 function readWorkspaceOEConfigFiles() {
-    vscode.workspace.findFiles('**/openedge-project.json').then( list => {
-        list.forEach ( uri => {
+    vscode.workspace.findFiles('**/openedge-project.json').then(list => {
+        list.forEach(uri => {
             console.log("OpenEdge project config file found: " + uri.fsPath);
             loadConfigFile(uri.fsPath).then(config => {
                 const prjConfig = parseOpenEdgeProjectConfig(uri, config);
@@ -257,7 +257,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    prjConfig.propath = config.buildPath.map( str => str.path.replace('${DLC}', prjConfig.dlc) )
+    prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
     prjConfig.parameterFiles = []
@@ -299,7 +299,7 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
     retVal.oeversion = cfg.oeversion;
     retVal.gui = cfg.graphicalMode;
     if (cfg.buildPath)
-        retVal.propath = cfg.buildPath.map( str => str.path.replace('${DLC}', retVal.dlc) )
+        retVal.propath = cfg.buildPath.map(str => str.path.replace('${DLC}', retVal.dlc))
     retVal.propathMode = 'append';
     retVal.startupProc = ''
     retVal.parameterFiles = []
@@ -329,12 +329,12 @@ function readGlobalOpenEdgeRuntimes() {
 }
 
 function getDlcDirectory(version: string): string {
-  let dlc: string = "";
-  oeRuntimes.forEach( runtime => {
-      if (runtime.name === version)
-        dlc = runtime.path
+    let dlc: string = "";
+    oeRuntimes.forEach(runtime => {
+        if (runtime.name === version)
+            dlc = runtime.path
     });
-  return dlc;
+    return dlc;
 }
 
 function deactivate() {
