@@ -49,7 +49,7 @@ export function getProject(p: string): OpenEdgeProjectConfig {
 }
 
 function createLanguageClient(): LanguageClient {
-    let defaultExecOptions = [
+    const defaultExecOptions = [
         '--add-opens=java.base/java.lang=ALL-UNNAMED',
         '--add-opens=java.base/java.math=ALL-UNNAMED',
         '--add-opens=java.base/java.util=ALL-UNNAMED',
