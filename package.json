@@ -261,6 +261,11 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.cablLicense": {
+                    "type": "string",
+                    "default": "",
+                    "description": "CABL Rules License"
+                },
                 "abl.langServerJavaExecutable": {
                     "type": "string",
                     "default": "java",

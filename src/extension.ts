@@ -64,6 +64,7 @@ function createLanguageClient(): LanguageClient {
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
 
+    console.log("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
     const serverExec: Executable = {
         command: langServExecutable,
         args: langServOptions
@@ -72,6 +73,7 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
+        initializationOptions: { cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', '')},
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
             configurationSection: 'abl',
