@@ -28,27 +28,17 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "C:\\Users\\gquer\\projets\\sonaroe-test-project"
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\sonaroe-test-project"
             ],
             "sourceMaps": true,
         },
         {
-            "name": "Run Extension - GPAO",
+            "name": "Run Extension - PCT",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "C:\\Users\\gquer\\projets\\customers\\hachette\\App-GPAO"
-            ],
-            "sourceMaps": true,
-        },
-        {
-            "name": "Run Extension - Consultingwerk",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "C:\\Work_STREAM\\SmartComponentLibrary\\Develop125\\Develop125.code-workspace"
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\pct"
             ],
             "sourceMaps": true,
         }
