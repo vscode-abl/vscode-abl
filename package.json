@@ -6,6 +6,11 @@
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
     "license": "MIT",
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": false
+        }
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/vscode-abl/vscode-abl.git"
