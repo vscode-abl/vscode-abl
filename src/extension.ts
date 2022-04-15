@@ -2,7 +2,7 @@ import path = require('path');
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { openDataDictionary } from './ablDataDictionary';
-import { runTTY, runGUI, openInAB } from './ablRun';
+import { runTTY, runBatch, runGUI, openInAB } from './ablRun';
 import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { initDocumentController } from './parser/documentController';
@@ -180,6 +180,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
             return;
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', () => {
         if (vscode.window.activeTextEditor == undefined)

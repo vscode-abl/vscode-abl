@@ -61,7 +61,8 @@ The following actions are defined in this extension (use Ctrl + Shift + P to exe
 * Open File in AppBuilder: start the AppBuilder (with DB connections and propath) and open current file
 * Open Data Dictionary
 * Run with Prowin: execute current file in prowin[32] session
-* Run with _progres: execute current file in _progres session (with `-b`)
+* Run with _progres in batch mode: execute current file in _progres session (with `-b`)
+* Run with _progres: execute current file (with _progres) in Terminal view 
 * Switch to profile: switch current project to another profile
 
 The following keyboard shortcuts are configured by default:

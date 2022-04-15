@@ -86,6 +86,11 @@
                 "description": "Run current file in TTY session"
             },
             {
+                "command": "abl.runBatch.currentFile",
+                "title": "ABL: Run with _progres -b",
+                "description": "Run current file in batch session"
+            },
+            {
                 "command": "abl.runProwin.currentFile",
                 "title": "ABL: Run with prowin",
                 "description": "Run current file in GUI session"
@@ -351,7 +356,7 @@
         "keybindings": [
             {
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.runProgres.currentFile",
+                "command": "abl.runBatch.currentFile",
                 "key": "F2"
             },
             {
