@@ -139,21 +139,20 @@
         "debuggers": [
             {
                 "type": "abl",
-                "label": "ABL",
-                "program": "./dist/ablDebug.js",
-                "runtime": "node",
                 "languages": [
                     "abl"
                 ],
+                "label": "ABL",
                 "configurationSnippets": [
                     {
-                        "label": "ABL: Attach",
-                        "description": "Attach to a debug-ready process",
+                        "label": "ABL: Attach to AVM",
+                        "description": "Attach to AVM",
                         "body": {
                             "name": "${2:Attach to process}",
                             "type": "abl",
                             "request": "attach",
-                            "address": "TCP/IP address of process to be debugged",
+                            "hostname": "Host name or IP address of process to be debugged",
+                            "mode": "legacy",
                             "port": 3099,
                             "localRoot": "^\"\\${workspaceFolder}\"",
                             "remoteRoot": "path to remote files",
@@ -163,14 +162,43 @@
                         }
                     },
                     {
-                        "label": "ABL: Launch Program",
-                        "description": "Debug the current file",
+                        "label": "ABL: Attach to PASOE",
+                        "description": "Attach to PASOE session",
                         "body": {
-                            "name": "${2:Launch program}",
+                            "name": "${2:Attach to process}",
+                            "type": "abl",
+                            "request": "attach",
+                            "url": "Base URL of PASOE instance",
+                            "mode": "pasoe",
+                            "localRoot": "^\"\\${workspaceFolder}\"",
+                            "remoteRoot": "path to remote files",
+                            "sourceMap": {
+                                "Z:\\\\path\\\\to\\\\remote\\\\files\\\\**": "c:\\\\path\\\\to\\\\local\\\\src\\\\**"
+                            }
+                        }
+                    },
+                    {
+                        "label": "ABL: Debug program / Interactive GUI",
+                        "description": "Debug the current file in interactive GUI mode",
+                        "body": {
+                            "name": "${2:Debug program / Interactive GUI}",
                             "type": "abl",
                             "request": "launch",
                             "program": "^\"${1:\\${file}}\"",
-                            "cwd": "^\"\\${workspaceFolder}\""
+                            "cwd": "^\"\\${workspaceFolder}\"",
+                            "graphicalMode": true
+                        }
+                    },
+                    {
+                        "label": "ABL: Debug program / Interactive TTY",
+                        "description": "Debug the current file in interactive TTY mode",
+                        "body": {
+                            "name": "${2:Debug program / Interactive TTY}",
+                            "type": "abl",
+                            "request": "launch",
+                            "program": "^\"${1:\\${file}}\"",
+                            "cwd": "^\"\\${workspaceFolder}\"",
+                            "graphicalMode": false
                         }
                     }
                 ],
@@ -182,13 +210,8 @@
                         "properties": {
                             "stopOnEntry": {
                                 "type": "boolean",
-                                "description": "Automatically stop the program at the first line executed.",
+                                "description": "Automatically stop the program at the first line executed",
                                 "default": false
-                            },
-                            "port": {
-                                "type": "number",
-                                "description": "The port that the debugger will be listening on.",
-                                "default": 3099
                             },
                             "program": {
                                 "type": "string",
@@ -206,23 +229,31 @@
                                 "default": {
                                     "Z:\\path\\to\\remote\\files\\**": "c:\\path\\to\\local\\src\\**"
                                 }
+                            },
+                            "graphicalMode": {
+                                "type": "boolean",
+                                "description": "Start session with _progres or prowin",
+                                "default": "false"
                             }
                         }
                     },
                     "attach": {
                         "required": [
-                            "address",
-                            "port"
+                            "mode"
                         ],
                         "properties": {
-                            "port": {
-                                "type": "number",
-                                "description": "The port that the debugger will be listening on.",
-                                "default": 3099
-                            },
-                            "address": {
+                            "mode": {
                                 "type": "string",
-                                "description": "The remote address the debugger will connect to.",
+                                "description": "Attach to AVM or PASOE"
+                            },
+                            "port": {
+                                "type": "string",
+                                "description": "The port that the debugger is listening on",
+                                "default": "3099"
+                            },
+                            "hostname": {
+                                "type": "string",
+                                "description": "The hostname the debugger is listening on",
                                 "default": "127.0.0.1"
                             },
                             "localRoot": {
@@ -271,6 +302,16 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.debugAdapterDebug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable debug adapter debug logging (in $TMP/vscode-debug-adapter.txt)"
+                },
+                "abl.debugAdapterTrace": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable debug adapter trace logging (in $TMP/vscode-debug-adapter-trace.txt)"
+                },
                 "abl.cablLicense": {
                     "type": "string",
                     "default": "",
@@ -284,6 +325,13 @@
                 "abl.langServerJavaArgs": {
                     "type": "array",
                     "description": "Language Server Java arguments",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "abl.debugAdapterJavaArgs": {
+                    "type": "array",
+                    "description": "Debug Adapter Java arguments",
                     "items": {
                         "type": "string"
                     }

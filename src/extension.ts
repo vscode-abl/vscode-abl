@@ -11,6 +11,7 @@ import { getTableCollection, watchDictDumpFiles } from './providers/ablCompletio
 import { ABLFormattingProvider } from './providers/ablFormattingProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
+import { tmpdir } from 'os';
 
 let errorDiagnosticCollection: vscode.DiagnosticCollection;
 let warningDiagnosticCollection: vscode.DiagnosticCollection;
@@ -19,12 +20,38 @@ let client: LanguageClient;
 let oeRuntimes: Array<any>;
 let defaultRuntime;
 let langServDebug: boolean;
+let debugAdapterDebug: boolean;
+let debugAdapterTrace: boolean;
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 let defaultProject: OpenEdgeProjectConfig;
 let oeStatusBarItem: vscode.StatusBarItem;
 
+export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
+    public constructor(
+        private startScriptPath: string,
+        private env?: any
+    ) { }
+
+    async createDebugAdapterDescriptor(_session: vscode.DebugSession, _executable: vscode.DebugAdapterExecutable | undefined): Promise<vscode.DebugAdapterDescriptor> {
+        const logFile = path.join(tmpdir(), 'vscode-debug-adapter.txt');
+        const defaultExecOptions = [
+            '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (debugAdapterDebug ? 'DEBUG' : 'INFO'),
+            '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
+            '-jar', path.join(__dirname, '../resources/abl-dap.jar')
+        ];
+        const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
+        const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
+        const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
+        console.log("ABL Debug Adapter - Command line: " + langServExecutable + " " + (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions));
+        return new vscode.DebugAdapterExecutable(langServExecutable, (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions), { env: this.env });
+    }
+}
+
 export function activate(ctx: vscode.ExtensionContext): void {
-    ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider()));
+    ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
+
+    const env: any = { ...process.env };
+    vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", env));
 
     startDictWatcher();
     startDocumentWatcher(ctx);
@@ -74,7 +101,7 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-        initializationOptions: { cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', '')},
+        initializationOptions: { cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', '') },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
             configurationSection: 'abl',
@@ -321,6 +348,8 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
 
 function readGlobalOpenEdgeRuntimes() {
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
+    debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
+    debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');

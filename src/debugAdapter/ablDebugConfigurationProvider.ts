@@ -1,36 +1,18 @@
-// tslint:disable: object-literal-sort-keys
-import { execSync } from 'child_process';
-import * as fs from 'fs';
-import { dirname, isAbsolute, join } from 'path';
+import { OpenEdgeProjectConfig } from '../shared/openEdgeConfigFile';
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 export class AblDebugConfigurationProvider implements vscode.DebugConfigurationProvider {
+    // Reference to the list of projects
+    projects: Array<OpenEdgeProjectConfig>;
 
-    /**
-     * Returns an initial debug configuration based on contextual information, e.g. package.json or folder.
-     * @param folder
-     * @param token
-     */
-    public provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration[]> {
-
-        return [
-            {
-                name: 'Launch',
-                type: 'abl',
-                request: 'launch',
-                program: '${file}',
-            }, {
-                name: 'Attach',
-                type: 'abl',
-                request: 'attach',
-                port: 3099,
-                address: '127.0.0.1',
-                localRoot: '${workspaceFolder}',
-            },
-        ];
+    public constructor(prjs: Array<OpenEdgeProjectConfig>) {
+        this.projects = prjs;
     }
 
-    public resolveDebugConfiguration?(folder: vscode.WorkspaceFolder | undefined, debugConfiguration: vscode.DebugConfiguration, token?: vscode.CancellationToken): vscode.DebugConfiguration {
+    public resolveDebugConfiguration?(folder: vscode.WorkspaceFolder | undefined, debugConfiguration: vscode.DebugConfiguration, _token?: vscode.CancellationToken): vscode.DebugConfiguration {
+        const cfg = this.getProject(folder.uri.fsPath);
+
         if (!debugConfiguration || !debugConfiguration.request) { // if 'request' is missing interpret this as a missing launch.json
             const activeEditor = vscode.window.activeTextEditor;
             if (!activeEditor || activeEditor.document.languageId !== 'abl') {
@@ -41,9 +23,19 @@ export class AblDebugConfigurationProvider implements vscode.DebugConfigurationP
                 name: 'Launch',
                 type: 'abl',
                 request: 'launch',
-                program: '${file}',
+                program: '${file}'
             };
         }
+        if (cfg) {
+            debugConfiguration['ablsrc'] = path.join(__dirname, '../resources/abl-src');
+            debugConfiguration['dlc'] = cfg.dlc;
+            debugConfiguration['oeversion'] = cfg.oeversion;
+        }
+
         return debugConfiguration;
+    }
+
+    public getProject(uri: string): OpenEdgeProjectConfig {
+        return this.projects.find(config => uri.startsWith(config.rootDir));
     }
 }
