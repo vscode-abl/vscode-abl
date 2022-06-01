@@ -73,13 +73,15 @@ END.
 LOG-MANAGER:WRITE-MESSAGE("PROPATH: " + PROPATH).
 
 // Input parameters
-ASSIGN prmEntries = configJson:GetJsonArray("parameters").
-DO zz = 1 TO prmEntries:Length:
-  ASSIGN prmEntry = prmEntries:GetJsonObject(zz).
-  DO ON ERROR UNDO, LEAVE:
-    CREATE ttParams.
-    ASSIGN ttParams.key = prmEntry:getCharacter("name")
-           ttParams.val = prmEntry:getCharacter("value").
+IF (configJson:has("parameters")) THEN DO:
+  ASSIGN prmEntries = configJson:GetJsonArray("parameters").
+  DO zz = 1 TO prmEntries:Length:
+    ASSIGN prmEntry = prmEntries:GetJsonObject(zz).
+    DO ON ERROR UNDO, LEAVE:
+      CREATE ttParams.
+      ASSIGN ttParams.key = prmEntry:getCharacter("name")
+             ttParams.val = prmEntry:getCharacter("value").
+    END.
   END.
 END.
 
