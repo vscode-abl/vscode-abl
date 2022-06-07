@@ -6,6 +6,7 @@ out
 .vscode-test
 resources/abl.tmLanguage.json
 resources/abl-lsp.jar
+resources/abl-dap.jar
 run_env/sample-oe-projects/project1/builder.lock
 run_env/sample-oe-projects/project1/build
 run_env/sample-oe-projects/project1/.builder

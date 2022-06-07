@@ -12,6 +12,7 @@ import { ABLFormattingProvider } from './providers/ablFormattingProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 import { tmpdir } from 'os';
+import { outputChannel } from './ablStatus';
 
 let errorDiagnosticCollection: vscode.DiagnosticCollection;
 let warningDiagnosticCollection: vscode.DiagnosticCollection;
@@ -42,7 +43,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
         const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
-        console.log("ABL Debug Adapter - Command line: " + langServExecutable + " " + (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions));
+        outputChannel.appendLine("ABL Debug Adapter - Command line: " + langServExecutable + " " + (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions));
         return new vscode.DebugAdapterExecutable(langServExecutable, (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions), { env: this.env });
     }
 }
@@ -92,7 +93,7 @@ function createLanguageClient(): LanguageClient {
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
 
-    console.log("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
+    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
     const serverExec: Executable = {
         command: langServExecutable,
         args: langServOptions
@@ -274,11 +275,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 function readWorkspaceOEConfigFiles() {
     vscode.workspace.findFiles('**/openedge-project.json').then(list => {
         list.forEach(uri => {
-            console.log("OpenEdge project config file found: " + uri.fsPath);
+            outputChannel.appendLine("OpenEdge project config file found: " + uri.fsPath);
             loadConfigFile(uri.fsPath).then(config => {
                 const prjConfig = parseOpenEdgeProjectConfig(uri, config);
                 if (prjConfig.dlc != "") {
-                    console.log("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
+                    outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
                     projects.push(prjConfig);
                 }
             });
