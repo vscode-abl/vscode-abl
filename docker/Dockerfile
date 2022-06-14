@@ -1,9 +1,10 @@
-FROM rssw/dlcora:12.2 AS dlc
+FROM docker.rssw.eu/progress/dlc:12.2.9 AS dlc
 
-FROM codercom/code-server:4.1.0
+FROM codercom/code-server:4.4.0
 USER root
 COPY --from=dlc /opt/progress/dlc/ /opt/progress/dlc/
 COPY --from=dlc /opt/java/openjdk/ /opt/java/openjdk/
+RUN /opt/progress/dlc/bin/proDebugEnable -enable-all
 
 USER coder
 COPY --chown=coder:coder openedge-abl-1.3.5.vsix /home/coder
@@ -14,6 +15,6 @@ EXPOSE 8080
 COPY --chown=coder:coder user-settings.json /home/coder/.local/share/code-server/User/settings.json
 COPY --chown=coder:coder machine-settings.json /home/coder/.local/share/code-server/Machine/settings.json
 RUN mkdir /home/coder/ws
-ENV JAVA_HOME=/opt/java/openjdk PATH=$PATH:/opt/java/openjdk/bin
-ENTRYPOINT [ "/usr/bin/entrypoint.sh", "--auth=password", "--bind-addr=0.0.0.0:8080", "/home/coder/ws" ]
+ENV JAVA_HOME=/opt/java/openjdk DLC=/opt/progress/dlc
+ENTRYPOINT [ "/usr/bin/entrypoint.sh", "--auth=none", "--bind-addr=0.0.0.0:8080", "/home/coder/ws" ]
 
