@@ -10,11 +10,11 @@ USER coder
 COPY --chown=coder:coder openedge-abl-1.3.5.vsix /home/coder
 COPY --chown=coder:coder stephenwassell.light-high-contrast-theme-1.1.5.vsix /home/coder
 WORKDIR /home/coder
-RUN code-server --install-extension openedge-abl-1.3.5.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix
+RUN code-server --install-extension openedge-abl-1.3.5.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix && mkdir /home/coder/.rssw
 EXPOSE 8080
+COPY --chown=coder:coder oedoc.bin /home/coder/.rssw/oedoc.bin
 COPY --chown=coder:coder user-settings.json /home/coder/.local/share/code-server/User/settings.json
 COPY --chown=coder:coder machine-settings.json /home/coder/.local/share/code-server/Machine/settings.json
 RUN mkdir /home/coder/ws
 ENV JAVA_HOME=/opt/java/openjdk DLC=/opt/progress/dlc
 ENTRYPOINT [ "/usr/bin/entrypoint.sh", "--auth=none", "--bind-addr=0.0.0.0:8080", "/home/coder/ws" ]
-
