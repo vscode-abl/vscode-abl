@@ -37,7 +37,7 @@ pipeline {
       steps {
         script {
           docker.withServer('unix:///var/run/docker.sock') {
-            sh 'cp *.vsix docker && docker build --no-cache -t docker.rssw.eu/vscode/abl:latest -f docker/Dockerfile docker'
+            sh 'cp *.vsix docker && docker build --no-cache -t docker.rssw.eu/vscode/abl:latest -f docker/Dockerfile docker && docker push docker.rssw.eu/vscode/abl:latest'
           }
         }
       }
