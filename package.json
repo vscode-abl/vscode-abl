@@ -282,6 +282,11 @@
             "type": "object",
             "title": "ABL configuration",
             "properties": {
+                "abl.completion.upperCase": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use uppercase or lowercase keywords in code completion"
+                },
                 "abl.useProcedureEditorKeyBindings": {
                     "type": "boolean",
                     "default": true,

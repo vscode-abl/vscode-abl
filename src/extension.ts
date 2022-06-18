@@ -102,7 +102,10 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-        initializationOptions: { cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', '') },
+        initializationOptions: {
+            cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', ''),
+            upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false)
+        },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
             configurationSection: 'abl',
