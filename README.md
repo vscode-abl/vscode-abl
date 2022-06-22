@@ -87,42 +87,38 @@ When opening a project, VSCode will check for `.vscode/profile.json`. If this fi
 
 ## Debugger
 
-** Debugger is currently inactive **
+You can use the debugger to debug a procedure belonging to the project, and to debug a remote ABL session (assuming it is debug-ready). It is currently not possible to attach to a PASOE instance, but this is planned for a future release (probably end of 2022).
 
-You can use the debugger to connect to a remote running process (assuming it is debug-ready), or run locally with debugger.
+The debugger supports those features:
+- step over, step into, step out, continue, suspend
+- breakpoints
+- display stack
+- display variables (including arrays and objects), temp-tables, buffers, parameters and datasets
+- watch / evaluate basic expressions (currently disabled)
+- jumping in and out of include files
 
-You first need to create the launch configuration in your `launch.json` file, 2 templates are available, one for launch and the other for attach).
+You first need to create the launch configuration in your `.vscode/launch.json` file ; use `Ctrl + Shift + D` to open the "Run and Debug" view, then click on "Add Configuration" and select one of the ABL options.
 
 ```JSON
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach to process",
-            "type": "abl",
-            "request": "attach",
-            "address": "192.168.1.100",
-            "port": 3099
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug current program / Interactive GUI",
+      "type": "abl",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "graphicalMode": true
+    }
+  ]
 }
 ```
 
-To attach to a remote process, it needs to be [debug-ready](https://documentation.progress.com/output/ua/OpenEdge_latest/index.html#page/asaps/attaching-the-debugger-to-an-appserver-session.html).
-The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
+To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-classic-appserver-development-117/page/Attaching-the-Debugger-to-an-AppServer-session.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
+When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
 
-The debugger supports basic features
-- step-over, step-into, step-out, continue, suspend
-- breakpoints
-- display stack
-- display variables
-- watch/evaluate basic expressions
-
-You can map remote path to local path (1 to 1) using `localRoot` and `remoteRoot`. This is useful when debugging a remote target, even more if it only executes r-code.
-`localRoot` is usually your `${workspaceRoot}` (current directory opened in VSCode). `remoteRoot` may remains empty (or missing), in this particular case, the remote path is relative, and resolved via the `PROPATH` by the remote.
-
-
-You can also map different remote path to local path via source mapping `sourceMap`. This is useful if you don't have all the source code in a unique project (ex dependencies).
+![Debugger Demo](resources/images/debugger.webp)
 
 ## Unit tests
 
