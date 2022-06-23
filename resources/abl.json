@@ -1,7 +1,8 @@
 {
     "Http Request": {
-        "prefix": "httprequest",
+        "prefix": "_http-request",
         "description": "ABL HttpRequest",
+
         "body": [
             "using OpenEdge.Net.HTTP.RequestBuilder.",
             "using OpenEdge.Net.HTTP.IHttpRequest.",
@@ -22,7 +23,7 @@
         ]
     },
     "JsonObject from IHttpResponse:Entity": {
-        "prefix": "entity-jsonobject",
+        "prefix": "_entity-jsonobject",
         "description": "Create a JsonObject from IHttpResponse:Entity",
         "body":[
             "def var ${1:oJson} as JsonObject no-undo.",
@@ -31,7 +32,7 @@
         ]
     },
     "JsonArray from IHttpResponse:Entity": {
-        "prefix": "entity-jsonarray",
+        "prefix": "_entity-jsonarray",
         "description": "Create a JsonArray from IHttpResponse:Entity",
         "body":[
             "def var ${1:oJson} as JsonArray no-undo.",
@@ -40,7 +41,7 @@
         ]
     },
     "DEF VAR NO-UNDO": {
-        "prefix": "var",
+        "prefix": "_var",
         "description": "Define a variable no-undo",
         "body":[
             "def var ${1:varName} as ${2:char} no-undo.",
@@ -48,7 +49,7 @@
         ]
     },
     "DEF TEMP-TABLE NO-UNDO": {
-        "prefix": "tt",
+        "prefix": "_tt",
         "description": "Define a temp-table no-undo",
         "body": [
             "def temp-table ${1:ttName} no-undo",
@@ -57,7 +58,7 @@
         ]
     },
     "PROCEDURE": {
-        "prefix": "pro",
+        "prefix": "_pro",
         "description": "Define a procedure",
         "body": [
             "procedure ${1:procName}:",
@@ -66,7 +67,7 @@
         ]
     },
     "FUNCTION": {
-        "prefix": "func",
+        "prefix": "_func",
         "description": "Define a function",
         "body": [
             "function ${1:functionName} returns ${2:char} (input ${3:parameterName} as ${4:char}):",
