@@ -24,27 +24,27 @@ OpenEdge runtimes have to be declared in VSCode configuration file. Open setting
 
 ## Project Configuration
 OpenEdge projects can be configured in a file called `openedge-project.json`. This file has to be in the root directory of the project.
-```json
+```jsonc
 {
-  "name": "MyProject", # Project name, will be used in the future for dependency management
-  "version": "1.0",    # Project version number, will be used in the future for dependency management
-  "oeversion": "12.2", # Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
-  "graphicalMode": true, # True for prowin[32], false for _progres
-  "charset": "utf-8", # Charset 
-  "extraParameters": "", # Extra Progress command line parameters
+  "name": "MyProject", // Project name, will be used in the future for dependency management
+  "version": "1.0",    // Project version number, will be used in the future for dependency management
+  "oeversion": "12.2", // Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
+  "graphicalMode": true, // True for prowin[32], false for _progres
+  "charset": "utf-8",  // Charset 
+  "extraParameters": "", // Extra Progress command line parameters
   "buildPath": [
-    # Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
+    // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
     { "type": "source", "path": "src/procedures" },
     { "type": "source", "path": "src/classes" },
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" }
     { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl" }
   ],
-  "buildDirectory": "build", # Optional global build directory. 
-  "dbConnections": ["-db db/sp2k -RO"], # One entry per database
-  "dumpFiles": ["dump/sp2k.df"], # Required by the parser and lint rules
-  "aliases": "sp2k,foo,bar", # Required by the parser and lint rules
-  "numThreads": 1, # Number of OpenEdge sessions handling build
-  "procedures": [ # List of procedures, started before the main entry point (and after DB connection and propath configuration)
+  "buildDirectory": "build", // Optional global build directory. 
+  "dbConnections": ["-db db/sp2k -RO"], // One entry per database
+  "dumpFiles": ["dump/sp2k.df"], // Required by the parser and lint rules
+  "aliases": "sp2k,foo,bar", // Required by the parser and lint rules
+  "numThreads": 1, // Number of OpenEdge sessions handling build
+  "procedures": [ // List of procedures, started before the main entry point (and after DB connection and propath configuration)
     { "name": "foo/bar.p", "mode": "once" /* Mode can be once, persistent or super */ }
   ],
   "profiles": [ /* See section below */ ]
@@ -71,7 +71,7 @@ The following keyboard shortcuts are configured by default:
 
 ## Extra Profiles
 On top of the default profile configured in `openedge-project.json`, additional profiles can be configured in the `profiles` section. Each profile is defined by a name, parent's name (optional) and a set of values. For example:
-```json
+```jsonc
 {
   /* Default profile values */
   "version": "12.2", "graphicalMode": false, "dbConnections": "-db db/sp2kv12 -RO",
