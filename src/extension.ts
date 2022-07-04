@@ -153,6 +153,20 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
         restartLangServer();
     }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        
+        client.sendRequest("proparse/fixCasing", { upper: true, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        
+        client.sendRequest("proparse/fixCasing", { upper: false, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+    }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', () => {
         if (projects.length == 1) {
             switchProfile(projects[0]);

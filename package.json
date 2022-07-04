@@ -129,6 +129,16 @@
                 "command": "abl.project.switch.profile",
                 "title": "ABL: Switch project to profile",
                 "description": "Switch project profile"
+            },
+            {
+                "command": "abl.fixUpperCasing",
+                "title": "ABL: Convert to uppercase",
+                "description": "Convert keywords to uppercase"
+            },
+            {
+                "command": "abl.fixLowerCasing",
+                "title": "ABL: Convert to lowercase",
+                "description": "Convert keywords to lowercase"
             }
         ],
         "breakpoints": [
