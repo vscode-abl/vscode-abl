@@ -8,8 +8,8 @@ This extension is based on the existing Christophe Camicas work, but going throu
 * Syntax highlight
 * OpenEdge project configuration (propath, database connections, aliases, ...)
 * Multi-thread background compiler
-* Run profiles (currently not active)
-* Debugger (currently not active)
+* Profiles
+* Debugger ()
 * ABLUnit Support (currently not active)
 * Code completion (work in progress)
 
@@ -69,6 +69,7 @@ The following actions are defined in this extension (use Ctrl + Shift + P to exe
 * Run with _progres in batch mode: execute current file in _progres session (with `-b`)
 * Run with _progres: execute current file (with _progres) in Terminal view 
 * Switch to profile: switch current project to another profile
+* Fix casing of source code: convert all keywords to uppercase or lowercase
 
 The following keyboard shortcuts are configured by default:
 * F2: Run current file (in batch mode with _progres)
