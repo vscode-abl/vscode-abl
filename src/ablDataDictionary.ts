@@ -13,7 +13,6 @@ export function openDataDictionary(project: OpenEdgeProjectConfig) {
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: [],
         parameters: [],
         returnValue: '',

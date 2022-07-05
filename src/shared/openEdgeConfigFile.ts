@@ -4,39 +4,46 @@ import * as fs from 'fs';
 import { OpenEdgeFormatOptions } from '../misc/OpenEdgeFormatOptions';
 
 export interface TestConfig {
-    files?: string[];
-    beforeAll?: Command;
-    afterAll?: Command;
-    beforeEach?: Command;
-    afterEach?: Command;
+  files?: string[];
+  beforeAll?: Command;
+  afterAll?: Command;
+  beforeEach?: Command;
+  afterEach?: Command;
 }
 
 export interface Command {
-    cmd: string;
-    args?: string[];
-    env?: string[];
-    cwd?: string;
+  cmd: string;
+  args?: string[];
+  env?: string[];
+  cwd?: string;
 }
 
 export interface OpenEdgeConfig {
-    oeversion?: string;
-    numThreads: number;
-    graphicalMode?: boolean;
-    extraParameters?: string;
-    buildPath?: BuildPathEntry[];
-    buildDirectory?: string;
-    dumpFiles?: string[];
-    dbConnections?: string[];
-    aliases?: string;
-    procedures: Procedure[];
+  // Content of a profile section in openedge-project.json
+  oeversion?: string;
+  numThreads: number;
+  graphicalMode?: boolean;
+  extraParameters?: string;
+  buildPath?: BuildPathEntry[];
+  buildDirectory?: string;
+  dbConnections: DatabaseConnection[];
+  procedures: Procedure[];
+}
+
+export interface DatabaseConnection {
+  name: string;
+  dumpFile: string;
+  connect: string;
+  aliases: string[];
 }
 
 export interface OpenEdgeMainConfig extends OpenEdgeConfig {
-    // JSON mapping of openedge-project.json
-    name: string;
-    version: string;
-    profiles?: OEProfile[];
+  // JSON mapping of openedge-project.json
+  name: string;
+  version: string;
+  profiles?: OEProfile[];
 }
+
 export interface BuildPathEntry {
   type: string;
   path: string;
@@ -64,8 +71,7 @@ export class ProfileConfig {
   dbDictionary?: string[]; // Deprecated
   test?: TestConfig; // Deprecated
   format?: OpenEdgeFormatOptions; // Deprecated
-  dbConnections?: string[];
-  aliases?: string;
+  dbConnections?: DatabaseConnection[];
   procedures: Procedure[];
 
   public overwriteValues(parent: ProfileConfig) {
@@ -81,8 +87,6 @@ export class ProfileConfig {
       this.propath = parent.propath;
     if (!this.dbConnections)
       this.dbConnections = parent.dbConnections;
-    if (!this.aliases)
-      this.aliases = parent.aliases;
     if (!this.procedures)
       this.procedures = parent.procedures;
   }
@@ -118,12 +122,12 @@ export class OpenEdgeProjectConfig extends ProfileConfig {
 }
 
 export async function loadConfigFile(filename: string): Promise<OpenEdgeMainConfig> {
-    if (!filename) {
-        return Promise.reject();
-    }
-    try {
-        return JSON.parse(jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })));
-    } catch (caught) {
-        return Promise.reject();
-    }
+  if (!filename) {
+    return Promise.reject();
+  }
+  try {
+    return JSON.parse(jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })));
+  } catch (caught) {
+    return Promise.reject();
+  }
 }

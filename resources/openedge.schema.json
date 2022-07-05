@@ -128,26 +128,40 @@
         }
       }
     },
-    "dumpFiles": {
-      "id": "/properties/dumpFiles",
-      "description": "Comma-separated list of DF files",
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
     "dbConnections": {
       "id": "/properties/dbConnections",
       "description": "Database connection strings (one DB per entry)",
       "items": {
-        "type": "string"
+        "type": "object",
+        "required": [
+          "name",
+          "dumpFile",
+          "connect",
+          "aliases"
+        ],
+        "properties": {
+          "name": {
+            "description": "Database logical name",
+            "type": "string"
+          },
+          "dumpFile": {
+            "description": "Database schema file (DF format)",
+            "type": "string"
+          },
+          "connect": {
+            "description": "Connection string",
+            "type": "string"
+          },
+          "aliases": {
+            "description": "Database aliases",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "type": "array"
-    },
-    "aliases": {
-      "id": "/properties/aliases",
-      "description": "Semi-colon separated list of aliases. Eeach entry is a comma-separated list, where first entry is the DB name followed by all aliases",
-      "type": "string"
     },
     "numThreads": {
       "id": "/properties/threads",
@@ -244,26 +258,40 @@
                 },
                 "type": "array"
               },
-              "dumpFiles": {
-                "id": "/properties/dumpFiles",
-                "description": "Comma-separated list of DF files",
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
               "dbConnections": {
                 "id": "/properties/dbConnections",
                 "description": "Database connection strings (one DB per entry)",
                 "items": {
-                  "type": "string"
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "dumpFile",
+                    "connect",
+                    "aliases"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "Database logical name",
+                      "type": "string"
+                    },
+                    "dumpFile": {
+                      "description": "Database schema file (DF format)",
+                      "type": "string"
+                    },
+                    "connect": {
+                      "description": "Connection string",
+                      "type": "string"
+                    },
+                    "aliases": {
+                      "description": "Database aliases",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
                 },
                 "type": "array"
-              },
-              "aliases": {
-                "id": "/properties/aliases",
-                "description": "Semi-colon separated list of aliases. Eeach entry is a comma-separated list, where first entry is the DB name followed by all aliases",
-                "type": "string"
               },
               "numThreads": {
                 "id": "/properties/threads",

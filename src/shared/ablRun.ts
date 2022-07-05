@@ -14,7 +14,6 @@ export function debug(filename: string, project: OpenEdgeProjectConfig, executab
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',
@@ -37,7 +36,6 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',
@@ -59,7 +57,6 @@ export function openInAB(filename: string, rootDir: string, project: ProfileConf
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: project.propath,
         parameters: [ {name: 'window', value: filename}],
         returnValue: '',

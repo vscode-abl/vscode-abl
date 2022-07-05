@@ -318,7 +318,6 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.parameterFiles = []
     prjConfig.dbDictionary = []
     prjConfig.dbConnections = config.dbConnections
-    prjConfig.aliases = config.aliases
     prjConfig.procedures = config.procedures
 
     prjConfig.profiles.set("default", prjConfig);

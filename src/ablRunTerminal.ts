@@ -13,7 +13,6 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',
@@ -37,7 +36,6 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     const cfgFile = {
         verbose: false,
         databases: project.dbConnections,
-        aliases: project.aliases,
         propath: project.propath,
         parameters: [],
         returnValue: '',

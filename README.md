@@ -39,10 +39,15 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" },
     { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl" }
   ],
-  "buildDirectory": "build", // Optional global build directory. 
-  "dbConnections": ["-db db/sp2k -RO"], // One entry per database
-  "dumpFiles": ["dump/sp2k.df"], // Required by the parser and lint rules
-  "aliases": "sp2k,foo,bar", // Required by the parser and lint rules
+  "buildDirectory": "build", // Optional global build directory
+  "dbConnections": [ // Unlimited number of connections - Beware of -h
+    {
+      "name": "sp2k", // Logical name of database, or physical name if -ld is not used
+      "connect": "-db db/sp2k -RO", // ABL connection string
+      "dumpFile": "dump/sp2k.df",   // Database schema, DF format
+      "aliases": [ "foo", "bar"]    // List of aliases in ABL session
+    }
+  ],
   "numThreads": 1, // Number of OpenEdge sessions handling build
   "procedures": [ // List of procedures, started before the main entry point (and after DB connection and propath configuration)
     { "name": "foo/bar.p", "mode": "once" /* Mode can be once, persistent or super */ }
