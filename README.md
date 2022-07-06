@@ -125,6 +125,7 @@ To attach to a remote process, it needs to be [debug-ready](https://docs.progres
 When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
 
 ![Debugger Demo](resources/images/debugger.webp)
+[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger.webp)
 
 ## Unit tests
 
