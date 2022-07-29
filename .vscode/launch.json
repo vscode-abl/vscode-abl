@@ -10,7 +10,8 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}", "run_env/sample-oe-projects/sample.code-workspace"
             ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "preLaunchTask": "build"
         },
         {
             "name": "Run Extension - Sample project 1",
@@ -21,6 +22,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}", "run_env/sample-oe-projects/project1"
             ],
             "sourceMaps": true,
+            "preLaunchTask": "build"
         },
         {
             "name": "Run Extension - SonarTestProject",
@@ -31,6 +33,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\sonaroe-test-project"
             ],
             "sourceMaps": true,
+            "preLaunchTask": "build"
         },
         {
             "name": "Run Extension - PCT",
@@ -41,6 +44,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\pct"
             ],
             "sourceMaps": true,
+            "preLaunchTask": "build"
         }
     ]
 }
