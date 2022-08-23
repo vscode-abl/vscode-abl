@@ -1,6 +1,6 @@
-FROM docker.rssw.eu/progress/dlc:12.2.9 AS dlc
+FROM docker.rssw.eu/progress/dlc:12.2.10 AS dlc
 
-FROM codercom/code-server:4.5.0
+FROM codercom/code-server:4.6.0
 USER root
 COPY --from=dlc /opt/progress/dlc/ /opt/progress/dlc/
 COPY --from=dlc /opt/java/openjdk/ /opt/java/openjdk/
