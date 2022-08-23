@@ -216,27 +216,35 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', () => {
-        if (vscode.window.activeTextEditor == undefined)
+        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+            vscode.window.showWarningMessage("Open in AppBuilder: no OpenEdge procedure selected");
             return;
+        }
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         const cfg2 = cfg.profiles.get(cfg.activeProfile);
         openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', () => {
-        if (vscode.window.activeTextEditor == undefined)
+        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
             return;
+        }
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', () => {
-        if (vscode.window.activeTextEditor == undefined)
+        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
             return;
+        }
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', () => {
-        if (vscode.window.activeTextEditor == undefined)
+        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
             return;
+        }
         const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
         runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
     }));
