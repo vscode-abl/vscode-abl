@@ -156,6 +156,18 @@ Based upon the ABLUnit framework (need to be installed locally), you can specify
 }
 ```
 
+## Configuration checklist
+
+Here are a few things that should verified before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
+* Java 11 has to be present in the PATH (check output of `java -version`)
+* OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2, 12.5 and 12.6 have been tested.
+* Verify that the openedge-project.json is present in the root directory, and has no syntax error
+* Make sure at least one .p or .cls is opened, as the extension is not active by default
+* Check the Java command line being executed (using Process Explorer for example)
+* Check the OE command line being execute (also using Process Explorer for example)
+* Check the .builder directory in your project, it contains valuable log files
+* Make sure you have `source` directories in your configuration file ; `propath` entries are not monitored and thus nothing would be recompiled
+
 ## Greetings
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
 Also inspired by vscode-go and vscode-rust extensions.
