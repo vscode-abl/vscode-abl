@@ -9,7 +9,7 @@ This extension is based on the existing Christophe Camicas work, but going throu
 * OpenEdge project configuration (propath, database connections, aliases, ...)
 * Multi-thread background compiler
 * Profiles
-* Debugger ()
+* Debugger
 * ABLUnit Support (currently not active)
 * Code completion (work in progress)
 
