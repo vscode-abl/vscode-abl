@@ -131,6 +131,16 @@
                 "description": "Switch project profile"
             },
             {
+                "command": "abl.preprocess",
+                "title": "ABL: Preprocess current file",
+                "description": "Preprocess current file"
+            },
+            {
+                "command": "abl.generateDebugListing",
+                "title": "ABL: Generate debug listing",
+                "description": "Generate debug listing of current file"
+            },
+            {
                 "command": "abl.fixUpperCasing",
                 "title": "ABL: Convert to uppercase",
                 "description": "Convert keywords to uppercase"

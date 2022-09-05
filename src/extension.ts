@@ -153,6 +153,29 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
         restartLangServer();
     }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+        client.sendRequest("proparse/preprocess", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+            // TODO Improve error mgmt
+            var openPath = vscode.Uri.file(fName.toString());
+            vscode.window.showTextDocument(openPath);
+        });
+    }));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', () => {
+        if (vscode.window.activeTextEditor == undefined)
+            return;
+        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+        client.sendRequest("proparse/debugListing", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+            // TODO Improve error mgmt
+            var openPath = vscode.Uri.file(fName.toString());
+            vscode.window.showTextDocument(openPath);
+        });;
+    }));
+
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', () => {
         if (vscode.window.activeTextEditor == undefined)
             return;
