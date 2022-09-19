@@ -60,6 +60,8 @@ export interface OEProfile {
 }
 
 export class ProfileConfig {
+  name: string;
+  version: string;
   oeversion: string;
   extraParameters: string;
   gui: Boolean;

@@ -326,29 +326,36 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
 
     readWorkspaceOEConfigFiles();
-    const watcher = vscode.workspace.createFileSystemWatcher('**/.openedge.json');
-    watcher.onDidChange(uri => readWorkspaceOEConfigFiles());
-    watcher.onDidCreate(uri => readWorkspaceOEConfigFiles());
-    watcher.onDidDelete(uri => readWorkspaceOEConfigFiles());
+    // Monitor changes in all openedge-project.json files
+    vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
+}
+
+function readOEConfigFile(uri) {
+    outputChannel.appendLine("OpenEdge project config file found: " + uri.fsPath);
+    loadConfigFile(uri.fsPath).then(config => {
+        const prjConfig = parseOpenEdgeProjectConfig(uri, config);
+        if (prjConfig.dlc != "") {
+            outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
+            let idx = projects.findIndex(element => (element.name == prjConfig.name) && (element.version == prjConfig.version))
+            if (idx > -1) {
+                projects[idx] = prjConfig;
+            } else {
+                projects.push(prjConfig);
+            }
+        }
+    });
 }
 
 function readWorkspaceOEConfigFiles() {
     vscode.workspace.findFiles('**/openedge-project.json').then(list => {
-        list.forEach(uri => {
-            outputChannel.appendLine("OpenEdge project config file found: " + uri.fsPath);
-            loadConfigFile(uri.fsPath).then(config => {
-                const prjConfig = parseOpenEdgeProjectConfig(uri, config);
-                if (prjConfig.dlc != "") {
-                    outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
-                    projects.push(prjConfig);
-                }
-            });
-        });
+        list.forEach(uri => { readOEConfigFile(uri); });
     });
 }
 
 function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig): OpenEdgeProjectConfig {
     const prjConfig = new OpenEdgeProjectConfig();
+    prjConfig.name = config.name
+    prjConfig.version = config.version
     prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
     prjConfig.dlc = getDlcDirectory(config.oeversion);
     prjConfig.extraParameters = config.extraParameters
