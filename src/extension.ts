@@ -4,18 +4,15 @@ import * as fs from 'fs';
 import { openDataDictionary } from './ablDataDictionary';
 import { runGUI, openInAB } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
-import { ablTest } from './ablTest';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { initDocumentController } from './parser/documentController';
-import { getTableCollection, watchDictDumpFiles } from './providers/ablCompletionProvider';
+import { watchDictDumpFiles } from './providers/ablCompletionProvider';
 import { ABLFormattingProvider } from './providers/ablFormattingProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 import { tmpdir } from 'os';
 import { outputChannel } from './ablStatus';
 
-let errorDiagnosticCollection: vscode.DiagnosticCollection;
-let warningDiagnosticCollection: vscode.DiagnosticCollection;
 let client: LanguageClient;
 
 let oeRuntimes: Array<any>;
@@ -149,166 +146,180 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
     quickPick.show();
 }
 
-function registerCommands(ctx: vscode.ExtensionContext) {
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', () => {
-        restartLangServer();
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', () => {
-        if (vscode.window.activeTextEditor == undefined)
-            return;
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+function preprocessFile() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-        client.sendRequest("proparse/preprocess", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
-            // TODO Improve error mgmt
-            const openPath = vscode.Uri.file(fName.toString());
-            vscode.window.showTextDocument(openPath);
+    client.sendRequest("proparse/preprocess", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+        // TODO Improve error mgmt
+        const openPath = vscode.Uri.file(fName.toString());
+        vscode.window.showTextDocument(openPath);
+    });
+}
+
+function generateDebugListing() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendRequest("proparse/debugListing", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+        // TODO Improve error mgmt
+        const openPath = vscode.Uri.file(fName.toString());
+        vscode.window.showTextDocument(openPath);
+    });
+}
+
+function fixUpperCasing() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendRequest("proparse/fixCasing", { upper: true, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+}
+
+function fixLowerCasing() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendRequest("proparse/fixCasing", { upper: false, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+}
+
+function switchProfileCmd() {
+    if (projects.length == 1) {
+        switchProfile(projects[0]);
+    } else if (projects.length > 1) {
+        const list1 = projects.map(str => str.rootDir).map(label => ({ label }));
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.canSelectMany = false;
+        quickPick.title = "Select project:";
+        quickPick.items = list1;
+        quickPick.onDidChangeSelection(([{ label }]) => {
+            quickPick.hide();
+            switchProfile(getProject(label));
         });
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', () => {
-        if (vscode.window.activeTextEditor == undefined)
-            return;
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+        quickPick.show();
+    }
+}
 
-        client.sendRequest("proparse/debugListing", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
-            // TODO Improve error mgmt
-            const openPath = vscode.Uri.file(fName.toString());
-            vscode.window.showTextDocument(openPath);
+function rebuildProject() {
+    const list = projects.map(str => str.rootDir).map(label => ({ label }));
+    if (list.length == 1) {
+        client.sendRequest("proparse/rebuildProject", { uri: getProject(list[0].label).rootDir });
+    } else {
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.canSelectMany = false;
+        quickPick.title = "Rebuild project:";
+        quickPick.items = list;
+        quickPick.onDidChangeSelection(([{ label }]) => {
+            client.sendRequest("proparse/rebuildProject", { uri: getProject(label).rootDir });
+            quickPick.hide();
         });
-    }));
+        quickPick.show();
+    }
+}
 
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', () => {
-        if (vscode.window.activeTextEditor == undefined)
-            return;
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        
-        client.sendRequest("proparse/fixCasing", { upper: true, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', () => {
-        if (vscode.window.activeTextEditor == undefined)
-            return;
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        
-        client.sendRequest("proparse/fixCasing", { upper: false, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', () => {
-        if (projects.length == 1) {
-            switchProfile(projects[0]);
-        } else if (projects.length > 1) {
-            const list1 = projects.map(str => str.rootDir).map(label => ({ label }));
-            const quickPick = vscode.window.createQuickPick();
-            quickPick.canSelectMany = false;
-            quickPick.title = "Select project:";
-            quickPick.items = list1;
-            quickPick.onDidChangeSelection(([{ label }]) => {
-                quickPick.hide();
-                switchProfile(getProject(label));
-            });
-            quickPick.show();
-        }
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', () => {
+function openDataDictionaryCmd() {
+    if (vscode.window.activeTextEditor != undefined) {
+        openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+    } else {
         const list = projects.map(str => str.rootDir).map(label => ({ label }));
-        if (list.length == 1) {
-            client.sendRequest("proparse/rebuildProject", { uri: getProject(list[0].label).rootDir });
-        } else {
-            const quickPick = vscode.window.createQuickPick();
-            quickPick.canSelectMany = false;
-            quickPick.title = "Rebuild project:";
-            quickPick.items = list;
-            quickPick.onDidChangeSelection(([{ label }]) => {
-                client.sendRequest("proparse/rebuildProject", { uri: getProject(label).rootDir });
-                quickPick.hide();
-            });
-            quickPick.show();
-        }
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', () => {
-        if (vscode.window.activeTextEditor != undefined) {
-            openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
-        } else {
-            const list = projects.map(str => str.rootDir).map(label => ({ label }));
-            const quickPick = vscode.window.createQuickPick();
-            quickPick.canSelectMany = false;
-            quickPick.title = "Open Data Dictionary - Select project:";
-            quickPick.items = list;
-            quickPick.onDidChangeSelection(([{ label }]) => {
-                openDataDictionary(getProject(label));
-                quickPick.hide();
-            });
-            quickPick.show();
-        }
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', () => {
-        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
-            vscode.window.showWarningMessage("Open in AppBuilder: no OpenEdge procedure selected");
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.canSelectMany = false;
+        quickPick.title = "Open Data Dictionary - Select project:";
+        quickPick.items = list;
+        quickPick.onDidChangeSelection(([{ label }]) => {
+            openDataDictionary(getProject(label));
+            quickPick.hide();
+        });
+        quickPick.show();
+    }
+}
+
+function openInAppbuilder() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Open in AppBuilder: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    const cfg2 = cfg.profiles.get(cfg.activeProfile);
+    openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
+}
+
+function runCurrentFile() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+}
+
+function runCurrentFileBatch() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+}
+
+function runCurrentFileProwin() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+}
+
+function startDebugSession(config) {
+    vscode.window.showInformationMessage("je demarret");
+    if (!config.request) { // if 'request' is missing interpret this as a missing launch.json
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor || activeEditor.document.languageId !== 'abl') {
             return;
         }
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        const cfg2 = cfg.profiles.get(cfg.activeProfile);
-        openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', () => {
-        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
-            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
-            return;
-        }
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', () => {
-        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
-            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
-            return;
-        }
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', () => {
-        if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
-            vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
-            return;
-        }
-        const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-        runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
-        const ablConfig = vscode.workspace.getConfiguration('abl');
-        ablTest(null, ablConfig);
-    }));
 
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.test.currentFile', () => {
-        const ablConfig = vscode.workspace.getConfiguration('abl');
-        ablTest(vscode.window.activeTextEditor.document.uri.fsPath, ablConfig);
-    }));
+        // tslint:disable: object-literal-sort-keys
+        config = Object.assign(config, {
+            name: 'Attach',
+            type: 'abl',
+            request: 'attach',
+        });
+    }
+    vscode.commands.executeCommand('vscode.startDebug', config);
+}
 
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.tables', () => {
-        return getTableCollection().items.map((item) => item.label);
-    }));
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.table', (tableName) => {
-        return getTableCollection().items.find((item) => item.label === tableName);
-    }));
-
-    ctx.subscriptions.push(vscode.commands.registerCommand('abl.debug.startSession', (config) => {
-        if (!config.request) { // if 'request' is missing interpret this as a missing launch.json
-            const activeEditor = vscode.window.activeTextEditor;
-            if (!activeEditor || activeEditor.document.languageId !== 'abl') {
-                return;
-            }
-
-            // tslint:disable: object-literal-sort-keys
-            config = Object.assign(config, {
-                name: 'Attach',
-                type: 'abl',
-                request: 'attach',
-            });
-        }
-        vscode.commands.executeCommand('vscode.startDebug', config);
-    }));
-
-    errorDiagnosticCollection = vscode.languages.createDiagnosticCollection('abl-error');
-    ctx.subscriptions.push(errorDiagnosticCollection);
-    warningDiagnosticCollection = vscode.languages.createDiagnosticCollection('abl-warning');
-    ctx.subscriptions.push(warningDiagnosticCollection);
+function registerCommands(ctx: vscode.ExtensionContext) {
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', switchProfileCmd));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', rebuildProject));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', openDataDictionaryCmd));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', openInAppbuilder));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', runCurrentFile));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
+    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.debug.startSession', startDebugSession));
+    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
+    //     const ablConfig = vscode.workspace.getConfiguration('abl');
+    //     ablTest(null, ablConfig);
+    // }));
+    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test.currentFile', () => {
+    //     const ablConfig = vscode.workspace.getConfiguration('abl');
+    //     ablTest(vscode.window.activeTextEditor.document.uri.fsPath, ablConfig);
+    // }));
+    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.tables', () => {
+    //     return getTableCollection().items.map((item) => item.label);
+    // }));
+    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.table', (tableName) => {
+    //     return getTableCollection().items.find((item) => item.label === tableName);
+    // }));
 
     readGlobalOpenEdgeRuntimes();
     // FIXME Check if it's possible to reload only when a specific section is changed
