@@ -160,7 +160,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
         client.sendRequest("proparse/preprocess", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
             // TODO Improve error mgmt
-            var openPath = vscode.Uri.file(fName.toString());
+            const openPath = vscode.Uri.file(fName.toString());
             vscode.window.showTextDocument(openPath);
         });
     }));
@@ -171,9 +171,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
         client.sendRequest("proparse/debugListing", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
             // TODO Improve error mgmt
-            var openPath = vscode.Uri.file(fName.toString());
+            const openPath = vscode.Uri.file(fName.toString());
             vscode.window.showTextDocument(openPath);
-        });;
+        });
     }));
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', () => {
