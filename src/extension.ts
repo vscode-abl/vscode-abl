@@ -15,14 +15,15 @@ import { outputChannel } from './ablStatus';
 
 let client: LanguageClient;
 
+const projects: Array<OpenEdgeProjectConfig> = new Array();
 let oeRuntimes: Array<any>;
 let defaultRuntime;
 let langServDebug: boolean;
 let debugAdapterDebug: boolean;
 let debugAdapterTrace: boolean;
-const projects: Array<OpenEdgeProjectConfig> = new Array();
 let defaultProject: OpenEdgeProjectConfig;
 let oeStatusBarItem: vscode.StatusBarItem;
+let buildMode = 1;
 
 export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
     public constructor(
@@ -58,8 +59,10 @@ export function activate(ctx: vscode.ExtensionContext): void {
     registerCommands(ctx);
 
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    oeStatusBarItem.text = 'No pending tasks';
+    oeStatusBarItem.text = 'Full build mode - No pending tasks';
+    oeStatusBarItem.tooltip = 'OpenEdge plugin status';
     oeStatusBarItem.show();
+    oeStatusBarItem.command = 'abl.changeBuildMode';
     ctx.subscriptions.push(oeStatusBarItem);
 
     // Refresh status bar every second
@@ -102,7 +105,8 @@ function createLanguageClient(): LanguageClient {
     const clientOptions: LanguageClientOptions = {
         initializationOptions: {
             cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', ''),
-            upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false)
+            upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
+            buildConfig: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
         },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
@@ -114,12 +118,27 @@ function createLanguageClient(): LanguageClient {
     return new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
 }
 
+function getBuildModeLabel(): string {
+    switch (buildMode) {
+        case 1:
+            return "Build everything";
+        case 2:
+            return "Build only classes";
+        case 3:
+            return "Build only modified files";
+        case 4:
+            return "No build";
+        default:
+            return "Unknown build mode";
+    }
+}
+
 function updateStatusBarItem(): void {
     client.sendRequest("proparse/pendingTasks").then(data => {
         if (data == 0)
-            oeStatusBarItem.text = `No pending tasks`;
+            oeStatusBarItem.text = getBuildModeLabel() + " • No pending tasks";
         else
-            oeStatusBarItem.text = `$(sync~spin) ${data} pending tasks`;
+            oeStatusBarItem.text = getBuildModeLabel() + ` • ${data} pending tasks $(sync~spin)`;
         oeStatusBarItem.show();
     });
 }
@@ -274,6 +293,36 @@ function runCurrentFileProwin() {
     runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
+function changeBuildModeCmd() {
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = false;
+    quickPick.title = "Choose build mode:";
+    quickPick.items = [
+        { label: 'Build everything', description: 'Scan all source code at startup, build if not up to date, and build when any source changed' },
+        { label: 'Classes only', description: 'Scan all source code at startup, build only classes if not up to date, and build when any source changed' },
+        { label: 'Modified files only', description: 'Scan all source code at startup, don\'t rebuild anything, build only when any source changed' },
+        { label: 'No build', description: 'Scan all source code at startup, never build anything' }]
+    quickPick.onDidChangeSelection(item => {
+        buildMode = buildModeValue(item[0].label);
+        // Not saved to settings
+        // vscode.workspace.getConfiguration().update('abl.buildMode', buildModeValue(item[0].label));
+        vscode.window.showInformationMessage('Build mode changed, restarting language server...');
+        restartLangServer();
+    });
+    quickPick.show();
+}
+
+function buildModeValue(str: string) {
+    if (str == 'Build everything')
+        return 1;
+    else if (str == 'Classes only')
+        return 2;
+    else if (str == 'Modified files only')
+        return 3;
+    else if (str == 'No build')
+        return 4;
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
@@ -287,6 +336,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', runCurrentFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd));
     // ctx.subscriptions.push(vscode.commands.registerCommand('abl.debug.startSession', startDebugSession));
     // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
     //     const ablConfig = vscode.workspace.getConfiguration('abl');
@@ -396,6 +446,8 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
 }
 
 function readGlobalOpenEdgeRuntimes() {
+    buildMode = vscode.workspace.getConfiguration('abl').get('buildMode', 1);
+
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
     debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
     debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');

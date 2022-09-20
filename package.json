@@ -121,6 +121,11 @@
                 "description": "Restart ABL Language Server"
             },
             {
+                "command": "abl.change.buildMode",
+                "title": "ABL: Change build mode",
+                "description": "Change ABL Build Mode"
+            },
+            {
                 "command": "abl.project.rebuild",
                 "title": "ABL: Rebuild Project",
                 "description": "Rebuild Project"
@@ -302,6 +307,29 @@
             "type": "object",
             "title": "ABL configuration",
             "properties": {
+                "abl.buildMode": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Build mode",
+                    "enum": [
+                        1,
+                        2,
+                        3,
+                        4
+                    ],
+                    "enumItemLabels": [
+                        "Build everything",
+                        "Classes only",
+                        "Modified files only",
+                        "No build"
+                    ],
+                    "enumDescriptions": [
+                        "Scan all source code at startup, build if not up to date, and build when any source changed",
+                        "Scan all source code at startup, build only classes if not up to date, and build when any source changed",
+                        "Scan all source code at startup, don't rebuild anything, build only when any source changed",
+                        "Scan all source code at startup, never build anything"
+                    ]
+                },
                 "abl.completion.upperCase": {
                     "type": "boolean",
                     "default": false,
