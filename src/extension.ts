@@ -336,7 +336,7 @@ function readOEConfigFile(uri) {
         const prjConfig = parseOpenEdgeProjectConfig(uri, config);
         if (prjConfig.dlc != "") {
             outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
-            let idx = projects.findIndex(element => (element.name == prjConfig.name) && (element.version == prjConfig.version))
+            const idx = projects.findIndex(element => (element.name == prjConfig.name) && (element.version == prjConfig.version))
             if (idx > -1) {
                 projects[idx] = prjConfig;
             } else {
