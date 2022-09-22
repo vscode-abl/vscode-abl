@@ -42,6 +42,19 @@ pipeline {
         }
       }
     }
+  }
 
+  post {
+    failure {
+      script {
+        mail body: "Check console output at ${BUILD_URL}/console", to: "g.querret@riverside-software.fr", subject: "vscode-abl build failure in Jenkins - Branch ${BRANCH_NAME}"
+      }
+    }
+    fixed {
+      script {
+        def currentAuthor = readFile('current-author').trim()
+        mail body: "Console output at ${BUILD_URL}/console", to: "g.querret@riverside-software.fr", subject: "vscode-abl build is back to normal - Branch ${BRANCH_NAME}"
+      }
+    }
   }
 }
