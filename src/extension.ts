@@ -274,24 +274,6 @@ function runCurrentFileProwin() {
     runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
-function startDebugSession(config) {
-    vscode.window.showInformationMessage("je demarret");
-    if (!config.request) { // if 'request' is missing interpret this as a missing launch.json
-        const activeEditor = vscode.window.activeTextEditor;
-        if (!activeEditor || activeEditor.document.languageId !== 'abl') {
-            return;
-        }
-
-        // tslint:disable: object-literal-sort-keys
-        config = Object.assign(config, {
-            name: 'Attach',
-            type: 'abl',
-            request: 'attach',
-        });
-    }
-    vscode.commands.executeCommand('vscode.startDebug', config);
-}
-
 function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
