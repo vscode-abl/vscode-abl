@@ -106,7 +106,7 @@ function createLanguageClient(): LanguageClient {
         initializationOptions: {
             cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', ''),
             upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
-            buildConfig: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
+            buildMode: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
         },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
