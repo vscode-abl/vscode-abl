@@ -1,3 +1,13 @@
+1.3.8
+=====
+
+* New actions: preprocess code + generate debug listing
+* Monitor openedge-project.json for changes (DB connection, propath, ...)
+* New "Build mode" setting: compile files (or not) depending on the value
+* BETA: New "documentation" attribute in propath entries: use [PCT JsonDocumentation task](https://wiki.rssw.eu/pct/JsonDocumentation.md)
+* Improved code completion engine
+* Declaration of class variables automatically add a 'USING' statement
+
 1.3.x
 =====
 - Extension overhaul, lots of functionalities moved to ABL Language Server
