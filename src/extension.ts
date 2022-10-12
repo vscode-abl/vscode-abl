@@ -86,6 +86,7 @@ function createLanguageClient(): LanguageClient {
         '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
         '--add-opens=java.base/java.net=ALL-UNNAMED',
         '--add-opens=java.base/java.text=ALL-UNNAMED',
+        '-Dorg.slf4j.simpleLogger.showLogName=false',
         '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
