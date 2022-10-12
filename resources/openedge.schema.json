@@ -97,6 +97,10 @@
           "excludes": {
             "description": "Only for source entries. Ant-style exclude patterns (comma-separated list).",
             "type": "string"
+          },
+          "documentation": {
+            "description": "JSON documentation of classes in this propath entry (use https://wiki.rssw.eu/pct/JsonDocumentation.md PCT task)",
+            "type": "string"
           }
         }
       },
@@ -252,6 +256,18 @@
                     },
                     "xref": {
                       "description": "Optional XREF directory (relative to root directory). Defaults to .builder/pct",
+                      "type": "string"
+                    },
+                    "includes": {
+                      "description": "Only for source entries. Ant-style include patterns (comma-separated list). Defaults to **/*.p,**/*.w,**/*.cls",
+                      "type": "string"
+                    },
+                    "excludes": {
+                      "description": "Only for source entries. Ant-style exclude patterns (comma-separated list).",
+                      "type": "string"
+                    },
+                    "documentation": {
+                      "description": "JSON documentation of classes in this propath entry (use https://wiki.rssw.eu/pct/JsonDocumentation.md PCT task)",
                       "type": "string"
                     }
                   }

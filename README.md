@@ -37,7 +37,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     { "type": "source", "path": "src/procedures" },
     { "type": "source", "path": "src/classes" },
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" },
-    { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl" }
+    { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl", "documentation": "openedge.json" }
   ],
   "buildDirectory": "build", // Optional global build directory
   "dbConnections": [ // Unlimited number of connections - Beware of -h
