@@ -78,7 +78,7 @@ export function getProject(p: string): OpenEdgeProjectConfig {
 }
 
 function createLanguageClient(): LanguageClient {
-    // Add '-Xdebug' and '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y' for debugger
+    // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
         '--add-opens=java.base/java.lang=ALL-UNNAMED',
         '--add-opens=java.base/java.math=ALL-UNNAMED',
