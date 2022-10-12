@@ -1,3 +1,9 @@
+1.3.9
+=====
+
+* Fixed major performance regression in 1.3.8
+* Fixed handling of code completion of THIS-OBJECT and SUPER
+
 1.3.8
 =====
 
