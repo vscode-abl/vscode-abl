@@ -391,7 +391,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.version = config.version
     prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
     prjConfig.dlc = getDlcDirectory(config.oeversion);
-    prjConfig.extraParameters = config.extraParameters
+    prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
     prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
