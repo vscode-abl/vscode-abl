@@ -1,3 +1,9 @@
+1.3.10
+======
+
+* CABL rules upgrade (now match parser version number)
+* Code completion improvements on classes
+
 1.3.9
 =====
 

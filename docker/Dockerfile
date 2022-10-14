@@ -7,10 +7,10 @@ COPY --from=dlc /opt/java/openjdk/ /opt/java/openjdk/
 RUN /opt/progress/dlc/bin/proDebugEnable -enable-all
 
 USER coder
-COPY --chown=coder:coder openedge-abl-lsp-1.3.9.vsix /home/coder
+COPY --chown=coder:coder openedge-abl-lsp-1.3.10.vsix /home/coder
 COPY --chown=coder:coder stephenwassell.light-high-contrast-theme-1.1.5.vsix /home/coder
 WORKDIR /home/coder
-RUN code-server --install-extension openedge-abl-lsp-1.3.9.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix && mkdir /home/coder/.rssw
+RUN code-server --install-extension openedge-abl-lsp-1.3.10.vsix && code-server --install-extension stephenwassell.light-high-contrast-theme-1.1.5.vsix && rm /home/coder/*.vsix && mkdir /home/coder/.rssw
 EXPOSE 8080
 COPY --chown=coder:coder oedoc.bin /home/coder/.rssw/oedoc.bin
 COPY --chown=coder:coder user-settings.json /home/coder/.local/share/code-server/User/settings.json
