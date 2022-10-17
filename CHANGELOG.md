@@ -1,3 +1,13 @@
+1.3.11
+======
+
+* Support for 32 bits Progress install
+* Fixed Debug Adapter startup
+* Fixed session startup issues when extraParameters attribute wasn't found
+* Fixed InvalidRCodeException when parsing lots of rcode
+* Removed error message when parsing windows-* DF file footer
+* Upgraded bundled CABL rules
+
 1.3.10
 ======
 
