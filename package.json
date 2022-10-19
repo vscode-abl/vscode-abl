@@ -401,6 +401,7 @@
                                     "12.2",
                                     "12.4",
                                     "12.5",
+                                    "12.6",
                                     "ESAP"
                                 ],
                                 "description": "OpenEdge Execution Environment name. Must be unique."
