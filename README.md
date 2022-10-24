@@ -2,7 +2,7 @@
 This extension provides rich OpenEdge ABL support for Visual Studio Code.
 
 ## Current Status
-This extension is based on the existing Christophe Camicas work, but going through a complete overhaul due to the addition of the Language Server. Despite its version number, the extension is currently considered alpha or beta quality software.
+This extension is based on the existing Christophe Camicas work, but going through a complete overhaul due to the addition of the Language Server. Despite the non 0.x version number, the extension may still have issues!
 
 ## Features
 * Syntax highlight
