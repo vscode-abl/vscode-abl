@@ -56,6 +56,8 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
 }
 ```
 
+You can also create the openedge-project.json file from an ABL session (PDSOE or plain prowin/_progres) by executing [this procedure](https://github.com/cverbiest/pct-utils/blob/master/src/vscode/generate_riverside_vscodeconfig.p) (provided by [Carl Verbiest](https://github.com/cverbiest)).
+
 ## Activation
 The extension is activated when a `.p`, `.w` or `.cls` file is opened. ABL actions may fail before the extension is activated.
 
