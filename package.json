@@ -16,7 +16,7 @@
         "url": "https://github.com/vscode-abl/vscode-abl.git"
     },
     "bugs": {
-        "url": "https://github.com/vscode-abl/openedge-abl-syntax/issues"
+        "url": "https://github.com/vscode-abl/vscode-abl/issues"
     },
     "scripts": {
         "vscode:prepublish": "npm run package",
