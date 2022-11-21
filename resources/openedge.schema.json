@@ -10,7 +10,8 @@
     "oeversion",
     "charset",
     "graphicalMode",
-    "buildPath"
+    "buildPath",
+    "dbConnections"
   ],
   "properties": {
     "name": {
