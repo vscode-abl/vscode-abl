@@ -52,7 +52,6 @@ pipeline {
     }
     fixed {
       script {
-        def currentAuthor = readFile('current-author').trim()
         mail body: "Console output at ${BUILD_URL}/console", to: "g.querret@riverside-software.fr", subject: "vscode-abl build is back to normal - Branch ${BRANCH_NAME}"
       }
     }
