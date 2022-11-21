@@ -116,7 +116,14 @@ function createLanguageClient(): LanguageClient {
         }
     };
 
-    return new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
+    const tmp = new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
+    tmp.onReady().then(() => {
+        client.onNotification("proparse/message", (msg: string) => {
+            outputChannel.appendLine("Custom message from language server: " + msg);
+        });
+    });
+
+    return tmp;
 }
 
 function getBuildModeLabel(): string {
