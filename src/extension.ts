@@ -201,6 +201,30 @@ function generateDebugListing() {
     });
 }
 
+function generateXref() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendRequest("proparse/xref", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+        // TODO Improve error mgmt
+        const openPath = vscode.Uri.file(fName.toString());
+        vscode.window.showTextDocument(openPath);
+    });
+}
+
+function generateXmlXref() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendRequest("proparse/xmlXref", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+        // TODO Improve error mgmt
+        const openPath = vscode.Uri.file(fName.toString());
+        vscode.window.showTextDocument(openPath);
+    });
+}
+
 function fixUpperCasing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -339,6 +363,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', switchProfileCmd));

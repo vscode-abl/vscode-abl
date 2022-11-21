@@ -146,6 +146,16 @@
                 "description": "Generate debug listing of current file"
             },
             {
+                "command": "abl.generateXref",
+                "title": "ABL: Generate XREF",
+                "description": "Generate XREF of current file"
+            },
+            {
+                "command": "abl.generateXmlXref",
+                "title": "ABL: Generate XML-XREF",
+                "description": "Generate XML-XREF of current file"
+            },
+            {
                 "command": "abl.fixUpperCasing",
                 "title": "ABL: Convert to uppercase",
                 "description": "Convert keywords to uppercase"
