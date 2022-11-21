@@ -330,6 +330,16 @@
                         "Scan all source code at startup, never build anything"
                     ]
                 },
+                "abl.outline.showIncludeFiles": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When enabled outline shows list of include files"
+                },
+                "abl.outline.showContentInIncludeFiles": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When enabled outline shows objects declared in include files"
+                },
                 "abl.completion.upperCase": {
                     "type": "boolean",
                     "default": false,

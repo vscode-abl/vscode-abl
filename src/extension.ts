@@ -104,13 +104,17 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
+        // TODO Use pull model
         initializationOptions: {
             cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', ''),
             upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
             buildMode: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
+            outlineShowIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showIncludeFiles', false),
+            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false)
         },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
+            // TODO Use pull model
             configurationSection: 'abl',
             fileEvents: vscode.workspace.createFileSystemWatcher('**/openedge-project.properties')
         }
