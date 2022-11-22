@@ -39,7 +39,7 @@
     ],
     "activationEvents": [
         "onLanguage:abl",
-        "onDebug"
+        "workspaceContains:openedge-project.json"
     ],
     "main": "./dist/extension.js",
     "contributes": {

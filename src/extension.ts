@@ -515,7 +515,7 @@ function getDlcDirectory(version: string): string {
 }
 
 function deactivate() {
-    // no need for deactivation yet
+    return client.stop();
 }
 
 function initProviders(context: vscode.ExtensionContext) {
