@@ -1,3 +1,13 @@
+1.4.0
+=====
+
+* Add `documentation` attribute in `buildPath` entries (use JsonDocumentation task from PCT to generate those files)
+  * Deprecated methods will be highlighted in source code
+* New actions: generate XREF and XML-XREF
+* New option to hide/display objects from include files in outline view
+* Various code completion improvements
+* Multiple minor bugfixes (don't hesitate to report them!)
+
 1.3.11
 ======
 
