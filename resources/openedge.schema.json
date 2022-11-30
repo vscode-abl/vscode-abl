@@ -85,7 +85,7 @@
             "type": "string"
           },
           "build": {
-            "description": "Optional build directory (relative to root directory). Defaults to buildDirectory",
+            "description": "Optional build directory (absolute path, or relative to root directory). Defaults to buildDirectory",
             "type": "string"
           },
           "xref": {
@@ -228,7 +228,7 @@
               },
               "buildDirectory": {
                 "id": "/properties/buildDirectory",
-                "description": "Default build directory (if not specified in source directory)",
+                "description": "Default build directory (if not specified in source directory). Can be an absolute path, or relative to root directory",
                 "type": "string"
               },
               "buildPath": {
@@ -254,7 +254,7 @@
                       "type": "string"
                     },
                     "build": {
-                      "description": "Optional build directory (relative to root directory). Defaults to buildDirectory",
+                      "description": "Optional build directory (absolute path, or relative to root directory). Defaults to buildDirectory",
                       "type": "string"
                     },
                     "xref": {

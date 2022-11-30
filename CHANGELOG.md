@@ -1,3 +1,8 @@
+1.4.2
+=====
+
+* Build output directory can now be an absolute directory
+
 1.4.0
 =====
 
