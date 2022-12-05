@@ -19,8 +19,6 @@ const projects: Array<OpenEdgeProjectConfig> = new Array();
 let oeRuntimes: Array<any>;
 let defaultRuntime;
 let langServDebug: boolean;
-let debugAdapterDebug: boolean;
-let debugAdapterTrace: boolean;
 let defaultProject: OpenEdgeProjectConfig;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
@@ -33,16 +31,22 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
 
     async createDebugAdapterDescriptor(_session: vscode.DebugSession, _executable: vscode.DebugAdapterExecutable | undefined): Promise<vscode.DebugAdapterDescriptor> {
         const logFile = path.join(tmpdir(), 'vscode-debug-adapter.txt');
+        const debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
+        const debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');
         const defaultExecOptions = [
             '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (debugAdapterDebug ? 'DEBUG' : 'INFO'),
             '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
-        const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
-        const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
-        const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
-        outputChannel.appendLine("ABL Debug Adapter - Command line: " + langServExecutable + " " + (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions));
-        return new vscode.DebugAdapterExecutable(langServExecutable, (debugAdapterTrace ? langServOptions.concat('--trace') : langServOptions), { env: this.env });
+        if (debugAdapterTrace)
+            defaultExecOptions.concat('--trace');
+        const debugAdapterExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
+        const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
+        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
+        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions) : defaultExecOptions): debugAdapterOptionsFromSettings;
+
+        outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions);
+        return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
     }
 }
 
@@ -93,7 +97,8 @@ function createLanguageClient(): LanguageClient {
 
     const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
-    const langServOptions = langServOptionsFromSettings.length == 0 ? defaultExecOptions : langServOptionsFromSettings;
+    const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
+    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions) : defaultExecOptions): langServOptionsFromSettings;
 
     outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
     const serverExec: Executable = {
@@ -487,8 +492,6 @@ function readGlobalOpenEdgeRuntimes() {
     buildMode = vscode.workspace.getConfiguration('abl').get('buildMode', 1);
 
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
-    debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
-    debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');

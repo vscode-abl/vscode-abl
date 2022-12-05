@@ -365,6 +365,16 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.langServerExtraJavaArgs": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Extra arguments on the Language Server command line"
+                },
+                "abl.debugAdapterExtraJavaArgs": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Extra arguments on the Debug Adapter command line"
+                },
                 "abl.debugAdapterDebug": {
                     "type": "boolean",
                     "default": false,
@@ -384,20 +394,6 @@
                     "type": "string",
                     "default": "java",
                     "description": "Language Server Java executable"
-                },
-                "abl.langServerJavaArgs": {
-                    "type": "array",
-                    "description": "Language Server Java arguments",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "abl.debugAdapterJavaArgs": {
-                    "type": "array",
-                    "description": "Debug Adapter Java arguments",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "abl.configuration.runtimes": {
                     "type": "array",
