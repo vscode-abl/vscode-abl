@@ -1,3 +1,8 @@
+1.4.3
+=====
+
+* JVM extra arguments can now be configured in settings
+
 1.4.2
 =====
 
