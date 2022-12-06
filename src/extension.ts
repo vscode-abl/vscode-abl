@@ -63,14 +63,11 @@ export function activate(ctx: vscode.ExtensionContext): void {
     registerCommands(ctx);
 
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    oeStatusBarItem.text = 'Full build mode - No pending tasks';
-    oeStatusBarItem.tooltip = 'OpenEdge plugin status';
+    oeStatusBarItem.text = 'No ABL Language Server';
+    oeStatusBarItem.tooltip = 'ABL plugin status';
     oeStatusBarItem.show();
     oeStatusBarItem.command = 'abl.changeBuildMode';
     ctx.subscriptions.push(oeStatusBarItem);
-
-    // Refresh status bar every second
-    setInterval(() => { updateStatusBarItem() }, 1000);
 
     client = createLanguageClient();
     client.start();
@@ -127,8 +124,16 @@ function createLanguageClient(): LanguageClient {
 
     const tmp = new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
     tmp.onReady().then(() => {
-        client.onNotification("proparse/message", (msg: string) => {
-            outputChannel.appendLine("Custom message from language server: " + msg);
+        client.onNotification("proparse/status", (statusParams: any) => {
+            let str = "";
+            if (statusParams.numProjects == 0)
+                str = "No projects found";
+            else if (statusParams.numProjects > statusParams.numInitializedProjects)
+                str = "Project init: " + statusParams.numInitializedProjects + "/" + statusParams.numProjects;
+            else
+                str = statusParams.numProjects + " project(s)";
+            str += " • " + statusParams.pendingTasks + " task(s)";
+            oeStatusBarItem.text = str;
         });
     });
 
@@ -148,16 +153,6 @@ function getBuildModeLabel(): string {
         default:
             return "Unknown build mode";
     }
-}
-
-function updateStatusBarItem(): void {
-    client.sendRequest("proparse/pendingTasks").then(data => {
-        if (data == 0)
-            oeStatusBarItem.text = getBuildModeLabel() + " • No pending tasks";
-        else
-            oeStatusBarItem.text = getBuildModeLabel() + ` • ${data} pending tasks $(sync~spin)`;
-        oeStatusBarItem.show();
-    });
 }
 
 function restartLangServer(): void {
