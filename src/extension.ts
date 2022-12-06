@@ -38,12 +38,11 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
             '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
-        if (debugAdapterTrace)
-            defaultExecOptions.concat('--trace');
+        const defaultExecOptions2 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
         const debugAdapterExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
-        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions) : defaultExecOptions): debugAdapterOptionsFromSettings;
+        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2): debugAdapterOptionsFromSettings;
 
         outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions);
         return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
@@ -92,10 +91,12 @@ function createLanguageClient(): LanguageClient {
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
 
+    const langServTrace = vscode.workspace.getConfiguration('abl').get('langServerTrace')
     const langServExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
-    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions) : defaultExecOptions): langServOptionsFromSettings;
+    const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2): langServOptionsFromSettings;
 
     outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
     const serverExec: Executable = {

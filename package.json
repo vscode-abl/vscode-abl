@@ -365,6 +365,11 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.langServerTrace": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable language server trace logging (in $TMP/vscode-language-server-trace.txt)"
+                },
                 "abl.langServerExtraJavaArgs": {
                     "type": "string",
                     "default": "",
