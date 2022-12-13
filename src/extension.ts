@@ -242,6 +242,15 @@ function fixLowerCasing() {
     client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
+function generateCatalog() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendNotification("proparse/assembly", { projectUri: cfg.rootDir });
+}
+
+
 function switchProfileCmd() {
     if (projects.length == 1) {
         switchProfile(projects[0]);
@@ -366,6 +375,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', switchProfileCmd));

@@ -156,6 +156,11 @@
                 "description": "Generate XML-XREF of current file"
             },
             {
+                "command": "abl.catalog",
+                "title": "ABL: Generate Assembly Catalog",
+                "description": "Generate Assembly Catalog"
+            },
+            {
                 "command": "abl.fixUpperCasing",
                 "title": "ABL: Convert to uppercase",
                 "description": "Convert keywords to uppercase"
