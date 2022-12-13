@@ -183,7 +183,7 @@ function preprocessFile() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/preprocess", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+    client.sendRequest("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
         const openPath = vscode.Uri.file(fName.toString());
         vscode.window.showTextDocument(openPath);
@@ -195,7 +195,7 @@ function generateDebugListing() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/debugListing", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+    client.sendRequest("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
         const openPath = vscode.Uri.file(fName.toString());
         vscode.window.showTextDocument(openPath);
@@ -207,7 +207,7 @@ function generateXref() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/xref", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
         const openPath = vscode.Uri.file(fName.toString());
         vscode.window.showTextDocument(openPath);
@@ -219,7 +219,7 @@ function generateXmlXref() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/xmlXref", { uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir }).then(fName => {
+    client.sendRequest("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
         const openPath = vscode.Uri.file(fName.toString());
         vscode.window.showTextDocument(openPath);
@@ -231,7 +231,7 @@ function fixUpperCasing() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/fixCasing", { upper: true, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
 function fixLowerCasing() {
@@ -239,7 +239,7 @@ function fixLowerCasing() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/fixCasing", { upper: false, uri: vscode.window.activeTextEditor.document.uri.toString(), project: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
 function switchProfileCmd() {
@@ -262,14 +262,14 @@ function switchProfileCmd() {
 function rebuildProject() {
     const list = projects.map(str => str.rootDir).map(label => ({ label }));
     if (list.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { uri: getProject(list[0].label).rootDir });
+        client.sendRequest("proparse/rebuildProject", { projectUri: getProject(list[0].label).rootDir });
     } else {
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Rebuild project:";
         quickPick.items = list;
         quickPick.onDidChangeSelection(([{ label }]) => {
-            client.sendRequest("proparse/rebuildProject", { uri: getProject(label).rootDir });
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProject(label).rootDir });
             quickPick.hide();
         });
         quickPick.show();
