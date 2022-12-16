@@ -76,6 +76,11 @@
         ],
         "commands": [
             {
+                "command": "abl.debugListingLine",
+                "title": "ABL: Find debug listing line",
+                "description": "Find debug listing line"
+            },
+            {
                 "command": "abl.openInAB",
                 "title": "ABL: Open file in AppBuilder",
                 "description": "Open current file in AppBuilder"
@@ -481,6 +486,11 @@
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
                 "command": "abl.openInAB",
                 "key": "shift+f8"
+            },
+            {
+                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+                "command": "abl.debugListingLine",
+                "key": "alt+L"
             }
         ]
     },

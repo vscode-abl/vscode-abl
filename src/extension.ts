@@ -178,6 +178,20 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
     quickPick.show();
 }
 
+function debugListingLine() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    vscode.window.showInputBox({title: "Enter debug listing line number:", prompt: "Go To Source Line"}).then(input => {
+    client.sendRequest("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input)}).then(fName => {
+        // TODO Improve error mgmt
+        const openPath = vscode.Uri.file(fName.toString());
+        vscode.window.showTextDocument(openPath);
+    })
+  });
+}
+
 function preprocessFile() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -371,6 +385,7 @@ function buildModeValue(str: string) {
 
 function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
