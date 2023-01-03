@@ -1,3 +1,10 @@
+1.4.4
+=====
+
+* Alt+L shortcut: show source code of debug listing line
+* Code completion on static methods (work in progress)
+* Improved status bar
+
 1.4.3
 =====
 
