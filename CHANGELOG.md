@@ -1,3 +1,8 @@
+1.4.5
+=====
+
+* Fix major regression in all commands (nothing executed + Java stack trace displayed in LS output)
+
 1.4.4
 =====
 
