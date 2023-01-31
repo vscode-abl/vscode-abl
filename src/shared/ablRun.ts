@@ -4,7 +4,7 @@ import * as cp from 'child_process';
 import * as crypto from 'crypto';
 import { ProfileConfig, OpenEdgeProjectConfig } from './openEdgeConfigFile';
 import { tmpdir } from 'os';
-
+import { outputChannel } from '../ablStatus';
 
 export function debug(filename: string, project: OpenEdgeProjectConfig, executable: string): cp.ChildProcessWithoutNullStreams {
     const env = process.env;
@@ -67,6 +67,8 @@ export function openInAB(filename: string, rootDir: string, project: ProfileConf
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
     const prms = ["-clientlog", path.join(rootDir, ".builder\\openInAB.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
+    const prms2 = prms.concat(project.extraParameters.split(' '));
 
-    cp.spawn(project.getExecutable(true), prms.concat(project.extraParameters.split(' ')), { env: env, cwd: rootDir, detached: true });
+    outputChannel.appendLine("Open in AppBuilder - Command line: " + project.getExecutable(true) + " " + prms2.join(" "));
+    cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: rootDir, detached: true });
 }
