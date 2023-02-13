@@ -131,7 +131,7 @@ function createLanguageClient(): LanguageClient {
             if (numProjects == 0)
                 str = "No projects found";
             else if (numProjects > statusParams.numInitializedProjects)
-                str = "Project init: " + statusParams.numInitializedProjects + "/" + statusParams.numProjects;
+                str = "Project init: " + statusParams.numInitializedProjects + "/" + numProjects;
             else
                 str = numProjects + " project(s)";
             str += " • " + statusParams.pendingTasks + " task(s)";
