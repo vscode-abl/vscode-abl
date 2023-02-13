@@ -1,3 +1,9 @@
+1.4.6
+=====
+
+* New status bar, and faster feedback when loading large projects
+* Fix issue when setting breakpoints (which were never set correctly under specific circumstances)
+
 1.4.5
 =====
 
