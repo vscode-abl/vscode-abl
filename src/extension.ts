@@ -159,6 +159,10 @@ function getBuildModeLabel(): string {
     }
 }
 
+function dumpLangServStatus(): void {
+    client.sendNotification("proparse/dumpStatus");
+}
+
 function restartLangServer(): void {
     client.stop();
     client = createLanguageClient();
@@ -387,6 +391,7 @@ function buildModeValue(str: string) {
 }
 
 function registerCommands(ctx: vscode.ExtensionContext) {
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
