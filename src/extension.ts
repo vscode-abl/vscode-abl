@@ -160,7 +160,7 @@ function getBuildModeLabel(): string {
 }
 
 function dumpLangServStatus(): void {
-    client.sendNotification("proparse/dumpStatus");
+    client.sendNotification("proparse/dumpStatus", {});
 }
 
 function restartLangServer(): void {
