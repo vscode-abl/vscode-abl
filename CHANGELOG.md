@@ -1,3 +1,9 @@
+1.4.7
+=====
+
+* Syntax highlight (minor improvements)
+* Code outline view improvements
+
 1.4.6
 =====
 
