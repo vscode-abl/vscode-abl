@@ -1,6 +1,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { openDataDictionary } from './ablDataDictionary';
 import { runGUI, openInAB } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
@@ -390,7 +391,101 @@ function buildModeValue(str: string) {
         return 4;
 }
 
+function generateProenvStartUnix(path: string) {
+    let myText = "#!/bin/sh\n\n";
+    if (projects.length > 1) {
+        myText += "echo Choose project:\n"
+        myText += "echo ===============\n"
+        // Multiple projects, one entry per project
+        let count = 1;
+        let response = "";
+        projects.forEach(prj => {
+            myText += "echo   \"* " + count + " => " + prj.rootDir + "\"\n";
+            const cfg = prj.profiles.get(prj.activeProfile);
+            const x2 = cfg.dlc + "/bin/proenv";
+            response += "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( cd \"" + prj.rootDir + "\" && source \"" + x2 + "\" ) ; fi\n"
+        });
+        myText += "echo \n"
+        myText += "read -p 'Your choice: ' answer\n"
+        myText += response
+    } else if (projects.length == 1) {
+        // One project, go directly to proenv
+        const cfg = projects[0].profiles.get(projects[0].activeProfile);
+        const x2 = cfg.dlc + "/bin/proenv";
+        myText += x2 + "\n"
+    } else {
+        // No OE projects, just offer all proenv
+        let count = 1;
+        let response = "";
+        myText += "echo No projects configured, choose OE version:\n"
+        myText += "echo ==========================================\n"
+        oeRuntimes.forEach(runtime => {
+            myText += "echo \"* " + count++ + " => " + runtime.path + "\" \n";
+            response +=  "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( \"" + runtime.path + "/bin/proenv\" ) ; fi \n"
+        });
+        myText += "echo \n"
+        myText += "read -p 'Your choice: ' answer\n"
+        myText += response
+    }
+    myText += "exit 0\n"
+    fs.writeFileSync(path, myText, { mode: 0o700});
+}
+
+function generateProenvStartWindows(path: string) {
+    let myText = "@echo off & setlocal\n";
+    if (projects.length > 1) {
+        myText += "echo Choose project:\n"
+        myText += "echo ===============\n"
+        // Multiple projects, one entry per project
+        let count = 1;
+        let response = "";
+        projects.forEach(prj => {
+            myText += "echo   ^* " + count + " =^> " + prj.rootDir + "\n";
+            const cfg = prj.profiles.get(prj.activeProfile);
+            const x2 = cfg.dlc + "\\bin\\proenv.bat";
+            response += "if /i \"%answer%\" == \"" + count++ + "\" ( pushd \"" + prj.rootDir + "\" && call \"" + x2 + "\" && popd )\n"
+        });
+        myText += "echo.\n"
+        myText += "set /P answer=Your choice: \n"
+        myText += response
+    } else if (projects.length == 1) {
+        // One project, go directly to proenv
+        const cfg = projects[0].profiles.get(projects[0].activeProfile);
+        const x2 = cfg.dlc + "\\bin\\proenv.bat";
+        myText += "call " + x2 + "\n"
+    } else {
+        // No OE projects, just offer all proenv
+        let count = 1;
+        let response = "";
+        myText += "echo No projects configured, choose OE version:\n"
+        myText += "echo ==========================================\n"
+        oeRuntimes.forEach(runtime => {
+            myText += "echo ^* " + count++ + " =^> " + runtime.path + " \n";
+            response += "if /i \"%answer%\" == \"" + count++ + "\" ( call \"" + runtime.path + "\\bin\\proenv.bat\" )\n"
+        });
+        myText += "echo.\n"
+        myText += "set /P answer=Your choice: \n"
+        myText += response
+    }
+    myText += "exit /b 0\n"
+    fs.writeFileSync(path, myText);
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
+    vscode.window.registerTerminalProfileProvider('proenv.terminal-profile', {
+        provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
+            if (process.platform === "win32") {
+                const prmFileName = path.join(tmpdir(), 'proenv-' + crypto.randomBytes(16).toString('hex') + '.bat');
+                generateProenvStartWindows(prmFileName);
+                return { options: { name: 'Proenv', shellPath: prmFileName } };
+            } else {
+                const prmFileName = path.join(tmpdir(), 'proenv-' + crypto.randomBytes(16).toString('hex') + '.sh');
+                generateProenvStartUnix(prmFileName);
+                return { options: { name: 'Proenv', shellPath: prmFileName } };
+            }
+        }
+    });
+
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
