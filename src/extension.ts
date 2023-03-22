@@ -42,7 +42,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const debugAdapterExecutable = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
-        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2): debugAdapterOptionsFromSettings;
+        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : debugAdapterOptionsFromSettings;
 
         outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions);
         return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
@@ -96,7 +96,7 @@ function createLanguageClient(): LanguageClient {
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
     const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2): langServOptionsFromSettings;
+    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : langServOptionsFromSettings;
 
     outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
     const serverExec: Executable = {
@@ -190,13 +190,13 @@ function debugListingLine() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    vscode.window.showInputBox({title: "Enter debug listing line number:", prompt: "Go To Source Line"}).then(input => {
-    client.sendRequest("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input)}).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName.toString());
-        vscode.window.showTextDocument(openPath);
-    })
-  });
+    vscode.window.showInputBox({ title: "Enter debug listing line number:", prompt: "Go To Source Line" }).then(input => {
+        client.sendRequest("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) }).then(fName => {
+            // TODO Improve error mgmt
+            const openPath = vscode.Uri.file(fName.toString());
+            vscode.window.showTextDocument(openPath);
+        })
+    });
 }
 
 function preprocessFile() {
