@@ -120,11 +120,6 @@
                 "description": "Run current UnitTest file"
             },
             {
-                "command": "abl.dictionary.dumpDefinition",
-                "title": "ABL: Read Dictionary Structure",
-                "description": "Read the DataDictionary structure for further use"
-            },
-            {
                 "command": "abl.dataDictionary",
                 "title": "ABL: Open DataDictionary",
                 "description": "Open the DataDictionary external tool"
