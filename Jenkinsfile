@@ -25,7 +25,7 @@ pipeline {
         }
       }
       steps {
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/main', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/develop', selector: lastSuccessful(), target: '.'
         withSonarQubeEnv('RSSW2') {
           sh 'mv bootstrap/target/abl-lsp-*.jar resources/abl-lsp.jar && mv bootstrap-dap/target/abl-dap-*.jar resources/abl-dap.jar && node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
         }
