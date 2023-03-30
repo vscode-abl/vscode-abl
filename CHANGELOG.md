@@ -1,3 +1,9 @@
+1.4.8
+=====
+
+* Proenv entry in Terminal view
+* Code completion improvements
+
 1.4.7
 =====
 
