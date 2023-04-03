@@ -73,6 +73,14 @@ export function activate(ctx: vscode.ExtensionContext): void {
     client.start();
 }
 
+
+export function deactivate(): Thenable<void> | undefined {
+    if (!client) {
+        return undefined;
+    }
+    return client.stop();
+}
+
 export function getProject(p: string): OpenEdgeProjectConfig {
     const retVal = projects.find(config => p.startsWith(config.rootDir));
     return (retVal != null) ? retVal : defaultProject;
@@ -421,14 +429,14 @@ function generateProenvStartUnix(path: string) {
         myText += "echo ==========================================\n"
         oeRuntimes.forEach(runtime => {
             myText += "echo \"* " + count++ + " => " + runtime.path + "\" \n";
-            response +=  "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( \"" + runtime.path + "/bin/proenv\" ) ; fi \n"
+            response += "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( \"" + runtime.path + "/bin/proenv\" ) ; fi \n"
         });
         myText += "echo \n"
         myText += "read -p 'Your choice: ' answer\n"
         myText += response
     }
     myText += "exit 0\n"
-    fs.writeFileSync(path, myText, { mode: 0o700});
+    fs.writeFileSync(path, myText, { mode: 0o700 });
 }
 
 function generateProenvStartWindows(path: string) {
@@ -645,10 +653,6 @@ function getDlcDirectory(version: string): string {
             dlc = runtime.path
     });
     return dlc;
-}
-
-function deactivate() {
-    return client.stop();
 }
 
 function initProviders(context: vscode.ExtensionContext) {
