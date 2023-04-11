@@ -537,10 +537,16 @@ function readOEConfigFile(uri) {
             outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
             const idx = projects.findIndex(element => (element.name == prjConfig.name) && (element.version == prjConfig.version))
             if (idx > -1) {
-                projects[idx] = prjConfig;
+                if (projects[idx].rootDir == prjConfig.rootDir)
+                    projects[idx] = prjConfig;
+                else {
+                    outputChannel.appendLine("Duplicate project " + prjConfig.name + " " + prjConfig.version + " found in " + prjConfig.rootDir + " and " + projects[idx].rootDir);
+                }
             } else {
                 projects.push(prjConfig);
             }
+        } else {
+            outputChannel.appendLine("Skip OpenEdge project in " + prjConfig.rootDir + " -- OpenEdge install not found")
         }
     });
 }
