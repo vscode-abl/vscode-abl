@@ -1,3 +1,11 @@
+1.4.9
+=====
+
+* Fix deactivate entry point (stop LS locally and on remote workspaces)
+* Code completion improvements
+* Report errors on duplicate project names
+* Report errors in VSCode UI when OE sessions can't be started
+
 1.4.8
 =====
 
