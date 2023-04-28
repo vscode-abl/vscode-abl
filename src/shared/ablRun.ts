@@ -24,8 +24,10 @@ export function debug(filename: string, project: OpenEdgeProjectConfig, executab
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
     const prms = [ "-clientlog", path.join(project.rootDir, ".builder\\debugger.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName , "-debugReady", "3099"];
+    const prms2 = prms.concat(project.extraParameters.split(' '));
 
-    return cp.spawn( executable, project.extraParameters.split(' ').concat(prms), { env: env, cwd: project.rootDir, detached: true, stdio: 'pipe' });
+    outputChannel.appendLine("Debug - Command line: " + executable + " " + prms2.join(" "));
+    return cp.spawn( executable, prms2, { env: env, cwd: project.rootDir, detached: true, stdio: 'pipe' });
 }
 
 export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
@@ -45,8 +47,10 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
     const prms = ["-clientlog", path.join(project.rootDir, ".builder\\rungui.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
+    const prms2 = prms.concat(project.extraParameters.split(' '));
 
-    cp.spawn(project.getExecutable(true), project.extraParameters.split(' ').concat(prms), { env: env, cwd: project.rootDir, detached: true });
+    outputChannel.appendLine("Run with prowin - Command line: " + project.getExecutable(true) + " " + prms2.join(" "));
+    cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: project.rootDir, detached: true });
 }
 
 export function openInAB(filename: string, rootDir: string, project: ProfileConfig) {

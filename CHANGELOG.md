@@ -1,3 +1,8 @@
+1.4.10
+======
+
+* Allow INI file to be overriden when running procedures with prowin
+
 1.4.9
 =====
 

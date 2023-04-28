@@ -45,7 +45,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
         const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : debugAdapterOptionsFromSettings;
 
-        outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions);
+        outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions.join(" "));
         return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
     }
 }
@@ -107,7 +107,7 @@ function createLanguageClient(): LanguageClient {
     const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
     const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : langServOptionsFromSettings;
 
-    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions);
+    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions.join(" "));
     const serverExec: Executable = {
         command: langServExecutable,
         args: langServOptions
