@@ -1,3 +1,8 @@
+1.4.11
+======
+
+* Upgrade CABL rules to 2.21.1 (note that if you have a valid CABL subscription, you can execute the CABL rules in VSCode, open the license management website to get your key)
+
 1.4.10
 ======
 
