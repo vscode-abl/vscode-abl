@@ -1,7 +1,8 @@
-1.4.11
-======
+1.4.11 & 1.4.12
+===============
 
 * Upgrade CABL rules to 2.21.1 (note that if you have a valid CABL subscription, you can execute the CABL rules in VSCode, open the license management website to get your key)
+* OpenEdge 12.7 support in configuration files
 
 1.4.10
 ======
