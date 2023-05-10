@@ -26,8 +26,15 @@ pipeline {
       }
       steps {
         copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/develop', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge/develop', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge-rules/develop', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/progress-rules/develop', selector: lastSuccessful(), target: '.'
         withSonarQubeEnv('RSSW2') {
-          sh 'mv bootstrap/target/abl-lsp-*.jar resources/abl-lsp.jar && mv bootstrap-dap/target/abl-dap-*.jar resources/abl-dap.jar && node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
+          sh 'mv bootstrap/target/abl-lsp-*.jar resources/abl-lsp.jar && mv bootstrap-dap/target/abl-dap-*.jar resources/abl-dap.jar'
+          sh 'mv openedge-plugin/target/sonar-openedge-plugin-*.jar resources/sonar-openedge-plugin.jar'
+          sh 'mv plugin/target/riverside-rules-plugin-*.jar resources/riverside-rules-plugin.jar'
+          sh 'mv plugin/target/progress-rules-plugin-*.jar resources/progress-rules-plugin.jar'
+          sh 'node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
         }
         archiveArtifacts artifacts: '*.vsix'
       }
