@@ -159,6 +159,7 @@ DEFINE INPUT  PARAMETER pcCablJson    AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE ttRule NO-UNDO
     XML-NODE-NAME "rule":U
     FIELD RuleClassName  AS CHARACTER FORMAT "x(60)":U XML-NODE-NAME "key":U
+    FIELD RuleRepository AS CHARACTER FORMAT "x(60)":U XML-NODE-NAME "repositoryKey":U
     FIELD RuleName       AS CHARACTER FORMAT "x(60)":U
 
     INDEX RuleClassName IS PRIMARY UNIQUE RuleClassName.
@@ -246,6 +247,7 @@ FOR EACH ttRule BY ttRule.RuleName:
 
     oRules:Add (oRule) .
 
+    oRule:Add ("repository":U, ttRule.RuleRepository) .
     oRule:Add ("name":U, ttRule.RuleName) .
     oRule:Add ("class":U, ttRule.RuleClassName) .
 
