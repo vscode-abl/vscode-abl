@@ -89,12 +89,6 @@ export function getProject(p: string): OpenEdgeProjectConfig {
 function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
-        '--add-opens=java.base/java.lang=ALL-UNNAMED',
-        '--add-opens=java.base/java.math=ALL-UNNAMED',
-        '--add-opens=java.base/java.util=ALL-UNNAMED',
-        '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
-        '--add-opens=java.base/java.net=ALL-UNNAMED',
-        '--add-opens=java.base/java.text=ALL-UNNAMED',
         '-Dorg.slf4j.simpleLogger.showLogName=false',
         '-Dorg.slf4j.simpleLogger.log.eu.rssw.openedge.ls.lint.SonarLintLogger=WARN',
         '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
