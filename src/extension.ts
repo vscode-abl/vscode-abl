@@ -92,6 +92,7 @@ function createLanguageClient(): LanguageClient {
         '-Dorg.slf4j.simpleLogger.showLogName=false',
         '-Dorg.slf4j.simpleLogger.log.eu.rssw.openedge.ls.lint.SonarLintLogger=WARN',
         '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
+        '-Deu.rssw.openedge.ls.pluginsDir=' + path.join(__dirname, '../resources'),
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
 
