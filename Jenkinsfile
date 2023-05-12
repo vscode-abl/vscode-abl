@@ -41,6 +41,7 @@ pipeline {
     }
 
     stage('Build Docker Image') {
+      when { branch 'main' }
       steps {
         script {
           docker.withServer('unix:///var/run/docker.sock') {
