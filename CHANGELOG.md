@@ -1,3 +1,9 @@
+1.4.13
+======
+
+* SonarLint integration in Language Server
+  * Change required in `.vscode/cabl.json`
+
 1.4.11 & 1.4.12
 ===============
 
