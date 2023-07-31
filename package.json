@@ -46,6 +46,7 @@
     "contributes": {
         "configurationDefaults": {
             "[abl]": {
+                "editor.semanticHighlighting.enabled": false,
                 "editor.wordSeparators": "`~!@#$%^&()=+[{}]\\|;:'\",.<>/?"
             }
         },
