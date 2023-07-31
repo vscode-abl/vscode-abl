@@ -6,9 +6,6 @@ import { openDataDictionary } from './ablDataDictionary';
 import { runGUI, openInAB } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
-import { initDocumentController } from './parser/documentController';
-import { watchDictDumpFiles } from './providers/ablCompletionProvider';
-import { ABLFormattingProvider } from './providers/ablFormattingProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 import { tmpdir } from 'os';
@@ -56,10 +53,6 @@ export function activate(ctx: vscode.ExtensionContext): void {
     const env: any = { ...process.env };
     vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", env));
 
-    startDictWatcher();
-    startDocumentWatcher(ctx);
-
-    initProviders(ctx);
     registerCommands(ctx);
 
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -83,7 +76,7 @@ export function deactivate(): Thenable<void> | undefined {
 
 export function getProject(p: string): OpenEdgeProjectConfig {
     const retVal = projects.find(config => p.startsWith(config.rootDir));
-    return (retVal != null) ? retVal : defaultProject;
+    return retVal ?? defaultProject;
 }
 
 function createLanguageClient(): LanguageClient {
@@ -196,11 +189,7 @@ function debugListingLine() {
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
     vscode.window.showInputBox({ title: "Enter debug listing line number:", prompt: "Go To Source Line" }).then(input => {
-        client.sendRequest("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) }).then(fName => {
-            // TODO Improve error mgmt
-            const openPath = vscode.Uri.file(fName.toString());
-            vscode.window.showTextDocument(openPath);
-        })
+        client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) });
     });
 }
 
@@ -209,9 +198,9 @@ function preprocessFile() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
+    client.sendRequest<string>("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName.toString());
+        const openPath = vscode.Uri.file(fName);
         vscode.window.showTextDocument(openPath);
     });
 }
@@ -221,9 +210,9 @@ function generateDebugListing() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
+    client.sendRequest<string>("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName.toString());
+        const openPath = vscode.Uri.file(fName);
         vscode.window.showTextDocument(openPath);
     });
 }
@@ -233,9 +222,9 @@ function generateXref() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
+    client.sendRequest<string>("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName.toString());
+        const openPath = vscode.Uri.file(fName);
         vscode.window.showTextDocument(openPath);
     });
 }
@@ -245,9 +234,9 @@ function generateXmlXref() {
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
 
-    client.sendRequest("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
+    client.sendRequest<string>("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
         // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName.toString());
+        const openPath = vscode.Uri.file(fName);
         vscode.window.showTextDocument(openPath);
     });
 }
@@ -649,16 +638,4 @@ function getDlcDirectory(version: string): string {
             dlc = runtime.path
     });
     return dlc;
-}
-
-function initProviders(context: vscode.ExtensionContext) {
-    new ABLFormattingProvider(context);
-}
-
-function startDocumentWatcher(context: vscode.ExtensionContext) {
-    initDocumentController(context);
-}
-
-function startDictWatcher() {
-    watchDictDumpFiles();
 }
