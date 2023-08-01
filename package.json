@@ -44,6 +44,11 @@
     ],
     "main": "./dist/extension.js",
     "contributes": {
+        "configurationDefaults": {
+            "[abl]": {
+                "editor.wordSeparators": "`~!@#$%^&()=+[{}]\\|;:'\",.<>/?"
+            } 
+        },
         "terminal": {
             "profiles": [
                 {
