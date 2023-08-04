@@ -25,10 +25,10 @@ pipeline {
         }
       }
       steps {
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/develop', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge/release%252FV2.22', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge-rules/release%252FV2.22', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/progress-rules/release%252FV2.22', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/main', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge/main', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge-rules/main', selector: lastSuccessful(), target: '.'
+        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/progress-rules/main', selector: lastSuccessful(), target: '.'
         withSonarQubeEnv('RSSW2') {
           sh 'mv bootstrap/target/abl-lsp-*.jar resources/abl-lsp.jar && mv bootstrap-dap/target/abl-dap-*.jar resources/abl-dap.jar'
           sh 'mv openedge-plugin/target/sonar-openedge-plugin-*.jar resources/sonar-openedge-plugin.jar'
