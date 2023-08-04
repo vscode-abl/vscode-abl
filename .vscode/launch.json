@@ -45,6 +45,18 @@
             ],
             "sourceMaps": true,
             "preLaunchTask": "build"
+        },
+        {
+            "name": "Run Extension - SCL",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\Customers\\Consultingwerk\\SmartComponentLibrary"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "build"
         }
+
     ]
 }

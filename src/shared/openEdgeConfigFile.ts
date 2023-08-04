@@ -1,7 +1,6 @@
 import * as jsonminify from 'jsonminify';
 import * as path from 'path';
 import * as fs from 'fs';
-import { OpenEdgeFormatOptions } from '../misc/OpenEdgeFormatOptions';
 
 export interface TestConfig {
   files?: string[];
@@ -72,7 +71,6 @@ export class ProfileConfig {
   parameterFiles: string[] // Deprecated
   dbDictionary?: string[]; // Deprecated
   test?: TestConfig; // Deprecated
-  format?: OpenEdgeFormatOptions; // Deprecated
   dbConnections?: DatabaseConnection[];
   procedures: Procedure[];
 
