@@ -1,8 +1,9 @@
 1.4.13
 ======
 
-* SonarLint integration in Language Server
-  * Change required in `.vscode/cabl.json`
+* SonarLint integration in Language Server (standalone mode only, connected mode available soon)
+  * Change required in `.vscode/cabl.json`, see README.md
+* Improved code completion
 
 1.4.11 & 1.4.12
 ===============
