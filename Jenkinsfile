@@ -16,6 +16,23 @@ pipeline {
       }
     }
 
+    stage('Dependencies') { 
+      steps {
+        script {
+          def rulesVersion = "2.22.0"
+          def cablVersion = "2.22.1"
+          def ablsVersion = "1.9.0"
+          withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'hudson.tasks.Maven$MavenInstallation'}"]) {
+            sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:sonar-openedge-plugin:${cablVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/sonar-openedge-plugin/${cablVersion}/sonar-openedge-plugin-${cablVersion}.jar resources/sonar-openedge-plugin.jar"
+            sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:riverside-rules-plugin:${rulesVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/riverside-rules-plugin/${rulesVersion}/riverside-rules-plugin-${rulesVersion}.jar resources/riverside-rules-plugin.jar"
+            sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:progress-rules-plugin:${rulesVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/progress-rules-plugin/${rulesVersion}/progress-rules-plugin-${rulesVersion}.jar resources/progress-rules-plugin.jar"
+            sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-lsp-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-lsp-bootstrap/${ablsVersion}/abl-lsp-bootstrap-${ablsVersion}.jar resources/abl-lsp.jar"
+            sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-dap-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-dap-bootstrap/${ablsVersion}/abl-dap-bootstrap-${ablsVersion}.jar resources/abl-dap.jar"
+          }
+        }
+      }
+    }
+
     stage('Build') { 
       agent {
         docker {
@@ -25,15 +42,7 @@ pipeline {
         }
       }
       steps {
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/ABLS/main', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge/main', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/sonar-openedge-rules/main', selector: lastSuccessful(), target: '.'
-        copyArtifacts filter: '**/*.jar', fingerprintArtifacts: true, projectName: '/progress-rules/main', selector: lastSuccessful(), target: '.'
         withSonarQubeEnv('RSSW2') {
-          sh 'mv bootstrap/target/abl-lsp-*.jar resources/abl-lsp.jar && mv bootstrap-dap/target/abl-dap-*.jar resources/abl-dap.jar'
-          sh 'mv openedge-plugin/target/sonar-openedge-plugin-2.22.0.jar resources/sonar-openedge-plugin.jar'
-          sh 'mv plugin/target/riverside-rules-plugin-*.jar resources/riverside-rules-plugin.jar'
-          sh 'mv plugin/target/progress-rules-plugin-*.jar resources/progress-rules-plugin.jar'
           sh 'node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
         }
         archiveArtifacts artifacts: '*.vsix'

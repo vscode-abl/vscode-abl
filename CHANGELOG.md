@@ -1,3 +1,11 @@
+1.4.15
+======
+
+* All class symbols now available in SonarLint ; result of the analysis should now be on par with Sonar Scanner
+  * Code will be backported to SonarLint Eclipse (if possible)
+* Skip rcode scan of procedures during project startup (scan only classes)
+* Fix mapping of include file names to parse units (issue #91)
+
 1.4.13
 ======
 
