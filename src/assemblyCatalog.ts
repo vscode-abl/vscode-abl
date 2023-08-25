@@ -21,7 +21,7 @@ export function executeGenCatalog(project: OpenEdgeProjectConfig) {
         procedure: 'assembliesCatalog.p'
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
-    const prms = ["-clientlog", path.join(project.rootDir, ".builder/assemblyCatalog.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName];
+    const prms = ["-clientlog", path.join(project.rootDir, ".builder/assemblyCatalog.log"), "-b", "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName];
     if (project.gui)
         prms.push( "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini'));
 

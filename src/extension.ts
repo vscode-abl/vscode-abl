@@ -259,8 +259,9 @@ function fixLowerCasing() {
 }
 
 function generateCatalog() {
-    if (vscode.window.activeTextEditor != undefined) {
-        executeGenCatalog(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+    const list = projects.map(str => str.rootDir).map(label => ({ label }));
+    if (list.length == 1) {
+        executeGenCatalog(projects[0]);
         vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
     } else {
         const list = projects.map(str => str.rootDir).map(label => ({ label }));
