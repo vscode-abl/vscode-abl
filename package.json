@@ -424,6 +424,16 @@
                     "default": "java",
                     "description": "Language Server Java executable"
                 },
+                "abl.configuration.maxThreads": {
+                    "type": "integer",
+                    "default": -1,
+                    "description": "Maximum number of AVM per OpenEdge project (-1 means no limit)"
+                },
+                "abl.configuration.hideAvmWindow": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
+                },
                 "abl.configuration.runtimes": {
                     "type": "array",
                     "description": "Map OpenEdge Execution Environments to local installation",

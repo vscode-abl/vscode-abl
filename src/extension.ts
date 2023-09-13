@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { openDataDictionary } from './ablDataDictionary';
+import { executeGenCatalog } from './assemblyCatalog';
 import { runGUI, openInAB } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
@@ -258,11 +259,23 @@ function fixLowerCasing() {
 }
 
 function generateCatalog() {
-    if (vscode.window.activeTextEditor == undefined)
-        return;
-    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-
-    client.sendNotification("proparse/assembly", { projectUri: cfg.rootDir });
+    const list = projects.map(str => str.rootDir).map(label => ({ label }));
+    if (list.length == 1) {
+        executeGenCatalog(projects[0]);
+        vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
+    } else {
+        const list = projects.map(str => str.rootDir).map(label => ({ label }));
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.canSelectMany = false;
+        quickPick.title = "Generate assembly catalog - Select project:";
+        quickPick.items = list;
+        quickPick.onDidChangeSelection(([{ label }]) => {
+            executeGenCatalog(getProject(label));
+            quickPick.hide();
+            vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
+        });
+        quickPick.show();
+    }
 }
 
 
