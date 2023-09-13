@@ -1,3 +1,12 @@
+1.4.17
+======
+
+* IMPORTANT: the .builder/storage directory of your projects has to be deleted after upgrade. Content will be automatically regenerated.
+* New assembly catalog command ; improved .Net code completion
+* Various code completion / hover / definition improvements in LS
+* MaxThreads implementation (#58)
+* Javadoc & deprecated methods (#97)
+
 1.4.15
 ======
 
