@@ -1,3 +1,7 @@
+1.4.19
+======
+* Execute default CABL rules when no license configured in VS Code settings
+
 1.4.17
 ======
 
