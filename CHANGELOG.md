@@ -1,3 +1,7 @@
+1.4.21
+======
+* Fixed Debug Adapter startup issue
+
 1.4.19
 ======
 * Execute default CABL rules when no license configured in VS Code settings
