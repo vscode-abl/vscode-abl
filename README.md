@@ -36,8 +36,6 @@ OpenEdge runtimes have to be declared in VSCode configuration file. Open setting
     ],
 ```
 
-![Settings](resources/images/settings.png)
-
 ## Project Configuration
 OpenEdge projects can be configured in a file called `openedge-project.json`. This file has to be in the root directory of the project.
 ```jsonc
