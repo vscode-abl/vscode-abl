@@ -1,3 +1,20 @@
+1.4.21
+======
+* Fixed Debug Adapter startup issue
+
+1.4.19
+======
+* Execute default CABL rules when no license configured in VS Code settings
+
+1.4.17
+======
+
+* IMPORTANT: the .builder/storage directory of your projects has to be deleted after upgrade. Content will be automatically regenerated.
+* New assembly catalog command ; improved .Net code completion
+* Various code completion / hover / definition improvements in LS
+* MaxThreads implementation (#58)
+* Javadoc & deprecated methods (#97)
+
 1.4.15
 ======
 

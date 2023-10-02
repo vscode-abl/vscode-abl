@@ -20,7 +20,21 @@ This extension requires:
 
 ## Global Configuration
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
-![Settings](resources/images/settings.png)
+
+```jsonc
+    "abl.configuration.runtimes": [
+        {
+            "name": "12.2",
+            "default": true,
+            "path": "C:/Progress/Openedge"
+        },
+        {
+            "name": "11.7",
+            "default": false,
+            "path": "C:\\Progress\\OpenEdge-11.7"
+        }
+    ],
+```
 
 ## Project Configuration
 OpenEdge projects can be configured in a file called `openedge-project.json`. This file has to be in the root directory of the project.
@@ -30,7 +44,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   "version": "1.0",    // Project version number, will be used in the future for dependency management
   "oeversion": "12.2", // Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
   "graphicalMode": true, // True for prowin[32], false for _progres
-  "charset": "utf-8",  // Charset 
+  "charset": "utf-8",  // Charset
   "extraParameters": "", // Extra Progress command line parameters
   "buildPath": [
     // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
@@ -69,7 +83,7 @@ The following actions are defined in this extension (use Ctrl + Shift + P to exe
 * Open Data Dictionary
 * Run with Prowin: execute current file in prowin[32] session
 * Run with _progres in batch mode: execute current file in _progres session (with `-b`)
-* Run with _progres: execute current file (with _progres) in Terminal view 
+* Run with _progres: execute current file (with _progres) in Terminal view
 * Switch to profile: switch current project to another profile
 * Fix casing of source code: convert all keywords to uppercase or lowercase
 
