@@ -112,7 +112,8 @@ function createLanguageClient(): LanguageClient {
             upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
             buildMode: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
             outlineShowIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showIncludeFiles', false),
-            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false)
+            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false),
+            sonarLintRules: vscode.workspace.getConfiguration('abl').get('sonarlint.rules', [])
         },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
