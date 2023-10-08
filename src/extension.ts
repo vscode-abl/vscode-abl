@@ -532,7 +532,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     readWorkspaceOEConfigFiles();
     // Monitor changes in all openedge-project.json files
-    vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
+    vscode.workspace.createFileSystemWatcher('**/openedge-project.{json,jsonc}').onDidChange(uri => readOEConfigFile(uri));
 }
 
 function readOEConfigFile(uri) {
@@ -558,7 +558,7 @@ function readOEConfigFile(uri) {
 }
 
 function readWorkspaceOEConfigFiles() {
-    vscode.workspace.findFiles('**/openedge-project.json').then(list => {
+    vscode.workspace.findFiles('**/openedge-project.{json,jsonc}').then(list => {
         list.forEach(uri => { readOEConfigFile(uri); });
     });
 }
@@ -572,7 +572,11 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
+    try { 
+        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc)) 
+    } catch {
+        prjConfig.propath = [ '.' ] // default the propath to the root of the workspace
+    }
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
     prjConfig.parameterFiles = []
@@ -646,9 +650,16 @@ function readGlobalOpenEdgeRuntimes() {
 
 function getDlcDirectory(version: string): string {
     let dlc: string = "";
+    let dflt: string = "";
     oeRuntimes.forEach(runtime => {
         if (runtime.name === version)
             dlc = runtime.path
+        if (runtime.default === true)
+            dflt = runtime.path
     });
+    if ( dlc == "" && dflt != "" ) {
+        dlc = dflt;
+        outputChannel.appendLine("OpenEdge version not configured in workspace settings, using default version (" + dlc + ") in user settings.");
+    }
     return dlc;
 }

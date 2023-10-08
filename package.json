@@ -39,7 +39,7 @@
     ],
     "activationEvents": [
         "onLanguage:abl",
-        "workspaceContains:openedge-project.json",
+        "workspaceContains:openedge-project.{json,jsonc}",
         "onTerminalProfile:proenv.terminal-profile"
     ],
     "main": "./dist/extension.js",
@@ -243,6 +243,7 @@
                             "name": "${2:Debug program / Interactive GUI}",
                             "type": "abl",
                             "request": "launch",
+                            "debugEnabled": true,
                             "program": "^\"${1:\\${file}}\"",
                             "cwd": "^\"\\${workspaceFolder}\"",
                             "graphicalMode": true
@@ -255,6 +256,20 @@
                             "name": "${2:Debug program / Interactive TTY}",
                             "type": "abl",
                             "request": "launch",
+                            "debugEnabled": true,
+                            "program": "^\"${1:\\${file}}\"",
+                            "cwd": "^\"\\${workspaceFolder}\"",
+                            "graphicalMode": false
+                        }
+                    },
+                    {
+                        "label": "ABL: Run program / Interactive TTY",
+                        "description": "Run the current file in interactive TTY mode",
+                        "body": {
+                            "name": "${2:Run program / Interactive TTY}",
+                            "type": "abl",
+                            "request": "launch",
+                            "debugEnabled": false,
                             "program": "^\"${1:\\${file}}\"",
                             "cwd": "^\"\\${workspaceFolder}\"",
                             "graphicalMode": false
@@ -306,9 +321,9 @@
                                 "description": "Attach to AVM or PASOE"
                             },
                             "port": {
-                                "type": "string",
+                                "type": "integer",
                                 "description": "The port that the debugger is listening on",
-                                "default": "3099"
+                                "default": 3099
                             },
                             "hostname": {
                                 "type": "string",
@@ -497,7 +512,7 @@
         },
         "jsonValidation": [
             {
-                "fileMatch": "openedge-project.json",
+                "fileMatch": "openedge-project.{json,jsonc}",
                 "url": "./resources/openedge.schema.json"
             }
         ],
