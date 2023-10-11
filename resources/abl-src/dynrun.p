@@ -43,7 +43,8 @@ LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("JSON Config file: &1", SESSION:PARAMETER))
 OS-DELETE VALUE(SESSION:PARAMETER).
 
 //DB connections + aliases
-DO ON ERROR UNDO, LEAVE:
+if configJson:has("databases") then
+do:
   ASSIGN dbEntries = configJson:GetJsonArray("databases").
   DO zz = 1 TO dbEntries:Length:
     ASSIGN dbEntry = dbEntries:GetJsonObject(zz).
@@ -66,17 +67,6 @@ DO ON ERROR UNDO, LEAVE:
         END.
       END.
     END.
-  END.
-  CATCH err AS Progress.Lang.Error:
-    IF err:GetMessageNum(1) = 16058 THEN DO: // "Call to Progress.Json.ObjectModel.JsonObject:GetJsonArray( ) failed. Property 'databases' was not found. (16058)"
-      // no DB connections configured in openedge-project.json
-      LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("No DB connections detected in '" + SESSION:PARAMETER + "', running without any connections")).
-      DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-        LOG-MANAGER:WRITE-MESSAGE(ERROR-STATUS:GET-MESSAGE(i)).
-      END.
-    END.
-    ELSE
-      UNDO, THROW err.
   END.
 END.
 
