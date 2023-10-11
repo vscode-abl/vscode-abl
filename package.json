@@ -39,7 +39,7 @@
     ],
     "activationEvents": [
         "onLanguage:abl",
-        "workspaceContains:openedge-project.json",
+        "workspaceContains:openedge-project.{json,jsonc}",
         "onTerminalProfile:proenv.terminal-profile"
     ],
     "main": "./dist/extension.js",
@@ -497,7 +497,7 @@
         },
         "jsonValidation": [
             {
-                "fileMatch": "openedge-project.json",
+                "fileMatch": "openedge-project.{json,jsonc}",
                 "url": "./resources/openedge.schema.json"
             }
         ],

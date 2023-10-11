@@ -25,6 +25,18 @@
             "preLaunchTask": "build"
         },
         {
+            "name": "Run Extension - Sample project 4 (jsonc)",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}", 
+                "${workspaceFolder}/run_env/sample-oe-projects/project4"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "build"
+        },
+        {
             "name": "Run Extension - SonarTestProject",
             "type": "extensionHost",
             "request": "launch",

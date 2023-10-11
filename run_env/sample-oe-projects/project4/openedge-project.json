@@ -1,0 +1,15 @@
+{
+  "version": "12.2",
+  "oeversion": "12.2",
+  //this is a comment!
+  "graphicalMode": true,
+  "extraParameters": "",
+  "buildPath": [
+    { "type": "source", "path": "src" }
+  ],
+  "buildDirectory": "build",
+  "dumpFiles": [],
+  "dbConnections": [],
+  "aliases": "",
+  "numThreads": 1
+}
