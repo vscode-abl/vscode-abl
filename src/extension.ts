@@ -532,7 +532,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     readWorkspaceOEConfigFiles();
     // Monitor changes in all openedge-project.json files
-    vscode.workspace.createFileSystemWatcher('**/openedge-project.{json,jsonc}').onDidChange(uri => readOEConfigFile(uri));
+    vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
 }
 
 function readOEConfigFile(uri) {
@@ -558,7 +558,7 @@ function readOEConfigFile(uri) {
 }
 
 function readWorkspaceOEConfigFiles() {
-    vscode.workspace.findFiles('**/openedge-project.{json,jsonc}').then(list => {
+    vscode.workspace.findFiles('**/openedge-project.json').then(list => {
         list.forEach(uri => { readOEConfigFile(uri); });
     });
 }
