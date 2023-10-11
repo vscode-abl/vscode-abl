@@ -43,8 +43,8 @@ LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("JSON Config file: &1", SESSION:PARAMETER))
 OS-DELETE VALUE(SESSION:PARAMETER).
 
 //DB connections + aliases
-if configJson:has("databases") then
-do:
+IF configJson:has("databases") THEN
+DO:
   ASSIGN dbEntries = configJson:GetJsonArray("databases").
   DO zz = 1 TO dbEntries:Length:
     ASSIGN dbEntry = dbEntries:GetJsonObject(zz).
