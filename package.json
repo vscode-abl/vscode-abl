@@ -73,6 +73,10 @@
                     ".cls"
                 ],
                 "configuration": "./resources/language-configuration.json"
+            },
+            {
+                "id": "jsonc",
+                "filenames": [ "openedge-project.json" ]
             }
         ],
         "grammars": [
