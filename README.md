@@ -22,15 +22,14 @@ This extension requires:
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 
 ```jsonc
+    "abl.configuration.runtimes.default": "12.2", // Default ABL version
     "abl.configuration.runtimes": [
         {
             "name": "12.2",
-            "default": true,
             "path": "C:/Progress/Openedge"
         },
         {
             "name": "11.7",
-            "default": false,
             "path": "C:\\Progress\\OpenEdge-11.7"
         }
     ],
