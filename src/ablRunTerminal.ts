@@ -7,7 +7,20 @@ import { tmpdir } from 'os';
 import { outputChannel } from './ablStatus';
 import { create } from './OutputChannelProcess';
 
+const builderExists: { [rootDir: string]: boolean } = {};
+
+function checkBuilderDirectoryExists(rootDir: string) {
+    if (!builderExists[rootDir]) {
+        const builderDir = path.join(rootDir, ".builder");
+        if (!fs.existsSync(builderDir)) { //only check once.  restart the language server to check again
+            fs.mkdirSync(builderDir);
+        }
+        builderExists[rootDir] = true;
+    }
+}
+
 export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
+    checkBuilderDirectoryExists(project.rootDir);
     const terminal = vscode.window.createTerminal({ name: "TTY execution", env: {DLC: project.dlc}});
     const prmFileName = path.join(tmpdir(), 'runtty-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
@@ -22,11 +35,13 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
-    terminal.sendText(project.getTTYExecutable() + ' ' + project.extraParameters.split(' ').concat(["-clientlog", path.join(project.rootDir, ".builder", "runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]).join(' '));
+    const cmd = project.getTTYExecutable() + ' ' + project.extraParameters.split(' ').concat(["-clientlog", path.join(project.rootDir, ".builder", "runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]).join(' ');
+    terminal.sendText(cmd.replace(/\\/g, '/'), true);
     terminal.show();
 }
 
 export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
+    checkBuilderDirectoryExists(project.rootDir);
     outputChannel.clear();
 
     const env = process.env;
