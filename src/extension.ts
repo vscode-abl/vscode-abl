@@ -634,7 +634,7 @@ function readGlobalOpenEdgeRuntimes() {
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
 
-    let oeRuntimesDefault = vscode.workspace.getConfiguration('abl').get('configuration.defaultRuntime');
+    const oeRuntimesDefault = vscode.workspace.getConfiguration('abl').get('configuration.defaultRuntime');
     if (oeRuntimesDefault != "") {
         //set default flag on the runtime that matches the defaultRuntime setting
         oeRuntimes.find(runtime => {
