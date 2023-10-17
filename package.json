@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.4.21",
+    "version": "1.4.22",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -73,6 +73,10 @@
                     ".cls"
                 ],
                 "configuration": "./resources/language-configuration.json"
+            },
+            {
+                "id": "jsonc",
+                "filenames": [ "openedge-project.json" ]
             }
         ],
         "grammars": [
@@ -306,9 +310,9 @@
                                 "description": "Attach to AVM or PASOE"
                             },
                             "port": {
-                                "type": "string",
+                                "type": "integer",
                                 "description": "The port that the debugger is listening on",
-                                "default": "3099"
+                                "default": 3099
                             },
                             "hostname": {
                                 "type": "string",
@@ -434,6 +438,30 @@
                     "default": false,
                     "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
                 },
+                "abl.sonarlint.rules": {
+                    "type": "array",
+                    "description": "Path to custom SonarLint rules",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "abl.configuration.defaultRuntime": {
+                    "type": "string",
+                    "description": "Default OpenEdge Execution Environment name",
+                    "enum": [
+                        "9.1E",
+                        "10.2B",
+                        "11.5",
+                        "11.6",
+                        "11.7",
+                        "12.2",
+                        "12.4",
+                        "12.5",
+                        "12.6",
+                        "12.7",
+                        "ESAP"
+                    ]
+                },
                 "abl.configuration.runtimes": {
                     "type": "array",
                     "description": "Map OpenEdge Execution Environments to local installation",
@@ -469,7 +497,7 @@
                             },
                             "default": {
                                 "type": "boolean",
-                                "description": "Is default runtime? Only one runtime can be default."
+                                "description": "deprecated: use 'abl.configuration.runtimes.default'"
                             }
                         },
                         "additionalProperties": false

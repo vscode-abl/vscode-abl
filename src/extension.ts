@@ -112,7 +112,8 @@ function createLanguageClient(): LanguageClient {
             upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
             buildMode: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
             outlineShowIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showIncludeFiles', false),
-            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false)
+            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false),
+            sonarLintRules: vscode.workspace.getConfiguration('abl').get('sonarlint.rules', [])
         },
         documentSelector: [{ scheme: 'file', language: 'abl' }],
         synchronize: {
@@ -572,7 +573,11 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
+    try { 
+        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc)) 
+    } catch {
+        prjConfig.propath = [ '.' ] // default the propath to the root of the workspace
+    }
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
     prjConfig.parameterFiles = []
@@ -626,11 +631,25 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
 
 function readGlobalOpenEdgeRuntimes() {
     buildMode = vscode.workspace.getConfiguration('abl').get('buildMode', 1);
-
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
+
+    const oeRuntimesDefault = vscode.workspace.getConfiguration('abl').get('configuration.defaultRuntime');
+    if (oeRuntimesDefault != "") {
+        //set default flag on the runtime that matches the defaultRuntime setting
+        oeRuntimes.find(runtime => {
+            //we have a default set, so ignore the default in the array
+            if (runtime.name === oeRuntimesDefault) {
+                runtime.default = true;
+            } else {
+                runtime.default = false;
+            }
+        });
+    }
+
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');
+        outputChannel.appendLine('No OpenEdge runtime configured on this machine');
     }
     defaultRuntime = oeRuntimes.find(runtime => runtime.default);
     if (defaultRuntime != null) {
@@ -646,9 +665,20 @@ function readGlobalOpenEdgeRuntimes() {
 
 function getDlcDirectory(version: string): string {
     let dlc: string = "";
+    let dfltDlc: string = "";
+    let dfltName: string = "";
     oeRuntimes.forEach(runtime => {
-        if (runtime.name === version)
-            dlc = runtime.path
+        if (runtime.name === version) {
+            dlc = runtime.path;
+        }
+        if (runtime.default === true) {
+            dfltDlc = runtime.path;
+            dfltName = runtime.name;
+        }
     });
+    if ( dlc == "" && dfltDlc != "" ) {
+        dlc = dfltDlc;
+        outputChannel.appendLine("OpenEdge version not configured in workspace settings, using default version (" + dfltName + ") in user settings.");
+    }
     return dlc;
 }

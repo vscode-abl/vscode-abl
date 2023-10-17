@@ -7,11 +7,7 @@
   "required": [
     "name",
     "version",
-    "oeversion",
-    "charset",
-    "graphicalMode",
-    "buildPath",
-    "dbConnections"
+    "charset"
   ],
   "properties": {
     "name": {

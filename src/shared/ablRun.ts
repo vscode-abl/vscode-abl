@@ -6,7 +6,20 @@ import { ProfileConfig, OpenEdgeProjectConfig } from './openEdgeConfigFile';
 import { tmpdir } from 'os';
 import { outputChannel } from '../ablStatus';
 
+const builderExists: { [rootDir: string]: boolean } = {};
+
+function checkBuilderDirectoryExists(rootDir: string) {
+    if (!builderExists[rootDir]) {
+        const builderDir = path.join(rootDir, ".builder");
+        if (!fs.existsSync(builderDir)) { //only check once.  restart the language server to check again
+            fs.mkdirSync(builderDir);
+        }
+        builderExists[rootDir] = true;
+    }
+}
+
 export function debug(filename: string, project: OpenEdgeProjectConfig, executable: string): cp.ChildProcessWithoutNullStreams {
+    checkBuilderDirectoryExists(project.rootDir);
     const env = process.env;
     env.DLC = project.dlc;
 
@@ -23,6 +36,11 @@ export function debug(filename: string, project: OpenEdgeProjectConfig, executab
         debugger: true
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
+    // create the .builder directory if it does not exist
+    const val = fs.statSync(path.join(project.rootDir, ".builder"));
+    if (!val.isDirectory() && !val.isFile()) {
+        fs.mkdirSync(path.join(project.rootDir, ".builder"));
+    }
     const prms = [ "-clientlog", path.join(project.rootDir, ".builder\\debugger.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName , "-debugReady", "3099"];
     const prms2 = prms.concat(project.extraParameters.split(' '));
 
@@ -31,6 +49,7 @@ export function debug(filename: string, project: OpenEdgeProjectConfig, executab
 }
 
 export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
+    checkBuilderDirectoryExists(project.rootDir);
     const env = process.env;
     env.DLC = project.dlc;
 
@@ -54,6 +73,7 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
 }
 
 export function openInAB(filename: string, rootDir: string, project: ProfileConfig) {
+    checkBuilderDirectoryExists(rootDir);
     const env = process.env;
     env.DLC = project.dlc;
 

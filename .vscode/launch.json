@@ -25,6 +25,17 @@
             "preLaunchTask": "build"
         },
         {
+            "name": "Run Extension - Sample project 2",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}", "run_env/sample-oe-projects/project2"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "build"
+        },
+        {
             "name": "Run Extension - SonarTestProject",
             "type": "extensionHost",
             "request": "launch",

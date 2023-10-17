@@ -1,8 +1,13 @@
 {
-  "version": "12.2",
+  "name": "project1",
+  "version": "1.0",
+  "oeversion": "12.2",
+  // Single line comment
+  "charset": "utf-8",
   "graphicalMode": true,
   "extraParameters": "",
-  "buildPath": [
+  "buildPath": [ /* Another
+  comment */
     { "type": "source", "path": "src" }
   ],
   "buildDirectory": "build",

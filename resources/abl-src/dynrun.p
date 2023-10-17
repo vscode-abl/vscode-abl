@@ -42,26 +42,29 @@ ASSIGN configJson = CAST(jsonParser:ParseFile(SESSION:PARAMETER), JsonObject).
 LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("JSON Config file: &1", SESSION:PARAMETER)).
 OS-DELETE VALUE(SESSION:PARAMETER).
 
-// DB connections + aliases
-ASSIGN dbEntries = configJson:GetJsonArray("databases").
-DO zz = 1 TO dbEntries:Length:
-  ASSIGN dbEntry = dbEntries:GetJsonObject(zz).
-  IF (dbEntry:has("name") AND dbEntry:has("connect")) THEN DO:
-    LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Connecting to DB '&1': '&2'", dbEntry:GetCharacter("name"), dbEntry:GetCharacter("connect"))).
-    CONNECT VALUE(dbEntry:GetCharacter("connect")) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN DO:
-      IF (ERROR-STATUS:NUM-MESSAGES > 1) OR (ERROR-STATUS:GET-NUMBER(1) NE 1552) THEN DO:
-        LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Unable to connect to '&1'" , dbEntry:GetCharacter("name"))).
-        DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
-          LOG-MANAGER:WRITE-MESSAGE(ERROR-STATUS:GET-MESSAGE(i)).
+//DB connections + aliases
+IF configJson:has("databases") THEN
+DO:
+  ASSIGN dbEntries = configJson:GetJsonArray("databases").
+  DO zz = 1 TO dbEntries:Length:
+    ASSIGN dbEntry = dbEntries:GetJsonObject(zz).
+    IF (dbEntry:has("name") AND dbEntry:has("connect")) THEN DO:
+      LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Connecting to DB '&1': '&2'", dbEntry:GetCharacter("name"), dbEntry:GetCharacter("connect"))).
+      CONNECT VALUE(dbEntry:GetCharacter("connect")) NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN DO:
+        IF (ERROR-STATUS:NUM-MESSAGES > 1) OR (ERROR-STATUS:GET-NUMBER(1) NE 1552) THEN DO:
+          LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Unable to connect to '&1'" , dbEntry:GetCharacter("name"))).
+          DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
+            LOG-MANAGER:WRITE-MESSAGE(ERROR-STATUS:GET-MESSAGE(i)).
+          END.
+          QUIT.
         END.
-        QUIT.
       END.
-    END.
-    IF (dbEntry:has("aliases")) THEN DO:
-      DO zz2 = 1 TO dbEntry:GetJsonArray("aliases"):Length:
-        LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Create alias '&1' for '&2'", dbEntry:GetJsonArray("aliases"):GetCharacter(zz2), dbEntry:GetCharacter("name"))).
-        CREATE ALIAS VALUE(dbEntry:GetJsonArray("aliases"):GetCharacter(zz2)) FOR DATABASE VALUE(dbEntry:GetCharacter("name")).
+      IF (dbEntry:has("aliases")) THEN DO:
+        DO zz2 = 1 TO dbEntry:GetJsonArray("aliases"):Length:
+          LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Create alias '&1' for '&2'", dbEntry:GetJsonArray("aliases"):GetCharacter(zz2), dbEntry:GetCharacter("name"))).
+          CREATE ALIAS VALUE(dbEntry:GetJsonArray("aliases"):GetCharacter(zz2)) FOR DATABASE VALUE(dbEntry:GetCharacter("name")).
+        END.
       END.
     END.
   END.
