@@ -1,3 +1,9 @@
+1.4.23
+======
+* Comments allowed in openedge-project.json + oeversion, graphicalMode, buildPath and dbConnections are not required anymore (Ken Herring)
+* New abl.sonarlint.rules setting in order to execute custom Sonar rules
+* Various LS improvements (code completion, hover, ...)
+
 1.4.21
 ======
 * Fixed Debug Adapter startup issue
