@@ -122,6 +122,7 @@
           "mode": {
             "description": "RUN mode",
             "enum": [
+              "init",
               "once",
               "persistent",
               "super"

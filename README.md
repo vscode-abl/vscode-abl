@@ -62,8 +62,11 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     }
   ],
   "numThreads": 1, // Number of OpenEdge sessions handling build
-  "procedures": [ // List of procedures, started before the main entry point (and after DB connection and propath configuration)
-    { "name": "foo/bar.p", "mode": "once" /* Mode can be once, persistent or super */ }
+  "procedures": [
+    // List of procedures executed before the main entry point
+    // Init mode -> before setting propath and DB connections
+    // Once, persistent and super -> after setting propath and DB connections
+    { "name": "foo/bar.p", "mode": "once" /* Mode can be init, once, persistent or super */ }
   ],
   "profiles": [ /* See section below */ ]
 }
