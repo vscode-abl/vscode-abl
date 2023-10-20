@@ -86,12 +86,6 @@
                 "path": "./resources/abl.tmLanguage.json"
             }
         ],
-        "snippets": [
-            {
-                "language": "abl",
-                "path": "./resources/abl.json"
-            }
-        ],
         "commands": [
             {
                 "command": "abl.debugListingLine",
