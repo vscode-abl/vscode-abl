@@ -207,6 +207,14 @@ function preprocessFile() {
     });
 }
 
+function dumpFileStatus() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+}
+
 function generateDebugListing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -511,6 +519,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpFileStatus', dumpFileStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));

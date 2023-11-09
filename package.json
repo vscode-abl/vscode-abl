@@ -153,6 +153,11 @@
                 "description": "Preprocess current file"
             },
             {
+                "command": "abl.dumpFileStatus",
+                "title": "ABL: Dump current file status",
+                "description": "Dump current file status"
+            },
+            {
                 "command": "abl.generateDebugListing",
                 "title": "ABL: Generate debug listing",
                 "description": "Generate debug listing of current file"
