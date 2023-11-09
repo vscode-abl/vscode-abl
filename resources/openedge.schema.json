@@ -43,6 +43,11 @@
       "description": "Charset used by the language server to read source code. Not used by VSCode session.",
       "type": "string"
     },
+    "includeFileExtensions": {
+      "id": "/properties/includeFileExtensions",
+      "description": "List of extensions of OpenEdge include files",
+      "items": "string"
+    },
     "graphicalMode": {
       "id": "/properties/graphicalMode",
       "description": "Use prowin or _progres to start OpenEdge sessions",
@@ -100,6 +105,10 @@
           "documentation": {
             "description": "JSON documentation of classes in this propath entry (use https://wiki.rssw.eu/pct/JsonDocumentation.md PCT task)",
             "type": "string"
+          },
+          "deployment": {
+            "description": "List of directories where to copy rcode (optional)",
+            "items": "string"
           }
         }
       },
