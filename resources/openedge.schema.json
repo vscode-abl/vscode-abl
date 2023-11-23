@@ -102,6 +102,10 @@
             "description": "Only for source entries. Ant-style exclude patterns (comma-separated list).",
             "type": "string"
           },
+          "excludesFile": {
+            "description": "Name of a file; each line of this file is added to the list of files to be excluded. Mutually exclusive with excludes attribute",
+            "type": "string"
+          },
           "documentation": {
             "description": "JSON documentation of classes in this propath entry (use https://wiki.rssw.eu/pct/JsonDocumentation.md PCT task)",
             "type": "string"
