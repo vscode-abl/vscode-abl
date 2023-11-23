@@ -207,6 +207,14 @@ function preprocessFile() {
     });
 }
 
+function dumpFileStatus() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+
+    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+}
+
 function generateDebugListing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -399,83 +407,96 @@ function buildModeValue(str: string) {
 }
 
 function generateProenvStartUnix(path: string) {
-    let myText = "#!/bin/sh\n\n";
+    let scriptContent = "#!/bin/sh\n\n";
     if (projects.length > 1) {
-        myText += "echo Choose project:\n"
-        myText += "echo ===============\n"
         // Multiple projects, one entry per project
-        let count = 1;
-        let response = "";
-        projects.forEach(prj => {
-            myText += "echo   \"* " + count + " => " + prj.rootDir + "\"\n";
+        scriptContent += "echo Choose project:\n"
+        scriptContent += "echo ===============\n"
+
+        let responseHandler = "";
+        projects.forEach((prj, index) => {
+            scriptContent += "echo   \"* " + (index + 1) + " => " + prj.rootDir + "\"\n";
             const cfg = prj.profiles.get(prj.activeProfile);
             const x2 = cfg.dlc + "/bin/proenv";
-            response += "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( cd \"" + prj.rootDir + "\" && source \"" + x2 + "\" ) ; fi\n"
+            responseHandler += (index == 0 ? "if" : "elif") + " [ \"${answer}\" = \"" + (index + 1) + "\" ] ; then ( cd \"" + prj.rootDir + "\" && source \"" + x2 + "\" ) ; \n"
         });
-        myText += "echo \n"
-        myText += "read -p 'Your choice: ' answer\n"
-        myText += response
+        responseHandler += "else ( echo Invalid choice ) ; fi \n"
+        scriptContent += "echo \n"
+        scriptContent += "read -p 'Your choice: ' answer\n"
+        scriptContent += responseHandler
     } else if (projects.length == 1) {
         // One project, go directly to proenv
         const cfg = projects[0].profiles.get(projects[0].activeProfile);
         const x2 = cfg.dlc + "/bin/proenv";
-        myText += x2 + "\n"
+        scriptContent += x2 + "\n"
     } else {
         // No OE projects, just offer all proenv
-        let count = 1;
-        let response = "";
-        myText += "echo No projects configured, choose OE version:\n"
-        myText += "echo ==========================================\n"
-        oeRuntimes.forEach(runtime => {
-            myText += "echo \"* " + count++ + " => " + runtime.path + "\" \n";
-            response += "if [ \"${answer}\" = \"" + count++ + "\" ] ; then ( \"" + runtime.path + "/bin/proenv\" ) ; fi \n"
+        let responseHandler = "";
+        scriptContent += "echo No projects configured, choose OE version:\n"
+        scriptContent += "echo ==========================================\n"
+        oeRuntimes.forEach((runtime, index) => {
+            scriptContent += "echo \"* " + (index + 1) + " => " + runtime.path + "\" \n";
+            responseHandler += (index == 0 ? "if" : "elif") + " [ \"${answer}\" = \"" + (index + 1) + "\" ] ; then ( \"" + runtime.path + "/bin/proenv\" ) ; \n"
         });
-        myText += "echo \n"
-        myText += "read -p 'Your choice: ' answer\n"
-        myText += response
+        responseHandler += "else ( echo Invalid choice ) ; fi \n"
+        scriptContent += "echo \n"
+        scriptContent += "read -p 'Your choice: ' answer\n"
+        scriptContent += responseHandler
     }
-    myText += "exit 0\n"
-    fs.writeFileSync(path, myText, { mode: 0o700 });
+    scriptContent += "exit 0\n"
+
+    outputChannel.appendLine(scriptContent)
+
+    fs.writeFileSync(path, scriptContent, { mode: 0o700 });
 }
 
 function generateProenvStartWindows(path: string) {
-    let myText = "@echo off & setlocal\n";
+    let scriptContent = "@echo off & setlocal\n";
     if (projects.length > 1) {
-        myText += "echo Choose project:\n"
-        myText += "echo ===============\n"
         // Multiple projects, one entry per project
-        let count = 1;
-        let response = "";
-        projects.forEach(prj => {
-            myText += "echo   ^* " + count + " =^> " + prj.rootDir + "\n";
+        scriptContent += "echo Choose project:\n"
+        scriptContent += "echo ===============\n"
+
+        let responseHandler = ""
+        let labels = "echo Invalid choice\ngoto stdexit\n"
+        projects.forEach((prj, index) => {
+            scriptContent += "echo   ^* " + (index + 1) + " =^> " + prj.rootDir + "\n";
             const cfg = prj.profiles.get(prj.activeProfile);
             const x2 = cfg.dlc + "\\bin\\proenv.bat";
-            response += "if /i \"%answer%\" == \"" + count++ + "\" ( pushd \"" + prj.rootDir + "\" && call \"" + x2 + "\" && popd )\n"
+            responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" goto choice" + (index + 1) + "\n"
+            labels += ":choice" + (index + 1) + ":\npushd \"" + prj.rootDir + "\" && call \"" + x2 + "\" && popd\ngoto stdexit\n"
         });
-        myText += "echo.\n"
-        myText += "set /P answer=Your choice: \n"
-        myText += response
+        scriptContent += "echo.\n"
+        scriptContent += "set /P answer=Your choice: \n"
+        scriptContent += responseHandler
+        scriptContent += labels
     } else if (projects.length == 1) {
         // One project, go directly to proenv
         const cfg = projects[0].profiles.get(projects[0].activeProfile);
         const x2 = cfg.dlc + "\\bin\\proenv.bat";
-        myText += "call " + x2 + "\n"
+        scriptContent += "call " + x2 + " && goto stdexit \n"
     } else {
         // No OE projects, just offer all proenv
-        let count = 1;
-        let response = "";
-        myText += "echo No projects configured, choose OE version:\n"
-        myText += "echo ==========================================\n"
-        oeRuntimes.forEach(runtime => {
-            myText += "echo ^* " + count++ + " =^> " + runtime.path + " \n";
-            response += "if /i \"%answer%\" == \"" + count++ + "\" ( call \"" + runtime.path + "\\bin\\proenv.bat\" )\n"
+        scriptContent += "echo No projects configured, choose OE version:\n"
+        scriptContent += "echo ==========================================\n"
+
+        let responseHandler = "";
+        let labels = "echo Invalid choice\ngoto stdexit\n"
+        oeRuntimes.forEach((runtime, index) => {
+            scriptContent += "echo ^* " + (index + 1) + " =^> " + runtime.path + " \n";
+            responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" goto choice" + (index + 1) + "\n"
+            labels += ":choice" + (index + 1) + ":\ncall \"" + runtime.path + "\\bin\proenv.bat\"\ngoto stdexit\n"
+            responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" ( call \"" + runtime.path + "\\bin\\proenv.bat\" && goto stdexit )\n"
         });
-        myText += "echo.\n"
-        myText += "set /P answer=Your choice: \n"
-        myText += response
+        scriptContent += "echo.\n"
+        scriptContent += "set /P answer=Your choice: \n"
+        scriptContent += responseHandler
+        scriptContent += labels
     }
-    myText += "exit /b 0\n"
-    fs.writeFileSync(path, myText);
+    scriptContent += ":stdexit\n"
+    scriptContent += "pause\nexit /b 0\n"
+
+    fs.writeFileSync(path, scriptContent);
 }
 
 function registerCommands(ctx: vscode.ExtensionContext) {
@@ -483,6 +504,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
             if (process.platform === "win32") {
                 const prmFileName = path.join(tmpdir(), 'proenv-' + crypto.randomBytes(16).toString('hex') + '.bat');
+                generateProenvStartUnix(prmFileName);
                 generateProenvStartWindows(prmFileName);
                 return { options: { name: 'Proenv', shellPath: prmFileName } };
             } else {
@@ -497,6 +519,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpFileStatus', dumpFileStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));

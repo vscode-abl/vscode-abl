@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.4.23",
+    "version": "1.4.24",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -86,12 +86,6 @@
                 "path": "./resources/abl.tmLanguage.json"
             }
         ],
-        "snippets": [
-            {
-                "language": "abl",
-                "path": "./resources/abl.json"
-            }
-        ],
         "commands": [
             {
                 "command": "abl.debugListingLine",
@@ -157,6 +151,11 @@
                 "command": "abl.preprocess",
                 "title": "ABL: Preprocess current file",
                 "description": "Preprocess current file"
+            },
+            {
+                "command": "abl.dumpFileStatus",
+                "title": "ABL: Dump current file status",
+                "description": "Dump current file status"
             },
             {
                 "command": "abl.generateDebugListing",
