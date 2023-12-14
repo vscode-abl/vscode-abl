@@ -158,6 +158,11 @@
                 "description": "Dump current file status"
             },
             {
+                "command": "abl.generateListing",
+                "title": "ABL: Generate listing",
+                "description": "Generate listing of current file"
+            },
+            {
                 "command": "abl.generateDebugListing",
                 "title": "ABL: Generate debug listing",
                 "description": "Generate debug listing of current file"
