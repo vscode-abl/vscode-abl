@@ -1,3 +1,14 @@
+1.4.25
+======
+
+* New 'init' mode for procedures started with the language server AVM runtime
+* Improved ProEnv menu
+* Snippets are not part of the plugin anymore
+* New project property: includeFileExtensions
+* New source directory properties: excludesFile and deployment
+* Fixed NPE when using InputFile#contents()
+* Various code completion / hover improvements
+
 1.4.23
 ======
 * Comments allowed in openedge-project.json + oeversion, graphicalMode, buildPath and dbConnections are not required anymore (Ken Herring)
