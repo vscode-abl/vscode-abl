@@ -20,7 +20,7 @@ pipeline {
       steps {
         script {
           def rulesVersion = "2.24.1"
-	  def prgsRulesVersion = "2.24.0"
+          def prgsRulesVersion = "2.24.0"
           def cablVersion = "2.24.2"
           def ablsVersion = "1.12.0"
           withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'hudson.tasks.Maven$MavenInstallation'}"]) {
@@ -37,7 +37,7 @@ pipeline {
     stage('Build') { 
       agent {
         docker {
-          image 'node:16'
+          image 'node:20'
           args "-v ${tool name: 'SQScanner4', type: 'hudson.plugins.sonar.SonarRunnerInstallation'}:/scanner -e HOME=."
           reuseNode true
         }
