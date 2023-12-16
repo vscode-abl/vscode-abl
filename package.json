@@ -554,13 +554,13 @@
     "dependencies": {
         "@vscode/debugadapter": "^1.51.1",
         "@vscode/debugprotocol": "^1.51.0",
+        "@vscode/vsce": "^2.22.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
-        "vsce": "^2.6.7",
         "vscode-languageclient": "^7.0.0",
         "xml2js": "^0.4.23"
     },
