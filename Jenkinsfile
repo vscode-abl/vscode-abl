@@ -2,7 +2,7 @@
 // curl -k -X POST -F "jenkinsfile=<Jenkinsfile" https://ci.rssw.eu/pipeline-model-converter/validate
 
 pipeline {
-  agent { label 'Linux-Office' }
+  agent { label 'Linux-Office03' }
   options {
     disableConcurrentBuilds()
     skipDefaultCheckout()
