@@ -117,7 +117,7 @@ function createLanguageClient(): LanguageClient {
             outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false),
             sonarLintRules: vscode.workspace.getConfiguration('abl').get('sonarlint.rules', [])
         },
-        documentSelector: [{ scheme: 'file', language: 'abl' }],
+        documentSelector: [{ scheme: 'file', language: 'abl' }, { scheme: 'untitled', language: 'abl' }],
         synchronize: {
             // TODO Use pull model
             configurationSection: 'abl',
