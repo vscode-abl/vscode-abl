@@ -191,6 +191,40 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
     quickPick.show();
 }
 
+function compileBuffer() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+
+    if (projects.length == 1) {
+        compileBufferInProject(projects[0], vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+    } else {
+        const defPrj = getProjectByName(defaultProjectName);
+        if (defPrj) {
+            compileBufferInProject(defPrj, vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+        } else {
+            const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+            list.sort((a, b) => a.label.localeCompare(b.label));
+
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.canSelectMany = false;
+            quickPick.title = "Choose project to compile buffer:";
+            quickPick.items = list;
+            quickPick.onDidChangeSelection(args => {
+                quickPick.hide();
+                compileBufferInProject(getProjectByName(args[0].label), vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+            });
+            quickPick.show();
+        }
+    }
+}
+
+function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
+    client.sendRequest("proparse/compileBuffer", { projectUri: project.rootDir, bufferUri: bufferUri, buffer: buffer }).then(result => {
+        if (!result)
+            vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
+    });
+}
+
 function debugListingLine() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -572,6 +606,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.compileBuffer', compileBuffer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpFileStatus', dumpFileStatus));

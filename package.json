@@ -165,6 +165,11 @@
                 "description": "Dump current file status"
             },
             {
+                "command": "abl.compileBuffer",
+                "title": "ABL: Compile current buffer",
+                "description": "Compile current buffer"
+            },
+            {
                 "command": "abl.generateListing",
                 "title": "ABL: Generate listing",
                 "description": "Generate listing of current file"
