@@ -43,13 +43,20 @@ pipeline {
         }
       }
       steps {
-        withSonarQubeEnv('RSSW2') {
-          sh 'node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
+        script {
+          withSonarQubeEnv('RSSW2') {
+            sh 'node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && node_modules/.bin/vsce package'
+          }
+          if ("develop" == env.BRANCH_NAME) {            
+            withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
+              // sh "echo $VSCODE_PAT | node_modules/.bin/vsce login RiversideSoftware"
+              sh "node_modules/.bin/vsce publish --pre-release"
+            }
+          }
+          archiveArtifacts artifacts: '*.vsix'
         }
-        archiveArtifacts artifacts: '*.vsix'
       }
-    }
-
+    }           
   }
 
   post {
