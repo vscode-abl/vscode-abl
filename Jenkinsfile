@@ -19,10 +19,10 @@ pipeline {
     stage('Dependencies') { 
       steps {
         script {
-          def rulesVersion = "2.24.1"
-          def prgsRulesVersion = "2.24.0"
-          def cablVersion = "2.24.2"
-          def ablsVersion = "1.12.0"
+          def rulesVersion = "2.25.0-SNAPSHOT"
+          def prgsRulesVersion = "2.25.0-SNAPSHOT"
+          def cablVersion = "2.25.0-SNAPSHOT"
+          def ablsVersion = "1.13.0-SNAPSHOT"
           withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'hudson.tasks.Maven$MavenInstallation'}"]) {
             sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:sonar-openedge-plugin:${cablVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/sonar-openedge-plugin/${cablVersion}/sonar-openedge-plugin-${cablVersion}.jar resources/sonar-openedge-plugin.jar"
             sh "$MVN_HOME/bin/mvn -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:riverside-rules-plugin:${rulesVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/riverside-rules-plugin/${rulesVersion}/riverside-rules-plugin-${rulesVersion}.jar resources/riverside-rules-plugin.jar"
