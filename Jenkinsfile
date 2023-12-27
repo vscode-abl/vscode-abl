@@ -49,8 +49,7 @@ pipeline {
           }
           if ("develop" == env.BRANCH_NAME) {            
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
-              // sh "echo $VSCODE_PAT | node_modules/.bin/vsce login RiversideSoftware"
-              sh "node_modules/.bin/vsce publish --pre-release"
+              sh "node_modules/.bin/vsce publish patch --pre-release"
             }
           }
           archiveArtifacts artifacts: '*.vsix'
