@@ -75,9 +75,12 @@ export function deactivate(): Thenable<void> | undefined {
     return client.stop();
 }
 
-export function getProject(p: string): OpenEdgeProjectConfig {
-    const retVal = projects.find(config => p.startsWith(config.rootDir));
-    return retVal ?? defaultProject;
+export function getProject(path: string): OpenEdgeProjectConfig {
+    return projects.find(project => path.startsWith(project.rootDir));
+}
+
+export function getProjectByName(name: string): OpenEdgeProjectConfig {
+    return projects.find(project => project.name === name);
 }
 
 function createLanguageClient(): LanguageClient {
@@ -315,19 +318,20 @@ function fixLowerCasing() {
 }
 
 function generateCatalog() {
-    const list = projects.map(str => str.rootDir).map(label => ({ label }));
-    if (list.length == 1) {
+    if (projects.length == 1) {
         executeGenCatalog(projects[0]);
         vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
-    } else {
-        const list = projects.map(str => str.rootDir).map(label => ({ label }));
+    } else if (projects.length > 1) {
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+    
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Generate assembly catalog - Select project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            executeGenCatalog(getProject(label));
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            executeGenCatalog(getProjectByName(args[0].label));
             vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
         });
         quickPick.show();
@@ -339,31 +343,35 @@ function switchProfileCmd() {
     if (projects.length == 1) {
         switchProfile(projects[0]);
     } else if (projects.length > 1) {
-        const list1 = projects.map(str => str.rootDir).map(label => ({ label }));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Select project:";
-        quickPick.items = list1;
-        quickPick.onDidChangeSelection(([{ label }]) => {
+        quickPick.items = list;
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
-            switchProfile(getProject(label));
+            switchProfile(getProjectByName(args[0].label));
         });
         quickPick.show();
     }
 }
 
 function rebuildProject() {
-    const list = projects.map(str => str.rootDir).map(label => ({ label }));
-    if (list.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { projectUri: getProject(list[0].label).rootDir });
+    if (projects.length == 1) {
+        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].rootDir });
     } else {
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Rebuild project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            client.sendRequest("proparse/rebuildProject", { projectUri: getProject(label).rootDir });
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).rootDir });
         });
         quickPick.show();
     }
