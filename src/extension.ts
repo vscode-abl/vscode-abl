@@ -16,9 +16,8 @@ let client: LanguageClient;
 
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 let oeRuntimes: Array<any>;
-let defaultRuntime;
 let langServDebug: boolean;
-let defaultProject: OpenEdgeProjectConfig;
+let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 
@@ -160,6 +159,25 @@ function getBuildModeLabel(): string {
         default:
             return "Unknown build mode";
     }
+}
+
+function setDefaultProject(): void {
+    if (projects.length < 2) {
+        vscode.window.showWarningMessage("Default project can only be set when multiple projects are opened");
+        return;
+    }
+
+    const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+    list.sort((a, b) => a.label.localeCompare(b.label));
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = false;
+    quickPick.title = "Choose default project:";
+    quickPick.items = list;
+    quickPick.onDidChangeSelection(args => {
+        quickPick.hide();
+        vscode.workspace.getConfiguration("abl").update("defaultProject", args[0].label, vscode.ConfigurationTarget.Workspace);
+    });
+    quickPick.show();
 }
 
 function dumpLangServStatus(): void {
@@ -570,6 +588,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     });
 
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
@@ -626,7 +645,7 @@ function readOEConfigFile(uri) {
                 if (projects[idx].rootDir == prjConfig.rootDir)
                     projects[idx] = prjConfig;
                 else {
-                    outputChannel.appendLine("Duplicate project " + prjConfig.name + " " + prjConfig.version + " found in " + prjConfig.rootDir + " and " + projects[idx].rootDir);
+                    vscode.window.showErrorMessage("Duplicate project " + prjConfig.name + " name in " + prjConfig.rootDir + " and " + projects[idx].rootDir);
                 }
             } else {
                 projects.push(prjConfig);
@@ -710,6 +729,7 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
 
 function readGlobalOpenEdgeRuntimes() {
     buildMode = vscode.workspace.getConfiguration('abl').get('buildMode', 1);
+    defaultProjectName = vscode.workspace.getConfiguration('abl').get('defaultProject');
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
 
@@ -729,16 +749,6 @@ function readGlobalOpenEdgeRuntimes() {
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');
         outputChannel.appendLine('No OpenEdge runtime configured on this machine');
-    }
-    defaultRuntime = oeRuntimes.find(runtime => runtime.default);
-    if (defaultRuntime != null) {
-        defaultProject = new OpenEdgeProjectConfig();
-        defaultProject.dlc = defaultRuntime.path;
-        defaultProject.rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        defaultProject.oeversion = defaultRuntime.name;
-        defaultProject.extraParameters = '';
-        defaultProject.gui = false;
-        defaultProject.propath = [];
     }
 }
 

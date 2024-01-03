@@ -14,5 +14,5 @@
   "dumpFiles": [],
   "dbConnections": [],
   "aliases": "",
-  "numThreads": 1
+  "numThreads": 1, "profiles": [ { "name": "profile1", "inherits": "default", "value": { "graphicalMode": false, "buildDirectory": "build-tty"}}]
 }

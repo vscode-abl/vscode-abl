@@ -145,6 +145,11 @@
                 "description": "Rebuild Project"
             },
             {
+                "command": "abl.setDefaultProject",
+                "title": "ABL: Set default project",
+                "description": "Set default project"
+            },
+            {
                 "command": "abl.project.switch.profile",
                 "title": "ABL: Switch project to profile",
                 "description": "Switch project profile"
@@ -398,6 +403,10 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable language server debug logging"
+                },
+                "abl.defaultProject": {
+                    "type": "string",
+                    "description": "Default project in multi-project workspaces"
                 },
                 "abl.langServerTrace": {
                     "type": "boolean",
