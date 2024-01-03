@@ -152,7 +152,7 @@ function setDefaultProject(): void {
         return;
     }
 
-    const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+    const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
     list.sort((a, b) => a.label.localeCompare(b.label));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
@@ -304,9 +304,9 @@ function generateCatalog() {
         executeGenCatalog(projects[0]);
         vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
     } else if (projects.length > 1) {
-        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
-    
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Generate assembly catalog - Select project:";
@@ -324,7 +324,7 @@ function switchProfileCmd() {
     if (projects.length == 1) {
         switchProfile(projects[0]);
     } else if (projects.length > 1) {
-        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
 
         const quickPick = vscode.window.createQuickPick();
@@ -343,7 +343,7 @@ function rebuildProject() {
     if (projects.length == 1) {
         client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].rootDir });
     } else {
-        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
 
         const quickPick = vscode.window.createQuickPick();
@@ -362,7 +362,7 @@ function openDataDictionaryCmd() {
     if (projects.length == 1) {
         openDataDictionary(projects[0]);
     } else {
-        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
 
         const quickPick = vscode.window.createQuickPick();
@@ -636,10 +636,10 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    try { 
-        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc)) 
+    try {
+        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
     } catch {
-        prjConfig.propath = [ '.' ] // default the propath to the root of the workspace
+        prjConfig.propath = ['.'] // default the propath to the root of the workspace
     }
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
@@ -730,7 +730,7 @@ function getDlcDirectory(version: string): string {
             dfltName = runtime.name;
         }
     });
-    if ( dlc == "" && dfltDlc != "" ) {
+    if (dlc == "" && dfltDlc != "") {
         dlc = dfltDlc;
         outputChannel.appendLine("OpenEdge version not configured in workspace settings, using default version (" + dfltName + ") in user settings.");
     }
