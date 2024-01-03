@@ -220,22 +220,6 @@ function debugListingLine() {
     });
 }
 
-function preprocessFile() {
-    if (vscode.window.activeTextEditor == undefined)
-        return;
-    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-    if (!cfg) {
-        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
-        return;
-    }
-
-    client.sendRequest<string>("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
-}
-
 function dumpFileStatus() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -248,6 +232,18 @@ function dumpFileStatus() {
     client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
+function preprocessFile() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+}
+
 function generateListing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -257,11 +253,7 @@ function generateListing() {
         return;
     }
 
-    client.sendRequest<string>("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function generateDebugListing() {
@@ -273,11 +265,7 @@ function generateDebugListing() {
         return;
     }
 
-    client.sendRequest<string>("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function generateXref() {
@@ -288,12 +276,7 @@ function generateXref() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-
-    client.sendRequest<string>("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
 function generateXmlXref() {
@@ -305,11 +288,7 @@ function generateXmlXref() {
         return;
     }
 
-    client.sendRequest<string>("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function fixUpperCasing() {
