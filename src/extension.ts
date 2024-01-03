@@ -146,21 +146,6 @@ function createLanguageClient(): LanguageClient {
     return tmp;
 }
 
-function getBuildModeLabel(): string {
-    switch (buildMode) {
-        case 1:
-            return "Build everything";
-        case 2:
-            return "Build only classes";
-        case 3:
-            return "Build only modified files";
-        case 4:
-            return "No build";
-        default:
-            return "Unknown build mode";
-    }
-}
-
 function setDefaultProject(): void {
     if (projects.length < 2) {
         vscode.window.showWarningMessage("Default project can only be set when multiple projects are opened");
@@ -335,7 +320,6 @@ function generateCatalog() {
     }
 }
 
-
 function switchProfileCmd() {
     if (projects.length == 1) {
         switchProfile(projects[0]);
@@ -375,17 +359,19 @@ function rebuildProject() {
 }
 
 function openDataDictionaryCmd() {
-    if (vscode.window.activeTextEditor != undefined) {
-        openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+    if (projects.length == 1) {
+        openDataDictionary(projects[0]);
     } else {
-        const list = projects.map(str => str.rootDir).map(label => ({ label }));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir}));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Open Data Dictionary - Select project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            openDataDictionary(getProject(label));
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            openDataDictionary(getProjectByName(args[0].label));
         });
         quickPick.show();
     }
@@ -397,6 +383,10 @@ function openInAppbuilder() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
 }
@@ -407,6 +397,10 @@ function runCurrentFile() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
@@ -416,6 +410,10 @@ function runCurrentFileBatch() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
@@ -425,6 +423,10 @@ function runCurrentFileProwin() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
@@ -537,7 +539,7 @@ function generateProenvStartWindows(path: string) {
         oeRuntimes.forEach((runtime, index) => {
             scriptContent += "echo ^* " + (index + 1) + " =^> " + runtime.path + " \n";
             responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" goto choice" + (index + 1) + "\n"
-            labels += ":choice" + (index + 1) + ":\ncall \"" + runtime.path + "\\bin\proenv.bat\"\ngoto stdexit\n"
+            labels += ":choice" + (index + 1) + ":\ncall \"" + runtime.path + "\\bin\\proenv.bat\"\ngoto stdexit\n"
             responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" ( call \"" + runtime.path + "\\bin\\proenv.bat\" && goto stdexit )\n"
         });
         scriptContent += "echo.\n"
@@ -588,24 +590,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.debug.startSession', startDebugSession));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
-    //     const ablConfig = vscode.workspace.getConfiguration('abl');
-    //     ablTest(null, ablConfig);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test.currentFile', () => {
-    //     const ablConfig = vscode.workspace.getConfiguration('abl');
-    //     ablTest(vscode.window.activeTextEditor.document.uri.fsPath, ablConfig);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.tables', () => {
-    //     return getTableCollection().items.map((item) => item.label);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.table', (tableName) => {
-    //     return getTableCollection().items.find((item) => item.label === tableName);
-    // }));
 
     readGlobalOpenEdgeRuntimes();
-    // FIXME Check if it's possible to reload only when a specific section is changed
     vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
 
     readWorkspaceOEConfigFiles();
@@ -714,8 +700,8 @@ function readGlobalOpenEdgeRuntimes() {
 
     const oeRuntimesDefault = vscode.workspace.getConfiguration('abl').get('configuration.defaultRuntime');
     if (oeRuntimesDefault != "") {
-        //set default flag on the runtime that matches the defaultRuntime setting
-        oeRuntimes.find(runtime => {
+        // Set default flag on the runtime that matches the defaultRuntime setting
+        oeRuntimes.forEach(runtime => {
             //we have a default set, so ignore the default in the array
             if (runtime.name === oeRuntimesDefault) {
                 runtime.default = true;
