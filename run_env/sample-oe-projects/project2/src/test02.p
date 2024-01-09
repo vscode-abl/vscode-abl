@@ -1,3 +1,3 @@
 message proversion.
-message "hello1".
-message "hello2".
+message "Project2 - hello1".
+message "Project2 - hello2".
