@@ -132,7 +132,7 @@ function createLanguageClient(): LanguageClient {
             str += " • " + statusParams.pendingTasks + " task(s)";
             oeStatusBarItem.text = str;
 
-            oeStatusBarItem.tooltip = statusParams.projects.join("\n")
+            oeStatusBarItem.tooltip = "Build mode: " + buildModeName(buildMode) + "\n" + statusParams.projects.join("\n")
         });
     });
 
@@ -457,23 +457,15 @@ function runCurrentFileProwin() {
     runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
-function changeBuildModeCmd() {
-    const quickPick = vscode.window.createQuickPick();
-    quickPick.canSelectMany = false;
-    quickPick.title = "Choose build mode:";
-    quickPick.items = [
-        { label: 'Build everything', description: 'Scan all source code at startup, build if not up to date, and build when any source changed' },
-        { label: 'Classes only', description: 'Scan all source code at startup, build only classes if not up to date, and build when any source changed' },
-        { label: 'Modified files only', description: 'Scan all source code at startup, don\'t rebuild anything, build only when any source changed' },
-        { label: 'No build', description: 'Scan all source code at startup, never build anything' }]
-    quickPick.onDidChangeSelection(item => {
-        buildMode = buildModeValue(item[0].label);
-        // Not saved to settings
-        // vscode.workspace.getConfiguration().update('abl.buildMode', buildModeValue(item[0].label));
-        vscode.window.showInformationMessage('Build mode changed, restarting language server...');
-        restartLangServer();
-    });
-    quickPick.show();
+function buildModeName(val: number) {
+    if (val == 1)
+        return 'Build everything';
+    else if (val == 2)
+        return 'Classes only';
+    else if (val == 3)
+        return 'Modified files only';
+    else if (val == 4)
+        return 'No build';
 }
 
 function buildModeValue(str: string) {
@@ -485,6 +477,25 @@ function buildModeValue(str: string) {
         return 3;
     else if (str == 'No build')
         return 4;
+}
+
+function changeBuildModeCmd() {
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = false;
+    quickPick.title = "Choose build mode:";
+    quickPick.items = [
+        { label: 'Build everything', description: 'Scan all source code at startup, build if not up to date, and build when any source changed' },
+        { label: 'Classes only', description: 'Scan all source code at startup, build only classes if not up to date, and build when any source changed' },
+        { label: 'Modified files only', description: 'Scan all source code at startup, don\'t rebuild anything, build only when any source changed' },
+        { label: 'No build', description: 'Scan all source code at startup, never build anything' }]
+    quickPick.onDidChangeSelection(item => {
+        quickPick.hide();
+        buildMode = buildModeValue(item[0].label);
+        vscode.workspace.getConfiguration("abl").update("buildMode", buildModeValue(item[0].label), vscode.ConfigurationTarget.Workspace);
+        vscode.window.showInformationMessage('Build mode changed, restarting language server…');
+        restartLangServer();
+    });
+    quickPick.show();
 }
 
 function generateProenvStartUnix(path: string) {

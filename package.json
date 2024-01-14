@@ -135,7 +135,7 @@
                 "description": "Restart ABL Language Server"
             },
             {
-                "command": "abl.change.buildMode",
+                "command": "abl.changeBuildMode",
                 "title": "ABL: Change build mode",
                 "description": "Change ABL Build Mode"
             },
