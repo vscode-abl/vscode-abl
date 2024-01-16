@@ -54,6 +54,11 @@
       "default": false,
       "type": "boolean"
     },
+    "sonarlintProperties": {
+      "id": "/properties/sonarlint",
+      "description": "SonarLint extra properties",
+      "type": "object"
+    },
     "extraParameters": {
       "id": "/properties/parameterFiles",
       "description": "Extra parameters passed to Progress executable",
@@ -241,6 +246,11 @@
                 "id": "/properties/parameterFiles",
                 "description": "Extra parameters passed to Progress executable",
                 "type": "string"
+              },
+              "sonarlintProperties": {
+                "id": "/properties/sonarlint",
+                "description": "SonarLint extra properties",
+                "type": "object"
               },
               "buildDirectory": {
                 "id": "/properties/buildDirectory",
