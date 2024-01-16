@@ -45,6 +45,10 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   "graphicalMode": true, // True for prowin[32], false for _progres
   "charset": "utf-8",  // Charset
   "extraParameters": "", // Extra Progress command line parameters
+  "sonarlintProperties": { // Extra sonarlint properties.
+    // "sonar.oe.preprocessor.process-architecture": "32",
+    // "sonar.oe.proparse.tokenStartChars": "!"
+  },
   "buildPath": [
     // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
     { "type": "source", "path": "src/procedures" },
