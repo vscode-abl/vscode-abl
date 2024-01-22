@@ -51,6 +51,10 @@ pipeline {
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
               sh "node_modules/.bin/vsce publish --pre-release"
             }
+          } else if ("main" == env.BRANCH_NAME) {
+            withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
+              sh "node_modules/.bin/vsce publish"
+            }
           }
           archiveArtifacts artifacts: '*.vsix'
         }
