@@ -34,6 +34,7 @@
         "12.5",
         "12.6",
         "12.7",
+        "12.8",
         "ESAP"
       ],
       "type": "string"
@@ -53,6 +54,11 @@
       "description": "Use prowin or _progres to start OpenEdge sessions",
       "default": false,
       "type": "boolean"
+    },
+    "sonarlintProperties": {
+      "id": "/properties/sonarlint",
+      "description": "SonarLint extra properties",
+      "type": "object"
     },
     "extraParameters": {
       "id": "/properties/parameterFiles",
@@ -98,12 +104,16 @@
             "description": "Only for source entries. Ant-style include patterns (comma-separated list). Defaults to **/*.p,**/*.w,**/*.cls",
             "type": "string"
           },
+          "includesFile": {
+            "description": "Name of a file; each line of this file is added to the list of files to be included (Ant-style pattern). Mutually exclusive with includes attribute",
+            "type": "string"
+          },
           "excludes": {
             "description": "Only for source entries. Ant-style exclude patterns (comma-separated list).",
             "type": "string"
           },
           "excludesFile": {
-            "description": "Name of a file; each line of this file is added to the list of files to be excluded. Mutually exclusive with excludes attribute",
+            "description": "Name of a file; each line of this file is added to the list of files to be excluded (Ant-style pattern). Mutually exclusive with excludes attribute",
             "type": "string"
           },
           "documentation": {
@@ -223,6 +233,7 @@
                   "12.5",
                   "12.6",
                   "12.7",
+                  "12.8",
                   "ESAP"
                 ],
                 "type": "string"
@@ -237,6 +248,11 @@
                 "id": "/properties/parameterFiles",
                 "description": "Extra parameters passed to Progress executable",
                 "type": "string"
+              },
+              "sonarlintProperties": {
+                "id": "/properties/sonarlint",
+                "description": "SonarLint extra properties",
+                "type": "object"
               },
               "buildDirectory": {
                 "id": "/properties/buildDirectory",

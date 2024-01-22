@@ -16,9 +16,8 @@ let client: LanguageClient;
 
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 let oeRuntimes: Array<any>;
-let defaultRuntime;
 let langServDebug: boolean;
-let defaultProject: OpenEdgeProjectConfig;
+let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 
@@ -75,9 +74,12 @@ export function deactivate(): Thenable<void> | undefined {
     return client.stop();
 }
 
-export function getProject(p: string): OpenEdgeProjectConfig {
-    const retVal = projects.find(config => p.startsWith(config.rootDir));
-    return retVal ?? defaultProject;
+export function getProject(path: string): OpenEdgeProjectConfig {
+    return projects.find(project => path.startsWith(project.rootDir));
+}
+
+export function getProjectByName(name: string): OpenEdgeProjectConfig {
+    return projects.find(project => project.name === name);
 }
 
 function createLanguageClient(): LanguageClient {
@@ -106,18 +108,11 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-        // TODO Use pull model
         initializationOptions: {
-            cablLicense: vscode.workspace.getConfiguration('abl').get('cablLicense', ''),
-            upperCaseCompletion: vscode.workspace.getConfiguration('abl').get('completion.upperCase', false),
-            buildMode: vscode.workspace.getConfiguration('abl').get('buildMode', 1),
-            outlineShowIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showIncludeFiles', false),
-            outlineShowContentInIncludeFiles: vscode.workspace.getConfiguration('abl').get('outline.showContentInIncludeFiles', false),
-            sonarLintRules: vscode.workspace.getConfiguration('abl').get('sonarlint.rules', [])
+            abl: vscode.workspace.getConfiguration('abl')
         },
-        documentSelector: [{ scheme: 'file', language: 'abl' }],
+        documentSelector: [{ scheme: 'file', language: 'abl' }, { scheme: 'untitled', language: 'abl' }],
         synchronize: {
-            // TODO Use pull model
             configurationSection: 'abl',
             fileEvents: vscode.workspace.createFileSystemWatcher('**/openedge-project.properties')
         }
@@ -137,26 +132,30 @@ function createLanguageClient(): LanguageClient {
             str += " • " + statusParams.pendingTasks + " task(s)";
             oeStatusBarItem.text = str;
 
-            oeStatusBarItem.tooltip = statusParams.projects.join("\n")
+            oeStatusBarItem.tooltip = "Build mode: " + buildModeName(buildMode) + "\n" + statusParams.projects.join("\n")
         });
     });
 
     return tmp;
 }
 
-function getBuildModeLabel(): string {
-    switch (buildMode) {
-        case 1:
-            return "Build everything";
-        case 2:
-            return "Build only classes";
-        case 3:
-            return "Build only modified files";
-        case 4:
-            return "No build";
-        default:
-            return "Unknown build mode";
+function setDefaultProject(): void {
+    if (projects.length < 2) {
+        vscode.window.showWarningMessage("Default project can only be set when multiple projects are opened");
+        return;
     }
+
+    const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+    list.sort((a, b) => a.label.localeCompare(b.label));
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = false;
+    quickPick.title = "Choose default project:";
+    quickPick.items = list;
+    quickPick.onDidChangeSelection(args => {
+        quickPick.hide();
+        vscode.workspace.getConfiguration("abl").update("defaultProject", args[0].label, vscode.ConfigurationTarget.Workspace);
+    });
+    quickPick.show();
 }
 
 function dumpLangServStatus(): void {
@@ -185,25 +184,51 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
     quickPick.show();
 }
 
+function compileBuffer() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+
+    if (projects.length == 1) {
+        compileBufferInProject(projects[0], vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+    } else {
+        const defPrj = getProjectByName(defaultProjectName);
+        if (defPrj) {
+            compileBufferInProject(defPrj, vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+        } else {
+            const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+            list.sort((a, b) => a.label.localeCompare(b.label));
+
+            const quickPick = vscode.window.createQuickPick();
+            quickPick.canSelectMany = false;
+            quickPick.title = "Choose project to compile buffer:";
+            quickPick.items = list;
+            quickPick.onDidChangeSelection(args => {
+                quickPick.hide();
+                compileBufferInProject(getProjectByName(args[0].label), vscode.window.activeTextEditor.document.uri.toString(), vscode.window.activeTextEditor.document.getText());
+            });
+            quickPick.show();
+        }
+    }
+}
+
+function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
+    client.sendRequest("proparse/compileBuffer", { projectUri: project.rootDir, bufferUri: bufferUri, buffer: buffer }).then(result => {
+        if (!result)
+            vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
+    });
+}
+
 function debugListingLine() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
 
     vscode.window.showInputBox({ title: "Enter debug listing line number:", prompt: "Go To Source Line" }).then(input => {
         client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) });
-    });
-}
-
-function preprocessFile() {
-    if (vscode.window.activeTextEditor == undefined)
-        return;
-    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-
-    client.sendRequest<string>("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
     });
 }
 
@@ -211,51 +236,81 @@ function dumpFileStatus() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
 
     client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+}
+
+function preprocessFile() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+}
+
+function generateListing() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function generateDebugListing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
 
-    client.sendRequest<string>("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function generateXref() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-
-    client.sendRequest<string>("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
 function generateXmlXref() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
 
-    client.sendRequest<string>("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir }).then(fName => {
-        // TODO Improve error mgmt
-        const openPath = vscode.Uri.file(fName);
-        vscode.window.showTextDocument(openPath);
-    });
+    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
 function fixUpperCasing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
@@ -263,77 +318,87 @@ function fixLowerCasing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
 
     client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
 }
 
 function generateCatalog() {
-    const list = projects.map(str => str.rootDir).map(label => ({ label }));
-    if (list.length == 1) {
+    if (projects.length == 1) {
         executeGenCatalog(projects[0]);
         vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
-    } else {
-        const list = projects.map(str => str.rootDir).map(label => ({ label }));
+    } else if (projects.length > 1) {
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Generate assembly catalog - Select project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            executeGenCatalog(getProject(label));
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            executeGenCatalog(getProjectByName(args[0].label));
             vscode.window.showInformationMessage("Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.");
         });
         quickPick.show();
     }
 }
 
-
 function switchProfileCmd() {
     if (projects.length == 1) {
         switchProfile(projects[0]);
     } else if (projects.length > 1) {
-        const list1 = projects.map(str => str.rootDir).map(label => ({ label }));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Select project:";
-        quickPick.items = list1;
-        quickPick.onDidChangeSelection(([{ label }]) => {
+        quickPick.items = list;
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
-            switchProfile(getProject(label));
+            switchProfile(getProjectByName(args[0].label));
         });
         quickPick.show();
     }
 }
 
 function rebuildProject() {
-    const list = projects.map(str => str.rootDir).map(label => ({ label }));
-    if (list.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { projectUri: getProject(list[0].label).rootDir });
+    if (projects.length == 1) {
+        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].rootDir });
     } else {
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Rebuild project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            client.sendRequest("proparse/rebuildProject", { projectUri: getProject(label).rootDir });
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).rootDir });
         });
         quickPick.show();
     }
 }
 
 function openDataDictionaryCmd() {
-    if (vscode.window.activeTextEditor != undefined) {
-        openDataDictionary(getProject(vscode.window.activeTextEditor.document.uri.fsPath));
+    if (projects.length == 1) {
+        openDataDictionary(projects[0]);
     } else {
-        const list = projects.map(str => str.rootDir).map(label => ({ label }));
+        const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
+        list.sort((a, b) => a.label.localeCompare(b.label));
+
         const quickPick = vscode.window.createQuickPick();
         quickPick.canSelectMany = false;
         quickPick.title = "Open Data Dictionary - Select project:";
         quickPick.items = list;
-        quickPick.onDidChangeSelection(([{ label }]) => {
-            openDataDictionary(getProject(label));
+        quickPick.onDidChangeSelection(args => {
             quickPick.hide();
+            openDataDictionary(getProjectByName(args[0].label));
         });
         quickPick.show();
     }
@@ -345,6 +410,10 @@ function openInAppbuilder() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
 }
@@ -355,6 +424,10 @@ function runCurrentFile() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
@@ -364,6 +437,10 @@ function runCurrentFileBatch() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
@@ -373,7 +450,33 @@ function runCurrentFileProwin() {
         return;
     }
     const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
     runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+}
+
+function buildModeName(val: number) {
+    if (val == 1)
+        return 'Build everything';
+    else if (val == 2)
+        return 'Classes only';
+    else if (val == 3)
+        return 'Modified files only';
+    else if (val == 4)
+        return 'No build';
+}
+
+function buildModeValue(str: string) {
+    if (str == 'Build everything')
+        return 1;
+    else if (str == 'Classes only')
+        return 2;
+    else if (str == 'Modified files only')
+        return 3;
+    else if (str == 'No build')
+        return 4;
 }
 
 function changeBuildModeCmd() {
@@ -386,24 +489,13 @@ function changeBuildModeCmd() {
         { label: 'Modified files only', description: 'Scan all source code at startup, don\'t rebuild anything, build only when any source changed' },
         { label: 'No build', description: 'Scan all source code at startup, never build anything' }]
     quickPick.onDidChangeSelection(item => {
+        quickPick.hide();
         buildMode = buildModeValue(item[0].label);
-        // Not saved to settings
-        // vscode.workspace.getConfiguration().update('abl.buildMode', buildModeValue(item[0].label));
-        vscode.window.showInformationMessage('Build mode changed, restarting language server...');
+        vscode.workspace.getConfiguration("abl").update("buildMode", buildModeValue(item[0].label), vscode.ConfigurationTarget.Workspace);
+        vscode.window.showInformationMessage('Build mode changed, restarting language server…');
         restartLangServer();
     });
     quickPick.show();
-}
-
-function buildModeValue(str: string) {
-    if (str == 'Build everything')
-        return 1;
-    else if (str == 'Classes only')
-        return 2;
-    else if (str == 'Modified files only')
-        return 3;
-    else if (str == 'No build')
-        return 4;
 }
 
 function generateProenvStartUnix(path: string) {
@@ -485,7 +577,7 @@ function generateProenvStartWindows(path: string) {
         oeRuntimes.forEach((runtime, index) => {
             scriptContent += "echo ^* " + (index + 1) + " =^> " + runtime.path + " \n";
             responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" goto choice" + (index + 1) + "\n"
-            labels += ":choice" + (index + 1) + ":\ncall \"" + runtime.path + "\\bin\proenv.bat\"\ngoto stdexit\n"
+            labels += ":choice" + (index + 1) + ":\ncall \"" + runtime.path + "\\bin\\proenv.bat\"\ngoto stdexit\n"
             responseHandler += "if /i \"%answer%\" == \"" + (index + 1) + "\" ( call \"" + runtime.path + "\\bin\\proenv.bat\" && goto stdexit )\n"
         });
         scriptContent += "echo.\n"
@@ -515,11 +607,14 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     });
 
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.compileBuffer', compileBuffer));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.debugListingLine', debugListingLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.preprocess', preprocessFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpFileStatus', dumpFileStatus));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateListing', generateListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
@@ -534,24 +629,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.debug.startSession', startDebugSession));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test', () => {
-    //     const ablConfig = vscode.workspace.getConfiguration('abl');
-    //     ablTest(null, ablConfig);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.test.currentFile', () => {
-    //     const ablConfig = vscode.workspace.getConfiguration('abl');
-    //     ablTest(vscode.window.activeTextEditor.document.uri.fsPath, ablConfig);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.tables', () => {
-    //     return getTableCollection().items.map((item) => item.label);
-    // }));
-    // ctx.subscriptions.push(vscode.commands.registerCommand('abl.table', (tableName) => {
-    //     return getTableCollection().items.find((item) => item.label === tableName);
-    // }));
 
     readGlobalOpenEdgeRuntimes();
-    // FIXME Check if it's possible to reload only when a specific section is changed
     vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
 
     readWorkspaceOEConfigFiles();
@@ -570,7 +649,7 @@ function readOEConfigFile(uri) {
                 if (projects[idx].rootDir == prjConfig.rootDir)
                     projects[idx] = prjConfig;
                 else {
-                    outputChannel.appendLine("Duplicate project " + prjConfig.name + " " + prjConfig.version + " found in " + prjConfig.rootDir + " and " + projects[idx].rootDir);
+                    vscode.window.showErrorMessage("Duplicate project " + prjConfig.name + " name in " + prjConfig.rootDir + " and " + projects[idx].rootDir);
                 }
             } else {
                 projects.push(prjConfig);
@@ -596,10 +675,10 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
     prjConfig.gui = config.graphicalMode;
-    try { 
-        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc)) 
+    try {
+        prjConfig.propath = config.buildPath.map(str => str.path.replace('${DLC}', prjConfig.dlc))
     } catch {
-        prjConfig.propath = [ '.' ] // default the propath to the root of the workspace
+        prjConfig.propath = ['.'] // default the propath to the root of the workspace
     }
     prjConfig.propathMode = 'append';
     prjConfig.startupProc = ''
@@ -654,13 +733,14 @@ function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
 
 function readGlobalOpenEdgeRuntimes() {
     buildMode = vscode.workspace.getConfiguration('abl').get('buildMode', 1);
+    defaultProjectName = vscode.workspace.getConfiguration('abl').get('defaultProject');
     langServDebug = vscode.workspace.getConfiguration('abl').get('langServerDebug');
     oeRuntimes = vscode.workspace.getConfiguration('abl.configuration').get<Array<any>>('runtimes');
 
     const oeRuntimesDefault = vscode.workspace.getConfiguration('abl').get('configuration.defaultRuntime');
     if (oeRuntimesDefault != "") {
-        //set default flag on the runtime that matches the defaultRuntime setting
-        oeRuntimes.find(runtime => {
+        // Set default flag on the runtime that matches the defaultRuntime setting
+        oeRuntimes.forEach(runtime => {
             //we have a default set, so ignore the default in the array
             if (runtime.name === oeRuntimesDefault) {
                 runtime.default = true;
@@ -673,16 +753,6 @@ function readGlobalOpenEdgeRuntimes() {
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');
         outputChannel.appendLine('No OpenEdge runtime configured on this machine');
-    }
-    defaultRuntime = oeRuntimes.find(runtime => runtime.default);
-    if (defaultRuntime != null) {
-        defaultProject = new OpenEdgeProjectConfig();
-        defaultProject.dlc = defaultRuntime.path;
-        defaultProject.rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        defaultProject.oeversion = defaultRuntime.name;
-        defaultProject.extraParameters = '';
-        defaultProject.gui = false;
-        defaultProject.propath = [];
     }
 }
 
@@ -699,7 +769,7 @@ function getDlcDirectory(version: string): string {
             dfltName = runtime.name;
         }
     });
-    if ( dlc == "" && dfltDlc != "" ) {
+    if (dlc == "" && dfltDlc != "") {
         dlc = dfltDlc;
         outputChannel.appendLine("OpenEdge version not configured in workspace settings, using default version (" + dfltName + ") in user settings.");
     }

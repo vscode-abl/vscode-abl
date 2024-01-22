@@ -10,12 +10,12 @@ resources/abl-dap.jar
 resources/sonar-openedge-plugin.jar
 resources/progress-rules-plugin.jar
 resources/riverside-rules-plugin.jar
-run_env/sample-oe-projects/project1/builder.lock
 run_env/sample-oe-projects/project1/build
+run_env/sample-oe-projects/project1/build-tty
 run_env/sample-oe-projects/project1/.builder
-run_env/sample-oe-projects/project2/builder.lock
+run_env/sample-oe-projects/project1/.vscode
 run_env/sample-oe-projects/project2/build
 run_env/sample-oe-projects/project2/.builder
-run_env/sample-oe-projects/project3/builder.lock
+run_env/sample-oe-projects/project2/.vscode
 run_env/sample-oe-projects/project3/build
 run_env/sample-oe-projects/project3/.builder

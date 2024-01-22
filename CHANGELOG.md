@@ -1,3 +1,12 @@
+1.6.0
+=====
+
+* New `Compile current buffer` action. On untitled buffers, this requires the language to be switched to `ABL` (Ctrl + K, M). Shortcut can be set to Shift + F2 for those willing to mimic procedure editor.
+* Fix changeBuildMode action (issue #116)
+* New sonarlintProperties attribute in openedge-project.json
+* Support for OE 12.8
+* Very first version of semantic highlighting (disabled by default)
+
 1.4.25
 ======
 

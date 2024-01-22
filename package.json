@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.4.25",
+    "version": "1.5.7",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -29,7 +29,7 @@
     },
     "icon": "resources/images/progress_icon.png",
     "engines": {
-        "vscode": "^1.52.0"
+        "vscode": "^1.64.0"
     },
     "categories": [
         "Programming Languages",
@@ -46,8 +46,9 @@
     "contributes": {
         "configurationDefaults": {
             "[abl]": {
+                "editor.semanticHighlighting.enabled": false,
                 "editor.wordSeparators": "`~!@#$%^&()=+[{}]\\|;:'\",.<>/?"
-            } 
+            }
         },
         "terminal": {
             "profiles": [
@@ -76,7 +77,9 @@
             },
             {
                 "id": "jsonc",
-                "filenames": [ "openedge-project.json" ]
+                "filenames": [
+                    "openedge-project.json"
+                ]
             }
         ],
         "grammars": [
@@ -133,7 +136,7 @@
                 "description": "Restart ABL Language Server"
             },
             {
-                "command": "abl.change.buildMode",
+                "command": "abl.changeBuildMode",
                 "title": "ABL: Change build mode",
                 "description": "Change ABL Build Mode"
             },
@@ -141,6 +144,11 @@
                 "command": "abl.project.rebuild",
                 "title": "ABL: Rebuild Project",
                 "description": "Rebuild Project"
+            },
+            {
+                "command": "abl.setDefaultProject",
+                "title": "ABL: Set default project",
+                "description": "Set default project"
             },
             {
                 "command": "abl.project.switch.profile",
@@ -156,6 +164,16 @@
                 "command": "abl.dumpFileStatus",
                 "title": "ABL: Dump current file status",
                 "description": "Dump current file status"
+            },
+            {
+                "command": "abl.compileBuffer",
+                "title": "ABL: Compile current buffer",
+                "description": "Compile current buffer"
+            },
+            {
+                "command": "abl.generateListing",
+                "title": "ABL: Generate listing",
+                "description": "Generate listing of current file"
             },
             {
                 "command": "abl.generateDebugListing",
@@ -392,6 +410,10 @@
                     "default": false,
                     "description": "Enable language server debug logging"
                 },
+                "abl.defaultProject": {
+                    "type": "string",
+                    "description": "Default project in multi-project workspaces"
+                },
                 "abl.langServerTrace": {
                     "type": "boolean",
                     "default": false,
@@ -458,6 +480,7 @@
                         "12.5",
                         "12.6",
                         "12.7",
+                        "12.8",
                         "ESAP"
                     ]
                 },
@@ -485,6 +508,7 @@
                                     "12.5",
                                     "12.6",
                                     "12.7",
+                                    "12.8",
                                     "ESAP"
                                 ],
                                 "description": "OpenEdge Execution Environment name. Must be unique."
@@ -549,29 +573,30 @@
     "dependencies": {
         "@vscode/debugadapter": "^1.51.1",
         "@vscode/debugprotocol": "^1.51.0",
+        "@vscode/vsce": "^2.22.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
-        "vsce": "^2.6.7",
+        "vsce": "^2.15.0",
         "vscode-languageclient": "^7.0.0",
         "xml2js": "^0.4.23"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
-        "@types/mocha": "^9.0.0",
-        "@types/node": "^13.7.0",
-        "@types/vscode": "^1.52.0",
-        "@typescript-eslint/eslint-plugin": "^5.10.0",
-        "@typescript-eslint/parser": "^5.10.0",
-        "eslint": "^8.7.0",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "^18.x",
+        "@types/vscode": "^1.64.0",
+        "@typescript-eslint/eslint-plugin": "^6.13.1",
+        "@typescript-eslint/parser": "^6.13.1",
+        "eslint": "^8.54.0",
         "mocha": "^9.1.3",
-        "ts-loader": "^9.2.6",
-        "typescript": "^3.7.5",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.3.2",
         "vscode-test": "^1.3.0",
-        "webpack": "^5.69.1",
-        "webpack-cli": "^4.9.2"
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
     }
 }
