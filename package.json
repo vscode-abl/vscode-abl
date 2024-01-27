@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -235,10 +235,7 @@
                             "mode": "legacy",
                             "port": 3099,
                             "localRoot": "^\"\\${workspaceFolder}\"",
-                            "remoteRoot": "path to remote files",
-                            "sourceMap": {
-                                "Z:\\\\path\\\\to\\\\remote\\\\files\\\\**": "c:\\\\path\\\\to\\\\local\\\\src\\\\**"
-                            }
+                            "pause": true
                         }
                     },
                     {
@@ -335,6 +332,11 @@
                                 "type": "string",
                                 "description": "The hostname the debugger is listening on",
                                 "default": "127.0.0.1"
+                            },
+                            "pause": {
+                                "type": "boolean",
+                                "description": "send 'pause' command as soon as the debugger is attached to the session",
+                                "default": false
                             },
                             "localRoot": {
                                 "type": "string",
