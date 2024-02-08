@@ -2,6 +2,7 @@
 =====
 
 * Add pauseOnAttach property in the debug adapter
+* PASOE Debugger
 
 1.6.0
 =====
