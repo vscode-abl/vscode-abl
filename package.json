@@ -245,13 +245,11 @@
                             "name": "${2:Attach to process}",
                             "type": "abl",
                             "request": "attach",
-                            "url": "Base URL of PASOE instance",
                             "mode": "pasoe",
-                            "localRoot": "^\"\\${workspaceFolder}\"",
-                            "remoteRoot": "path to remote files",
-                            "sourceMap": {
-                                "Z:\\\\path\\\\to\\\\remote\\\\files\\\\**": "c:\\\\path\\\\to\\\\local\\\\src\\\\**"
-                            }
+                            "hostname": "Host name or IP address of PASOE instance",
+                            "port": 8810,
+                            "appName": "pasoe1",
+                            "password": ""
                         }
                     },
                     {
@@ -300,13 +298,6 @@
                                 "description": "The working directory.",
                                 "default": "${workspaceFolder}"
                             },
-                            "sourceMap": {
-                                "type": "object",
-                                "description": "source mapping for remote debugging",
-                                "default": {
-                                    "Z:\\path\\to\\remote\\files\\**": "c:\\path\\to\\local\\src\\**"
-                                }
-                            },
                             "graphicalMode": {
                                 "type": "boolean",
                                 "description": "Start session with _progres or prowin",
@@ -335,25 +326,18 @@
                             },
                             "pause": {
                                 "type": "boolean",
-                                "description": "send 'pause' command as soon as the debugger is attached to the session",
+                                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
                                 "default": false
                             },
-                            "localRoot": {
+                            "appName": {
                                 "type": "string",
-                                "description": "The root directory for local source",
-                                "default": "${workspaceFolder}"
-                            },
-                            "remoteRoot": {
-                                "type": "string",
-                                "description": "The root directory for remote source",
+                                "description": "PASOE ABL Application Name",
                                 "default": ""
                             },
-                            "sourceMap": {
-                                "type": "object",
-                                "description": "source mapping for remote debugging",
-                                "default": {
-                                    "Z:\\path\\to\\remote\\files\\**": "c:\\path\\to\\local\\src\\**"
-                                }
+                            "passowrd": {
+                                "type": "string",
+                                "description": "PASOE debugger password",
+                                "default": ""
                             }
                         }
                     }
