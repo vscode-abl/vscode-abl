@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.7.3",
+    "version": "1.7.4",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -248,6 +248,7 @@
                             "mode": "pasoe",
                             "hostname": "Host name or IP address of PASOE instance",
                             "port": 8810,
+                            "localRoot": "^\"\\${workspaceFolder}\"",
                             "appName": "pasoe1",
                             "password": ""
                         }
@@ -328,6 +329,11 @@
                                 "type": "boolean",
                                 "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
                                 "default": false
+                            },
+                            "localRoot": {
+                                "type": "string",
+                                "description": "The root directory for local source",
+                                "default": "${workspaceFolder}"
                             },
                             "appName": {
                                 "type": "string",

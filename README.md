@@ -135,12 +135,14 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug current program / Interactive GUI",
+      "name": "Attach to AVM",
       "type": "abl",
-      "request": "launch",
-      "program": "${file}",
-      "cwd": "${workspaceFolder}",
-      "graphicalMode": true
+      "request": "attach",
+      "hostname": "127.0.0.1",
+      "mode": "legacy",
+      "port": 3099,
+      "pause": true,
+      "localRoot": "${workspaceFolder}"
     }
   ]
 }
