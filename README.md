@@ -354,7 +354,7 @@ Based upon the ABLUnit framework (need to be installed locally), you can specify
 
 Here are a few things to verify before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
 * Java 11 has to be present in the PATH (check output of `java -version`)
-* OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2, 12.5 and 12.6 have been tested.
+* OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2 and 12.8 have been tested.
 * Verify that the openedge-project.json is present in the root directory, and has no syntax error
 * Make sure at least one .p or .cls is opened, as the extension is not active by default
 * Check the Java command line being executed (using Process Explorer for example)

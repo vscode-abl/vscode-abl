@@ -3,6 +3,7 @@
 
 * Add pauseOnAttach property in the debug adapter
 * PASOE Debugger
+* Improved TextMate grammar (provided by Peter Judge)
 
 1.6.0
 =====
