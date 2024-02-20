@@ -11,10 +11,12 @@ import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConf
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 import { tmpdir } from 'os';
 import { outputChannel } from './ablStatus';
+import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
 
 let client: LanguageClient;
 
 const projects: Array<OpenEdgeProjectConfig> = new Array();
+const docNodeProvider = new DocumentationNodeProvider();
 let oeRuntimes: Array<any>;
 let langServDebug: boolean;
 let defaultProjectName: string;
@@ -137,6 +139,25 @@ function createLanguageClient(): LanguageClient {
     });
 
     return tmp;
+}
+
+function openDocumentationEntry(uri: string): void {
+  DocViewPanel.createOrShow(uri);
+}
+
+function switchDocTo117(): void {
+  docNodeProvider.updateMode(1);
+  docNodeProvider.refresh();
+}
+
+function switchDocTo122(): void {
+  docNodeProvider.updateMode(2);
+  docNodeProvider.refresh();
+}
+
+function switchDocTo128(): void {
+  docNodeProvider.updateMode(3);
+  docNodeProvider.refresh();
 }
 
 function setDefaultProject(): void {
@@ -607,6 +628,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     });
 
+    vscode.window.registerTreeDataProvider('openEdgeDocumentation', docNodeProvider);
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
+    ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo117', switchDocTo117));
+    ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
+    ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
+
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
@@ -630,6 +657,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd));
 
+    docNodeProvider.fetchData();
     readGlobalOpenEdgeRuntimes();
     vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
 

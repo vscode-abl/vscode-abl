@@ -209,6 +209,24 @@
                 "command": "abl.dumpLangServStatus",
                 "title": "ABL: Dump Language Server status",
                 "description": "Dump Language Server status"
+            },
+            {
+                "command": "oeDoc.switchTo117",
+                "shortTitle": "11.7",
+                "title": "Switch to 11.7 documentation",
+                "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "oeDoc.switchTo122",
+                "shortTitle": "12.2",
+                "title": "Switch to 12.2 documentation",
+                "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "oeDoc.switchTo128",
+                "shortTitle": "12.8",
+                "title": "Switch to 12.8 documentation",
+                "enablement": "view == openEdgeDocumentation"
             }
         ],
         "breakpoints": [
@@ -536,6 +554,23 @@
                     "command": "abl.test.currentFile",
                     "when": "editorLangId == 'abl'"
                 }
+            ],
+            "view/title": [
+              {
+                "command": "oeDoc.switchTo117",
+                "when": "view == openEdgeDocumentation",
+                "group": "navigation"
+              },
+              {
+                "command": "oeDoc.switchTo122",
+                "when": "view == openEdgeDocumentation",
+                "group": "navigation"
+              },
+              {
+                "command": "oeDoc.switchTo128",
+                "when": "view == openEdgeDocumentation",
+                "group": "navigation"
+              }
             ]
         },
         "jsonValidation": [
@@ -560,7 +595,15 @@
                 "command": "abl.debugListingLine",
                 "key": "alt+L"
             }
-        ]
+        ],
+        "views": {
+          "explorer": [
+            {
+              "id": "openEdgeDocumentation",
+              "name": "OpenEdge Documentation"
+            }
+          ]
+        }
     },
     "dependencies": {
         "@vscode/debugadapter": "^1.51.1",
