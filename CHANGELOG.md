@@ -3,7 +3,7 @@
 
 * Add pauseOnAttach property in the debug adapter
 * PASOE Debugger
-* Improved TextMate grammar (provided by Peter Judge)
+* Variable values can now be changed in debugger
 * OpenEdge documentation view
 
 1.6.0
