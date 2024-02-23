@@ -3,7 +3,7 @@
 
 * Add pauseOnAttach property in the debug adapter
 * PASOE Debugger
-* Variable values can now be changed in debugger
+* Variable values can now be changed in debugger (AVM and PASOE)
 * OpenEdge documentation view
 
 1.6.0
