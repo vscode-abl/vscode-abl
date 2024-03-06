@@ -606,8 +606,8 @@
         }
     },
     "dependencies": {
-        "@vscode/debugadapter": "^1.51.1",
-        "@vscode/debugprotocol": "^1.51.0",
+        "@vscode/debugadapter": "^1.64.0",
+        "@vscode/debugprotocol": "^1.64.0",
         "@vscode/vsce": "^2.22.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
