@@ -56,11 +56,11 @@ pipeline {
           }
           if ("develop" == env.BRANCH_NAME) {            
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
-              sh "node_modules/.bin/vsce publish --pre-release"
+              sh "node_modules/.bin/vsce publish --pre-release --package-path *.vsix"
             }
           } else if ("main" == env.BRANCH_NAME) {
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
-              sh "node_modules/.bin/vsce publish"
+              sh "node_modules/.bin/vsce publish --package-path *.vsix"
             }
           } else {
             sh "echo Artifacts not published!"
