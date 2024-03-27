@@ -19,3 +19,5 @@ run_env/sample-oe-projects/project2/.builder
 run_env/sample-oe-projects/project2/.vscode
 run_env/sample-oe-projects/project3/build
 run_env/sample-oe-projects/project3/.builder
+resources/jre-linux.tar.gz
+resources/jre-windows.zip
