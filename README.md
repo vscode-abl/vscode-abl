@@ -13,9 +13,7 @@ This extension is based on the existing Christophe Camicas work, but went throug
 * Code completion
 
 ## Requirements
-This extension requires:
-* At least one OpenEdge installation, with a developer license. The extension is currently tested with 11.7, 12.2 and 12.8. It may or may not work with older versions.
-* Java Virtual Machine version 11 or 17: the language server is written in Java. It is started directly with `java` or with `$JAVA_HOME/bin/java` if the `JAVA_HOME` environment variable is set. It is possible to force the java executable with configuration setting `abl.langServerJavaExecutable`.
+This extension requires at least one OpenEdge installation, with a developer license. The extension is currently tested with 11.7, 12.2 and 12.8. It may or may not work with older versions.
 
 ## Global Configuration
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
@@ -353,12 +351,11 @@ Based upon the ABLUnit framework (need to be installed locally), you can specify
 ## Configuration checklist
 
 Here are a few things to verify before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
-* Java 11 has to be present in the PATH (check output of `java -version`)
 * OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2 and 12.8 have been tested.
 * Verify that the openedge-project.json is present in the root directory, and has no syntax error
 * Make sure at least one .p or .cls is opened, as the extension is not active by default
 * Check the Java command line being executed (using Process Explorer for example)
-* Check the OE command line being execute (also using Process Explorer for example)
+* Check the OE command line being executed (also using Process Explorer for example)
 * Check the .builder directory in your project, it contains valuable log files
 * Make sure you have `source` directories in your configuration file ; `propath` entries are not monitored and thus nothing would be recompiled
 
