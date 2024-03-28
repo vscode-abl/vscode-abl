@@ -29,7 +29,7 @@
     },
     "icon": "resources/images/progress_icon.png",
     "engines": {
-        "vscode": "^1.64.0"
+        "vscode": "^1.76.0"
     },
     "categories": [
         "Programming Languages",
@@ -38,9 +38,7 @@
         "Formatters"
     ],
     "activationEvents": [
-        "onLanguage:abl",
-        "workspaceContains:openedge-project.json",
-        "onTerminalProfile:proenv.terminal-profile"
+        "workspaceContains:openedge-project.json"
     ],
     "main": "./dist/extension.js",
     "contributes": {
@@ -606,8 +604,8 @@
         }
     },
     "dependencies": {
-        "@vscode/debugadapter": "^1.64.0",
-        "@vscode/debugprotocol": "^1.64.0",
+        "@vscode/debugadapter": "^1.65.0",
+        "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
@@ -624,7 +622,7 @@
         "@types/mocha": "^10.0.6",
         "@types/node": "^18.x",
         "@types/node-fetch": "^2.6.11",
-        "@types/vscode": "^1.64.0",
+        "@types/vscode": "^1.76.0",
         "@typescript-eslint/eslint-plugin": "^6.13.1",
         "@typescript-eslint/parser": "^6.13.1",
         "eslint": "^8.54.0",
