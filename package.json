@@ -608,7 +608,7 @@
     "dependencies": {
         "@vscode/debugadapter": "^1.64.0",
         "@vscode/debugprotocol": "^1.64.0",
-        "@vscode/vsce": "^2.22.0",
+        "@vscode/vsce": "^2.24.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
@@ -616,9 +616,8 @@
         "node-fetch": "2.7.0",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
-        "vsce": "^2.15.0",
         "vscode-languageclient": "^7.0.0",
-        "xml2js": "^0.4.23"
+        "xml2js": "^0.6.2"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
