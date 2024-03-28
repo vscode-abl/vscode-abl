@@ -39,13 +39,13 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
         const defaultExecOptions2 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-        const debugAdapterExecutable = path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : ''));
+        const debugAdapterExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
         const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : debugAdapterOptionsFromSettings;
 
         outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions.join(" "));
-        return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: { "JAVA_HOME": path.join(__dirname, '../jre') } });
+        return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
     }
 }
 
@@ -95,7 +95,7 @@ function createLanguageClient(): LanguageClient {
     ];
 
     const langServTrace = vscode.workspace.getConfiguration('abl').get('langServerTrace')
-    const langServExecutable = path.join(__dirname, '../jre/bin/java');
+    const langServExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
     const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
@@ -104,8 +104,7 @@ function createLanguageClient(): LanguageClient {
     outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions.join(" "));
     const serverExec: Executable = {
         command: langServExecutable,
-        args: langServOptions,
-        options: { env: { "JAVA_HOME": path.join(__dirname, '../jre') }}
+        args: langServOptions
     };
     const serverOptions: ServerOptions = serverExec;
 
