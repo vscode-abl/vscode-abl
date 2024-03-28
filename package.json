@@ -554,21 +554,21 @@
                 }
             ],
             "view/title": [
-              {
-                "command": "oeDoc.switchTo117",
-                "when": "view == openEdgeDocumentation",
-                "group": "navigation"
-              },
-              {
-                "command": "oeDoc.switchTo122",
-                "when": "view == openEdgeDocumentation",
-                "group": "navigation"
-              },
-              {
-                "command": "oeDoc.switchTo128",
-                "when": "view == openEdgeDocumentation",
-                "group": "navigation"
-              }
+                {
+                    "command": "oeDoc.switchTo117",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "oeDoc.switchTo122",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "oeDoc.switchTo128",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                }
             ]
         },
         "jsonValidation": [
@@ -595,12 +595,12 @@
             }
         ],
         "views": {
-          "explorer": [
-            {
-              "id": "openEdgeDocumentation",
-              "name": "OpenEdge Documentation"
-            }
-          ]
+            "explorer": [
+                {
+                    "id": "openEdgeDocumentation",
+                    "name": "OpenEdge Documentation"
+                }
+            ]
         }
     },
     "dependencies": {
