@@ -14,4 +14,4 @@ docker
 Jenkinsfile
 azure-pipelines.yml
 resources/jre-windows.zip
-resources/jre-unix.tar.gz
+resources/jre-linux.tar.gz
