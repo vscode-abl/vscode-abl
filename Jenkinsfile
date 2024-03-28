@@ -49,16 +49,17 @@ pipeline {
         script {
           withSonarQubeEnv('RSSW2') {
             sh 'node --version && npm install vsce && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json'
-            sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.10+7-jre jre'
             if ("develop" == env.BRANCH_NAME) {
+              sh 'node_modules/.bin/vsce package --pre-release'
+              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.10+7-jre jre'
               sh 'node_modules/.bin/vsce package --pre-release --target win32-x64'
-            } else {
-              sh 'node_modules/.bin/vsce package --target win32-x64'
-            }
-            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.10+7-jre jre'
-            if ("develop" == env.BRANCH_NAME) {
+              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.10+7-jre jre'
               sh 'node_modules/.bin/vsce package --pre-release --target linux-x64'
             } else {
+              sh 'node_modules/.bin/vsce package'
+              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.10+7-jre jre'
+              sh 'node_modules/.bin/vsce package --target win32-x64'
+              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.10+7-jre jre'
               sh 'node_modules/.bin/vsce package --target linux-x64'
             }
           }
