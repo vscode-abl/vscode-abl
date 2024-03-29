@@ -111,7 +111,7 @@ On top of the default profile configured in `openedge-project.json`, additional 
 }
 ```
 V11 Profile inherits from the default profile, so graphicalMode will be set to true. OpenEdge version and DB connections are specified in the profile.
-V12.5GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
+V12.2 GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
 When opening a project, VSCode will check for `.vscode/profile.json`. If this file is present, then this profile will be loaded. Otherwise, the default profile will be used. It is recommended to add this file to the SCM ignore list.
 
 ## Debugger
@@ -149,8 +149,11 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
 To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-classic-appserver-development-117/page/Attaching-the-Debugger-to-an-AppServer-session.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
 When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
 
-![Debugger Demo](resources/images/debugger.webp)
-[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger.webp)
+![Legacy Debugger Demo](resources/images/debugger01.webp)
+[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger01.webp)
+
+![PASOE Debugger Demo](resources/images/debugger02.webp)
+[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger02.webp)
 
 ## Code Analysis in VSCode
 
