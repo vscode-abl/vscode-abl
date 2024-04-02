@@ -62,7 +62,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     {
       "name": "sp2k", // Logical name of database, or physical name if -ld is not used
       "connect": "-db db/sp2k -RO", // ABL connection string
-      "dumpFile": "dump/sp2k.df",   // Database schema, DF format
+      "schemaFile": "dump/sp2k.df",   // Database schema, DF format
       "aliases": [ "foo", "bar"]    // List of aliases in ABL session
     }
   ],

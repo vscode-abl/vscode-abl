@@ -162,7 +162,7 @@
         "type": "object",
         "required": [
           "name",
-          "dumpFile",
+          "schemaFile",
           "connect",
           "aliases"
         ],
@@ -171,7 +171,7 @@
             "description": "Database logical name",
             "type": "string"
           },
-          "dumpFile": {
+          "schemaFile": {
             "description": "Database schema file (DF format)",
             "type": "string"
           },
@@ -312,7 +312,7 @@
                   "type": "object",
                   "required": [
                     "name",
-                    "dumpFile",
+                    "schemaFile",
                     "connect",
                     "aliases"
                   ],
@@ -321,7 +321,7 @@
                       "description": "Database logical name",
                       "type": "string"
                     },
-                    "dumpFile": {
+                    "schemaFile": {
                       "description": "Database schema file (DF format)",
                       "type": "string"
                     },
