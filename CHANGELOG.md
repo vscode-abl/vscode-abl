@@ -1,4 +1,4 @@
-1.8.0
+1.8.1
 =====
 
 * Add pauseOnAttach property in the debug adapter
