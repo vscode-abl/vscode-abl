@@ -9,24 +9,25 @@ This extension is based on the existing Christophe Camicas work, but went throug
 * OpenEdge project configuration (propath, database connections, aliases, ...)
 * Multi-thread background compiler
 * Profiles
-* Debugger
-* ABLUnit Support (currently not active)
-* Code completion (work in progress)
+* Debugger (legacy and PASOE)
+* Code completion
 
 ## Requirements
-This extension requires:
-* At least one OpenEdge installation, with a developer license. The extension is currently tested with 11.7, 12.2 and later. It may or may not work with older versions.
-* Java Virtual Machine version 11 or 17: the language server is written in Java. It is started directly with `java` or with `$JAVA_HOME/bin/java` if the `JAVA_HOME` environment variable is set. It is possible to force the java executable with configuration setting `abl.langServerJavaExecutable`.
+This extension requires at least one OpenEdge installation, with a developer license. The extension is currently tested with 11.7, 12.2 and 12.8. It may or may not work with older versions.
 
 ## Global Configuration
 OpenEdge runtimes have to be declared in VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 
 ```jsonc
-    "abl.configuration.runtimes.default": "12.2", // Default ABL version
+    "abl.configuration.runtimes.default": "12.8", // Default ABL version
     "abl.configuration.runtimes": [
         {
+            "name": "12.8",
+            "path": "C:\\Progress\\Openedge-12.8"
+        },
+        {
             "name": "12.2",
-            "path": "C:/Progress/Openedge"
+            "path": "C:\\Progress\\Openedge-12.2"
         },
         {
             "name": "11.7",
@@ -41,7 +42,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
 {
   "name": "MyProject", // Project name, will be used in the future for dependency management
   "version": "1.0",    // Project version number, will be used in the future for dependency management
-  "oeversion": "12.2", // Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
+  "oeversion": "12.8", // Must reference an existing ABL version in Settings -> Extensions -> ABL Configuration -> Runtimes
   "graphicalMode": true, // True for prowin[32], false for _progres
   "charset": "utf-8",  // Charset
   "extraParameters": "", // Extra Progress command line parameters
@@ -61,7 +62,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     {
       "name": "sp2k", // Logical name of database, or physical name if -ld is not used
       "connect": "-db db/sp2k -RO", // ABL connection string
-      "dumpFile": "dump/sp2k.df",   // Database schema, DF format
+      "schemaFile": "dump/sp2k.df",   // Database schema, DF format
       "aliases": [ "foo", "bar"]    // List of aliases in ABL session
     }
   ],
@@ -102,20 +103,20 @@ On top of the default profile configured in `openedge-project.json`, additional 
 ```jsonc
 {
   /* Default profile values */
-  "version": "12.2", "graphicalMode": false, "dbConnections": "-db db/sp2kv12 -RO",
+  "version": "12.8", "graphicalMode": false, "dbConnections": "-db db/sp2kv12 -RO",
   "profiles": [
     { "name": "V11", "inherits": "default", "value": { "oeversion": "11.7", "dbConnections": "-db db/sp2kv11 -RO" } },
-    { "name": "V12.5 GUI", "value": { "oeversion": "12.5", "graphicalMode": true }}
+    { "name": "V12.2 GUI", "value": { "oeversion": "12.2", "graphicalMode": true }}
   ]
 }
 ```
 V11 Profile inherits from the default profile, so graphicalMode will be set to true. OpenEdge version and DB connections are specified in the profile.
-V12.5GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
+V12.2 GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
 When opening a project, VSCode will check for `.vscode/profile.json`. If this file is present, then this profile will be loaded. Otherwise, the default profile will be used. It is recommended to add this file to the SCM ignore list.
 
 ## Debugger
 
-You can use the debugger to debug a procedure belonging to the project, and to debug a remote ABL session (assuming it is debug-ready). It is currently not possible to attach to a PASOE instance, but this is planned for a future release (probably end of 2022).
+You can use the debugger to debug a remote ABL session (assuming it is started with -debugReady) or PASOE instance (assuming that oedebugger webapp is deployed).
 
 The debugger supports those features:
 - step over, step into, step out, continue, suspend
@@ -132,12 +133,14 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug current program / Interactive GUI",
+      "name": "Attach to AVM",
       "type": "abl",
-      "request": "launch",
-      "program": "${file}",
-      "cwd": "${workspaceFolder}",
-      "graphicalMode": true
+      "request": "attach",
+      "hostname": "127.0.0.1",
+      "mode": "legacy",
+      "port": 3099,
+      "pause": true,
+      "localRoot": "${workspaceFolder}"
     }
   ]
 }
@@ -146,8 +149,11 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
 To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-classic-appserver-development-117/page/Attaching-the-Debugger-to-an-AppServer-session.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
 When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
 
-![Debugger Demo](resources/images/debugger.webp)
-[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger.webp)
+![Legacy Debugger Demo](resources/images/debugger01.webp)
+[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger01.webp)
+
+![PASOE Debugger Demo](resources/images/debugger02.webp)
+[Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger02.webp)
 
 ## Code Analysis in VSCode
 
@@ -348,12 +354,11 @@ Based upon the ABLUnit framework (need to be installed locally), you can specify
 ## Configuration checklist
 
 Here are a few things to verify before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
-* Java 11 has to be present in the PATH (check output of `java -version`)
-* OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2, 12.5 and 12.6 have been tested.
+* OpenEdge has to be installed on your local machine, and configured in VSCode. As of today, versions 11.7, 12.2 and 12.8 have been tested.
 * Verify that the openedge-project.json is present in the root directory, and has no syntax error
 * Make sure at least one .p or .cls is opened, as the extension is not active by default
 * Check the Java command line being executed (using Process Explorer for example)
-* Check the OE command line being execute (also using Process Explorer for example)
+* Check the OE command line being executed (also using Process Explorer for example)
 * Check the .builder directory in your project, it contains valuable log files
 * Make sure you have `source` directories in your configuration file ; `propath` entries are not monitored and thus nothing would be recompiled
 * Check the ABL Language Server output: open Output view (Ctrl + Shift + U) then ABL Language Server in the combo-box

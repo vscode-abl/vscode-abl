@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.6.0",
+    "version": "1.7.20",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -29,7 +29,7 @@
     },
     "icon": "resources/images/progress_icon.png",
     "engines": {
-        "vscode": "^1.64.0"
+        "vscode": "^1.76.0"
     },
     "categories": [
         "Programming Languages",
@@ -38,9 +38,7 @@
         "Formatters"
     ],
     "activationEvents": [
-        "onLanguage:abl",
-        "workspaceContains:openedge-project.json",
-        "onTerminalProfile:proenv.terminal-profile"
+        "workspaceContains:openedge-project.json"
     ],
     "main": "./dist/extension.js",
     "contributes": {
@@ -209,6 +207,24 @@
                 "command": "abl.dumpLangServStatus",
                 "title": "ABL: Dump Language Server status",
                 "description": "Dump Language Server status"
+            },
+            {
+                "command": "oeDoc.switchTo117",
+                "shortTitle": "11.7",
+                "title": "Switch to 11.7 documentation",
+                "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "oeDoc.switchTo122",
+                "shortTitle": "12.2",
+                "title": "Switch to 12.2 documentation",
+                "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "oeDoc.switchTo128",
+                "shortTitle": "12.8",
+                "title": "Switch to 12.8 documentation",
+                "enablement": "view == openEdgeDocumentation"
             }
         ],
         "breakpoints": [
@@ -235,10 +251,7 @@
                             "mode": "legacy",
                             "port": 3099,
                             "localRoot": "^\"\\${workspaceFolder}\"",
-                            "remoteRoot": "path to remote files",
-                            "sourceMap": {
-                                "Z:\\\\path\\\\to\\\\remote\\\\files\\\\**": "c:\\\\path\\\\to\\\\local\\\\src\\\\**"
-                            }
+                            "pause": true
                         }
                     },
                     {
@@ -248,13 +261,12 @@
                             "name": "${2:Attach to process}",
                             "type": "abl",
                             "request": "attach",
-                            "url": "Base URL of PASOE instance",
                             "mode": "pasoe",
+                            "hostname": "Host name or IP address of PASOE instance",
+                            "port": 8810,
                             "localRoot": "^\"\\${workspaceFolder}\"",
-                            "remoteRoot": "path to remote files",
-                            "sourceMap": {
-                                "Z:\\\\path\\\\to\\\\remote\\\\files\\\\**": "c:\\\\path\\\\to\\\\local\\\\src\\\\**"
-                            }
+                            "appName": "pasoe1",
+                            "password": ""
                         }
                     },
                     {
@@ -303,13 +315,6 @@
                                 "description": "The working directory.",
                                 "default": "${workspaceFolder}"
                             },
-                            "sourceMap": {
-                                "type": "object",
-                                "description": "source mapping for remote debugging",
-                                "default": {
-                                    "Z:\\path\\to\\remote\\files\\**": "c:\\path\\to\\local\\src\\**"
-                                }
-                            },
                             "graphicalMode": {
                                 "type": "boolean",
                                 "description": "Start session with _progres or prowin",
@@ -336,22 +341,25 @@
                                 "description": "The hostname the debugger is listening on",
                                 "default": "127.0.0.1"
                             },
+                            "pause": {
+                                "type": "boolean",
+                                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
+                                "default": false
+                            },
                             "localRoot": {
                                 "type": "string",
                                 "description": "The root directory for local source",
                                 "default": "${workspaceFolder}"
                             },
-                            "remoteRoot": {
+                            "appName": {
                                 "type": "string",
-                                "description": "The root directory for remote source",
+                                "description": "PASOE ABL Application Name",
                                 "default": ""
                             },
-                            "sourceMap": {
-                                "type": "object",
-                                "description": "source mapping for remote debugging",
-                                "default": {
-                                    "Z:\\path\\to\\remote\\files\\**": "c:\\path\\to\\local\\src\\**"
-                                }
+                            "password": {
+                                "type": "string",
+                                "description": "PASOE debugger password",
+                                "default": ""
                             }
                         }
                     }
@@ -544,6 +552,23 @@
                     "command": "abl.test.currentFile",
                     "when": "editorLangId == 'abl'"
                 }
+            ],
+            "view/title": [
+                {
+                    "command": "oeDoc.switchTo117",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "oeDoc.switchTo122",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "oeDoc.switchTo128",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                }
             ]
         },
         "jsonValidation": [
@@ -568,34 +593,43 @@
                 "command": "abl.debugListingLine",
                 "key": "alt+L"
             }
-        ]
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "openEdgeDocumentation",
+                    "name": "OpenEdge Documentation"
+                }
+            ]
+        }
     },
     "dependencies": {
-        "@vscode/debugadapter": "^1.51.1",
-        "@vscode/debugprotocol": "^1.51.0",
-        "@vscode/vsce": "^2.22.0",
+        "@vscode/debugadapter": "^1.65.0",
+        "@vscode/debugprotocol": "^1.65.0",
+        "@vscode/vsce": "^2.24.0",
         "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
+        "node-fetch": "2.7.0",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
-        "vsce": "^2.15.0",
         "vscode-languageclient": "^7.0.0",
-        "xml2js": "^0.4.23"
+        "xml2js": "^0.6.2"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
         "@types/mocha": "^10.0.6",
         "@types/node": "^18.x",
-        "@types/vscode": "^1.64.0",
+        "@types/node-fetch": "^2.6.11",
+        "@types/vscode": "^1.76.0",
         "@typescript-eslint/eslint-plugin": "^6.13.1",
         "@typescript-eslint/parser": "^6.13.1",
+        "@vscode/test-electron": "^2.3.9",
         "eslint": "^8.54.0",
         "mocha": "^9.1.3",
         "ts-loader": "^9.5.1",
         "typescript": "^5.3.2",
-        "vscode-test": "^1.3.0",
         "webpack": "^5.89.0",
         "webpack-cli": "^5.1.4"
     }

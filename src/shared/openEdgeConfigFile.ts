@@ -31,7 +31,7 @@ export interface OpenEdgeConfig {
 
 export interface DatabaseConnection {
   name: string;
-  dumpFile: string;
+  schemaFile: string;
   connect: string;
   aliases: string[];
 }

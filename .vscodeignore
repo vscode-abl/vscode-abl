@@ -1,5 +1,7 @@
 .vscode/**/*
 .npm/**/*
+.gitignore
+.eslintignore
 src/**/*
 out/**/*
 node_modules
@@ -7,9 +9,9 @@ run_env
 test
 tsconfig.json
 tslint.json
-.gitignore
-.eslintignore
 docs
 docker
 Jenkinsfile
 azure-pipelines.yml
+resources/jre-windows.zip
+resources/jre-linux.tar.gz
