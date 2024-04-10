@@ -1,3 +1,8 @@
+1.10.0
+======
+
+* Go to definition improvements (table & buffer definition, more to come...)
+
 1.8.1
 =====
 
