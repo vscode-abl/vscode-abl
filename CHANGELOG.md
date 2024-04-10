@@ -1,10 +1,14 @@
-1.8.0
+1.8.1
 =====
 
 * Add pauseOnAttach property in the debug adapter
 * PASOE Debugger
 * Variable values can now be changed in debugger (AVM and PASOE)
 * OpenEdge documentation view
+* New .Net Catalog entry point (thanks to Clément Brodu)
+* JVM bundled in VSIX, no need to specify path to Java
+* Renamed dumpFile to schemaFile in project config file
+* File extensions now case-insensitive
 
 1.6.0
 =====
