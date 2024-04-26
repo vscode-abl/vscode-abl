@@ -38,14 +38,14 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
             '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
-        const defaultExecOptions2 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-        const debugAdapterExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
-        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
-        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : debugAdapterOptionsFromSettings;
+        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ');
+        const execOptions1 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+        const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
-        outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions.join(" "));
-        return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
+        const langServExecutable = getJavaExecutable();
+        outputChannel.appendLine("ABL Debug Adapter - Command line: " + langServExecutable + " " + execOptions2.join(" "));
+        return new vscode.DebugAdapterExecutable(langServExecutable, execOptions2, { env: this.env });
     }
 }
 
@@ -84,6 +84,14 @@ export function getProjectByName(name: string): OpenEdgeProjectConfig {
     return projects.find(project => project.name === name);
 }
 
+function getJavaExecutable(): string {
+  const userJavaExec = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable') as string;
+  const extension = process.platform === "win32" ? '.exe' : '';
+  const bundledJavaExec = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + extension) : undefined;
+
+  return userJavaExec ? userJavaExec : (bundledJavaExec ? bundledJavaExec : 'java');
+}
+
 function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
@@ -94,17 +102,16 @@ function createLanguageClient(): LanguageClient {
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
 
-    const langServTrace = vscode.workspace.getConfiguration('abl').get('langServerTrace')
-    const langServExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
-    const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
-    const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : langServOptionsFromSettings;
+    const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
+    const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+    const execOptions2 = langServOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : langServOptionsFromSettings;
+    const langServExecutable = getJavaExecutable();
 
-    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions.join(" "));
+    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + execOptions2.join(" "));
     const serverExec: Executable = {
         command: langServExecutable,
-        args: langServOptions
+        args: execOptions2
     };
     const serverOptions: ServerOptions = serverExec;
 

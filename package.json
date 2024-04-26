@@ -454,7 +454,7 @@
                 },
                 "abl.langServerJavaExecutable": {
                     "type": "string",
-                    "default": "java",
+                    "default": "",
                     "description": "Language Server Java executable"
                 },
                 "abl.configuration.maxThreads": {
