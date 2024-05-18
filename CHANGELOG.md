@@ -2,6 +2,8 @@
 ======
 
 * Go to definition improvements (table & buffer definition, more to come...)
+* Extension entry point (in order to fetch project config from SonarLint extension)
+* Fix "Compile current buffer" action on classes
 
 1.8.1
 =====
