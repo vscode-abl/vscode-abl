@@ -49,7 +49,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
     }
 }
 
-export function activate(ctx: vscode.ExtensionContext): void {
+export function activate(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
 
     const env: any = { ...process.env };
@@ -66,6 +66,13 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     client = createLanguageClient();
     client.start();
+
+    // Return extension entry point
+    return {
+        async getFileInfo(uri: string) {
+            return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        }
+    };
 }
 
 
