@@ -4,6 +4,7 @@
 * Go to definition improvements (table & buffer definition, more to come...)
 * Extension entry point (in order to fetch project config from SonarLint extension)
 * Fix "Compile current buffer" action on classes
+* Debug Adapter: watchpoints support
 
 1.8.1
 =====
