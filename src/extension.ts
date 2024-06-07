@@ -39,7 +39,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
-        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ');
+        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
         const execOptions1 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
         const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
