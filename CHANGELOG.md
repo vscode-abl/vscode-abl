@@ -5,6 +5,7 @@
 * Extension entry point (in order to fetch project config from SonarLint extension)
 * Fix "Compile current buffer" action on classes
 * Debug Adapter: watchpoints support
+* SonarLint: lint rules execution moved to CABL SonarLint extension
 
 1.8.1
 =====
