@@ -157,7 +157,7 @@ When debugging a local procedure, VSCode will always start the AVM session with 
 
 ## Code Analysis in VSCode
 
-Code analysis rules that are part of the [OpenEdge plugin for SonarQube](https://github.com/Riverside-Software/sonar-openedge) can be executed in VSCode. It is currently not possible to use the official SonarLint plugin for VSCode (support will be added later), so your quality profile has to be exported from SonarQube to `.vscode/cabl.json`. This procedure (courtesy of Mike Fechner) will export the quality profile:
+Code analysis rules that are part of the [OpenEdge plugin for SonarQube](https://github.com/Riverside-Software/sonar-openedge) can be executed in VSCode. It is currently not possible to use the official SonarLint plugin for VSCode (support will be added later), so your quality profile has to be exported from SonarQube to `.vscode/cabl.json`. This procedure (courtesy of Mike Fechner) will convert the quality profile backup (XML file) to the JSON format expected by the VS Code plugin:
 
 ```
 /*------------------------------------------------------------------------
