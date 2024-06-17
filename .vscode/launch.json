@@ -41,7 +41,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\sonaroe-test-project"
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\Projets\\sonaroe-test-project"
             ],
             "sourceMaps": true,
             "preLaunchTask": "build"
