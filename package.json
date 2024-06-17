@@ -99,6 +99,11 @@
                 "description": "Open current file in AppBuilder"
             },
             {
+                "command": "abl.openInProcEd",
+                "title": "ABL: Open file in procedure editor",
+                "description": "Open current file in procedure editor"
+            },
+            {
                 "command": "abl.runProgres.currentFile",
                 "title": "ABL: Run with _progres",
                 "description": "Run current file in TTY session"

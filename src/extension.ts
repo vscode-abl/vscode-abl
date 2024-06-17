@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { openDataDictionary } from './ablDataDictionary';
 import { executeGenCatalog } from './assemblyCatalog';
-import { runGUI, openInAB } from './shared/ablRun';
+import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
@@ -453,6 +453,20 @@ function openInAppbuilder() {
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
 }
 
+function openInProcedureEditor() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Open in procedure editor: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+    const cfg2 = cfg.profiles.get(cfg.activeProfile);
+    openInProcEditor(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
+}
+
 function runCurrentFile() {
     if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
         vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
@@ -666,6 +680,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', rebuildProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', openDataDictionaryCmd));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', openInAppbuilder));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInProcEd', openInProcedureEditor));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', runCurrentFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
