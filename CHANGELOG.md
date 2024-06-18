@@ -6,6 +6,7 @@
 * Fix "Compile current buffer" action on classes
 * Debug Adapter: watchpoints support
 * SonarLint: lint rules execution moved to CABL SonarLint extension
+* Open in procedure editor action
 
 1.8.1
 =====
