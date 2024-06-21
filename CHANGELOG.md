@@ -7,6 +7,8 @@
 * Debug Adapter: watchpoints support
 * SonarLint: lint rules execution moved to CABL SonarLint extension
 * Open in procedure editor action
+* Fix code completion on triggers
+* Prevent resource exhaustion when recompiling dependencies (no full parse + no duplicates in action queue)
 
 1.8.1
 =====
