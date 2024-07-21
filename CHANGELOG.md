@@ -10,6 +10,7 @@
 * Fix code completion on triggers
 * Prevent resource exhaustion when recompiling dependencies (no full parse + no duplicates in action queue)
 * Faster project initialization (non-blocking typeInfo cache read)
+* Pass catalog.json location to SonarLint
 
 1.8.1
 =====
