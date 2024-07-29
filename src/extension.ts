@@ -198,9 +198,11 @@ function dumpLangServStatus(): void {
 }
 
 function restartLangServer(): void {
-    client.stop();
-    client = createLanguageClient();
-    client.start();
+    client.stop().then(() => {
+        outputChannel.appendLine("ABL Language Server stopped");
+        client = createLanguageClient();
+        client.start();
+    }).catch(caught => { outputChannel.appendLine("ABL Language Server didn't stop correctly: " + caught); });
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
