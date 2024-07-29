@@ -12,6 +12,7 @@
 * Faster project initialization (non-blocking typeInfo cache read)
 * Pass catalog.json location to SonarLint
 * Recompilation class hierarchy only if signature changed (and don't automatically trigger SonarLint)
+* Fix language server restart (synchronization issue)
 
 1.8.1
 =====
