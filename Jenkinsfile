@@ -63,6 +63,7 @@ pipeline {
               sh 'npx @vscode/vsce package --target linux-x64'
             }
           }
+          archiveArtifacts artifacts: '*.vsix'
           if ("develop" == env.BRANCH_NAME) {
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
@@ -74,7 +75,6 @@ pipeline {
           } else {
             sh "echo Artifacts not published!"
           }
-          archiveArtifacts artifacts: '*.vsix'
         }
       }
     }           
