@@ -13,6 +13,8 @@
 * Pass catalog.json location to SonarLint
 * Recompilation class hierarchy only if signature changed (and don't automatically trigger SonarLint)
 * Fix language server restart (synchronization issue)
+* Clear diagnostics when files are deleted / moved
+* TextMate improvements
 
 1.8.1
 =====
