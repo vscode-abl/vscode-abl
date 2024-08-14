@@ -157,9 +157,9 @@ When debugging a local procedure, VSCode will always start the AVM session with 
 
 ## Code Analysis in VSCode
 
-[CABL](https://wiki.rssw.eu/cabl/Home.md) (Code analysis for ABL) is now available separately as a VS Code plugin. It is currently **not** available on the VS Code marketplace, the extension has to be downloaded from its GitHub repository, and installed with "Extensions: Install from VSIX..." command (type `Ctrl` + `Shift` + `P`, then `vsix` as a shortcut).
+[CABL](https://wiki.rssw.eu/cabl/Home.md) (Code analysis for ABL) is now available as a separate [VS Code extension](https://github.com/Riverside-Software/sonarlint-vscode/releases/latest). It is currently **not** available on the VS Code marketplace, the extension has to be downloaded from its GitHub repository, and installed with "Extensions: Install from VSIX..." command (type `Ctrl` + `Shift` + `P`, then `vsix`).
 
-SonarLint CABL requires Java 17 to be executed. If it's not available in your PATH, you can configure it in the settings:
+SonarLint CABL requires Java 17 to be executed. If Java 17 is not available in your PATH, you can configure it in the VS Code settings:
 
 ![SonarLint Settings](resources/images/cabl01.png)
 
