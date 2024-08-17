@@ -128,7 +128,7 @@ The debugger supports those features:
 
 You first need to create the launch configuration in your `.vscode/launch.json` file ; use `Ctrl + Shift + D` to open the "Run and Debug" view, then click on "Add Configuration" and select one of the ABL options.
 
-```JSON
+```json
 {
   "version": "0.2.0",
   "configurations": [
@@ -159,7 +159,7 @@ When debugging a local procedure, VSCode will always start the AVM session with 
 
 Code analysis rules that are part of the [OpenEdge plugin for SonarQube](https://github.com/Riverside-Software/sonar-openedge) can be executed in VSCode. It is currently not possible to use the official SonarLint plugin for VSCode (support will be added later), so your quality profile has to be exported from SonarQube to `.vscode/cabl.json`. This procedure (courtesy of Mike Fechner) will convert the quality profile backup (XML file) to the JSON format expected by the VS Code plugin:
 
-```
+```abl
 /*------------------------------------------------------------------------
     File        : convert.p
     Purpose     :
@@ -327,7 +327,7 @@ CABL rules execution required a valid license; please send an email to contact@r
 ** Unit tests are currently inactive **
 
 Based upon the ABLUnit framework (need to be installed locally), you can specify launch parameters to find and execute test files
-```
+```json
 {
     "test": {
         "files":[
