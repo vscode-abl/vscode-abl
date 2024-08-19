@@ -533,8 +533,7 @@
                         },
                         "additionalProperties": false
                     },
-                    "default": [],
-                    "scope": "machine"
+                    "default": []
                 }
             }
         },
