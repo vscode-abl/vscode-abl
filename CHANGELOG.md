@@ -1,3 +1,22 @@
+1.10.0
+======
+
+* Go to definition improvements (table & buffer definition, more to come...)
+* Extension entry point (in order to fetch project config from SonarLint extension)
+* Fix "Compile current buffer" action on classes
+* Debug Adapter: watchpoints support
+* Open in procedure editor action
+* Fix code completion on triggers
+* Prevent resource exhaustion when recompiling dependencies (no full parse + no duplicates in action queue)
+* Faster project initialization (non-blocking typeInfo cache read)
+* Pass catalog.json location to SonarLint
+* Recompilation class hierarchy only if signature changed (and don't automatically trigger SonarLint)
+* Fix language server restart (synchronization issue)
+* Clear diagnostics when files are deleted / moved
+* TextMate improvements
+* [SonarLint](https://github.com/Riverside-Software/sonarlint-vscode/releases/latest): lint rules execution moved to CABL SonarLint extension
+  * Rules can still be executed by the ABL Language Server (specify `abl.cablLicense` property), but only as a workaround. Feature will be removed entirely in a future version.
+
 1.8.1
 =====
 

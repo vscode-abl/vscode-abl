@@ -96,3 +96,28 @@ export function openInAB(filename: string, rootDir: string, project: ProfileConf
     outputChannel.appendLine("Open in AppBuilder - Command line: " + project.getExecutable(true) + " " + prms2.join(" "));
     cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: rootDir, detached: true });
 }
+
+export function openInProcEditor(filename: string, rootDir: string, project: ProfileConfig) {
+    checkBuilderDirectoryExists(rootDir);
+    const env = process.env;
+    env.DLC = project.dlc;
+
+    const prmFileName = path.join(tmpdir(), 'openInProcEd-' + crypto.randomBytes(16).toString('hex') + '.json');
+    const cfgFile = {
+        verbose: false,
+        databases: project.dbConnections,
+        propath: project.propath,
+        parameters: [ {name: 'procedure', value: filename}],
+        returnValue: '',
+        super: true,
+        output: [],
+        procedures: project.procedures,
+        procedure: path.join(__dirname, '../resources/abl-src/openInProcEditor.p')
+    };
+    fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
+    const prms = ["-clientlog", path.join(rootDir, ".builder\\openInProcEd.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
+    const prms2 = prms.concat(project.extraParameters.split(' '));
+
+    outputChannel.appendLine("Open in procedure editor - Command line: " + project.getExecutable(true) + " " + prms2.join(" "));
+    cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: rootDir, detached: true });
+}

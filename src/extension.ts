@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { openDataDictionary } from './ablDataDictionary';
 import { executeGenCatalog } from './assemblyCatalog';
-import { runGUI, openInAB } from './shared/ablRun';
+import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
 import { runTTY, runBatch } from './ablRunTerminal';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
@@ -38,18 +38,18 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
             '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
-        const defaultExecOptions2 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-        const debugAdapterExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
-        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim();
-        const debugAdapterOptions = debugAdapterOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : debugAdapterOptionsFromSettings;
+        const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
+        const execOptions1 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+        const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
-        outputChannel.appendLine("ABL Debug Adapter - Command line: " + debugAdapterExecutable + " " + debugAdapterOptions.join(" "));
-        return new vscode.DebugAdapterExecutable(debugAdapterExecutable, debugAdapterOptions, { env: this.env });
+        const langServExecutable = getJavaExecutable();
+        outputChannel.appendLine("ABL Debug Adapter - Command line: " + langServExecutable + " " + execOptions2.join(" "));
+        return new vscode.DebugAdapterExecutable(langServExecutable, execOptions2, { env: this.env });
     }
 }
 
-export function activate(ctx: vscode.ExtensionContext): void {
+export function activate(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
 
     const env: any = { ...process.env };
@@ -66,6 +66,13 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     client = createLanguageClient();
     client.start();
+
+    // Return extension entry point
+    return {
+        async getFileInfo(uri: string) {
+            return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        }
+    };
 }
 
 
@@ -84,6 +91,14 @@ export function getProjectByName(name: string): OpenEdgeProjectConfig {
     return projects.find(project => project.name === name);
 }
 
+function getJavaExecutable(): string {
+  const userJavaExec = vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable') as string;
+  const extension = process.platform === "win32" ? '.exe' : '';
+  const bundledJavaExec = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + extension) : undefined;
+
+  return userJavaExec ? userJavaExec : (bundledJavaExec ? bundledJavaExec : 'java');
+}
+
 function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
@@ -94,17 +109,16 @@ function createLanguageClient(): LanguageClient {
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
 
-    const langServTrace = vscode.workspace.getConfiguration('abl').get('langServerTrace')
-    const langServExecutable = fs.existsSync(path.join(__dirname, '../jre')) ? path.join(__dirname, '../jre/bin/java' + ( process.platform === "win32" ? '.exe' : '')) : vscode.workspace.getConfiguration('abl').get('langServerJavaExecutable', 'java');
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
-    const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim();
-    const defaultExecOptions2 = langServTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
-    const langServOptions = langServOptionsFromSettings.length == 0 ? (extraArgs.length > 0 ? extraArgs.split(' ').concat(defaultExecOptions2) : defaultExecOptions2) : langServOptionsFromSettings;
+    const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
+    const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+    const execOptions2 = langServOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : langServOptionsFromSettings;
+    const langServExecutable = getJavaExecutable();
 
-    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + langServOptions.join(" "));
+    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + execOptions2.join(" "));
     const serverExec: Executable = {
         command: langServExecutable,
-        args: langServOptions
+        args: execOptions2
     };
     const serverOptions: ServerOptions = serverExec;
 
@@ -184,9 +198,11 @@ function dumpLangServStatus(): void {
 }
 
 function restartLangServer(): void {
-    client.stop();
-    client = createLanguageClient();
-    client.start();
+    client.stop().then(() => {
+        outputChannel.appendLine("ABL Language Server stopped");
+        client = createLanguageClient();
+        client.start();
+    }).catch(caught => { outputChannel.appendLine("ABL Language Server didn't stop correctly: " + caught); });
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
@@ -439,6 +455,20 @@ function openInAppbuilder() {
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
 }
 
+function openInProcedureEditor() {
+    if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
+        vscode.window.showWarningMessage("Open in procedure editor: no OpenEdge procedure selected");
+        return;
+    }
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+    const cfg2 = cfg.profiles.get(cfg.activeProfile);
+    openInProcEditor(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
+}
+
 function runCurrentFile() {
     if ((vscode.window.activeTextEditor == undefined) || (vscode.window.activeTextEditor.document.languageId !== 'abl')) {
         vscode.window.showWarningMessage("Run current file: no OpenEdge procedure selected");
@@ -652,6 +682,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', rebuildProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', openDataDictionaryCmd));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInAB', openInAppbuilder));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.openInProcEd', openInProcedureEditor));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProgres.currentFile', runCurrentFile));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runBatch.currentFile', runCurrentFileBatch));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));

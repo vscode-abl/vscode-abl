@@ -19,10 +19,10 @@ pipeline {
     stage('Dependencies') {
       steps {
         script {
-          def rulesVersion = "2.26.0-SNAPSHOT"
-          def prgsRulesVersion = "2.26.0-SNAPSHOT"
-          def cablVersion = "2.26.0-SNAPSHOT"
-          def ablsVersion = "1.13.1"
+          def rulesVersion = "2.28.0"
+          def prgsRulesVersion = "2.28.0"
+          def cablVersion = "2.28.1"
+          def ablsVersion = "1.15.0"
           withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'hudson.tasks.Maven$MavenInstallation'}"]) {
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:sonar-openedge-plugin:${cablVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/sonar-openedge-plugin/${cablVersion}/sonar-openedge-plugin-${cablVersion}.jar resources/sonar-openedge-plugin.jar"
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.sonar.openedge:riverside-rules-plugin:${rulesVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/sonar/openedge/riverside-rules-plugin/${rulesVersion}/riverside-rules-plugin-${rulesVersion}.jar resources/riverside-rules-plugin.jar"
@@ -30,8 +30,8 @@ pipeline {
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-lsp-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-lsp-bootstrap/${ablsVersion}/abl-lsp-bootstrap-${ablsVersion}.jar resources/abl-lsp.jar"
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-dap-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-dap-bootstrap/${ablsVersion}/abl-dap-bootstrap-${ablsVersion}.jar resources/abl-dap.jar"
             // Curl -L in order to follow redirects
-            sh "curl -s -L -o resources/jre-windows.zip https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.10%2B7/OpenJDK17U-jre_x64_windows_hotspot_17.0.10_7.zip"
-            sh "curl -s -L -o resources/jre-linux.tar.gz https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.10%2B7/OpenJDK17U-jre_x64_linux_hotspot_17.0.10_7.tar.gz"
+            sh "curl -s -L -o resources/jre-windows.zip https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jre_x64_windows_hotspot_17.0.12_7.zip"
+            sh "curl -s -L -o resources/jre-linux.tar.gz https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jre_x64_linux_hotspot_17.0.12_7.tar.gz"
           }
         }
       }
@@ -51,18 +51,19 @@ pipeline {
             sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json'
             if ("develop" == env.BRANCH_NAME) {
               sh 'npx @vscode/vsce package --pre-release'
-              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.10+7-jre jre'
+              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.12+7-jre jre'
               sh 'npx @vscode/vsce package --pre-release --target win32-x64'
-              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.10+7-jre jre'
+              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.12+7-jre jre'
               sh 'npx @vscode/vsce package --pre-release --target linux-x64'
             } else {
               sh 'npx @vscode/vsce package'
-              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.10+7-jre jre'
+              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.12+9-jre jre'
               sh 'npx @vscode/vsce package --target win32-x64'
-              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.10+7-jre jre'
+              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.12+7-jre jre'
               sh 'npx @vscode/vsce package --target linux-x64'
             }
           }
+          archiveArtifacts artifacts: '*.vsix'
           if ("develop" == env.BRANCH_NAME) {
             withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
@@ -74,7 +75,6 @@ pipeline {
           } else {
             sh "echo Artifacts not published!"
           }
-          archiveArtifacts artifacts: '*.vsix'
         }
       }
     }           

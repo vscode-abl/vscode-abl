@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.8.1",
+    "version": "1.9.27",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -97,6 +97,11 @@
                 "command": "abl.openInAB",
                 "title": "ABL: Open file in AppBuilder",
                 "description": "Open current file in AppBuilder"
+            },
+            {
+                "command": "abl.openInProcEd",
+                "title": "ABL: Open file in procedure editor",
+                "description": "Open current file in procedure editor"
             },
             {
                 "command": "abl.runProgres.currentFile",
@@ -447,14 +452,9 @@
                     "default": false,
                     "description": "Enable debug adapter trace logging (in $TMP/vscode-debug-adapter-trace.txt)"
                 },
-                "abl.cablLicense": {
-                    "type": "string",
-                    "default": "",
-                    "description": "CABL Rules License"
-                },
                 "abl.langServerJavaExecutable": {
                     "type": "string",
-                    "default": "java",
+                    "default": "",
                     "description": "Language Server Java executable"
                 },
                 "abl.configuration.maxThreads": {
@@ -533,8 +533,7 @@
                         },
                         "additionalProperties": false
                     },
-                    "default": [],
-                    "scope": "machine"
+                    "default": []
                 }
             }
         },
@@ -612,6 +611,7 @@
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
         "node-fetch": "2.7.0",
+        "openedge-abl-lsp": "file:",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
         "vscode-languageclient": "^7.0.0",

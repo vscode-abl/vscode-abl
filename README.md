@@ -157,170 +157,32 @@ When debugging a local procedure, VSCode will always start the AVM session with 
 
 ## Code Analysis in VSCode
 
-Code analysis rules that are part of the [OpenEdge plugin for SonarQube](https://github.com/Riverside-Software/sonar-openedge) can be executed in VSCode. It is currently not possible to use the official SonarLint plugin for VSCode (support will be added later), so your quality profile has to be exported from SonarQube to `.vscode/cabl.json`. This procedure (courtesy of Mike Fechner) will convert the quality profile backup (XML file) to the JSON format expected by the VS Code plugin:
+[CABL](https://wiki.rssw.eu/cabl/Home.md) (Code analysis for ABL) is now available as a separate [VS Code extension](https://github.com/Riverside-Software/sonarlint-vscode/releases/latest). It is currently **not** available on the VS Code marketplace, the extension has to be downloaded from its GitHub repository, and installed with "Extensions: Install from VSIX..." command (type `Ctrl` + `Shift` + `P`, then `vsix`).
 
-```abl
-/*------------------------------------------------------------------------
-    File        : convert.p
-    Purpose     :
+SonarLint CABL requires Java 17 to be executed. If Java 17 is not available in your PATH, you can configure it in the VS Code settings:
 
-    Syntax      :
+![SonarLint Settings](resources/images/cabl01.png)
 
-    Description :
+Once configured and initialized, configure the connection to your SonarQube server. Open the "SonarLint CABL" view, and click on the "Add SonarQube Connection" button. Note that SonarCloud connection is not supported with ABL (and will never be supported).
 
-    Author(s)   : mikef
-    Created     : Tue Apr 12 13:28:02 CEST 2022
-    Notes       :
-  ----------------------------------------------------------------------*/
+![SonarQube Connection](resources/images/cabl02.png)
 
-/* ***************************  Definitions  ************************** */
+Then bind your local project to a remote SonarQube project by clicking on the "Add Project Binding" button:
 
-BLOCK-LEVEL ON ERROR UNDO, THROW.
+![Add Binding](resources/images/cabl03.png)
 
-USING Progress.Json.ObjectModel.* FROM PROPATH.
+Select the remote project:
 
-DEFINE INPUT  PARAMETER pcSonarBackup AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER pcCablJson    AS CHARACTER NO-UNDO.
+![Select Project](resources/images/cabl04.png)
 
-DEFINE TEMP-TABLE ttRule NO-UNDO
-    XML-NODE-NAME "rule":U
-    FIELD RuleClassName  AS CHARACTER FORMAT "x(60)":U XML-NODE-NAME "key":U
-    FIELD RuleRepository AS CHARACTER FORMAT "x(60)":U XML-NODE-NAME "repositoryKey":U
-    FIELD RuleName       AS CHARACTER FORMAT "x(60)":U
+Check that binding is present in SonarLint CABL view:
 
-    INDEX RuleClassName IS PRIMARY UNIQUE RuleClassName.
+![Check Binding](resources/images/cabl05.png)
 
-DEFINE TEMP-TABLE ttRuleParameters NO-UNDO
-    XML-NODE-NAME "parameters":U
-    FIELD RuleClassName  AS CHARACTER
+CABL rules will now be executed when any ABL file is saved in VS Code:
 
-    INDEX RuleClassName IS PRIMARY UNIQUE RuleClassName .
+![Runtime](resources/images/cabl06.png)
 
-DEFINE TEMP-TABLE ttRuleParameter NO-UNDO
-    XML-NODE-NAME "parameter":U
-    FIELD RuleClassName     AS CHARACTER FORMAT "x(30)":U
-    FIELD ParameterName     AS CHARACTER FORMAT "x(30)":U XML-NODE-NAME "key":U
-    FIELD ParameterValue    AS CHARACTER FORMAT "x(60)":U XML-NODE-NAME "value":U
-
-    INDEX RuleClassName IS PRIMARY UNIQUE RuleClassName ParameterName.
-
-DEFINE DATASET dsRuleRuleParameter
-    XML-NODE-NAME "rules":U
-    FOR ttRule, ttRuleParameters, ttRuleParameter
-
-    DATA-RELATION relParameters FOR ttRule, ttRuleParameters
-        NESTED FOREIGN-KEY-HIDDEN
-        RELATION-FIELDS (RuleClassName, RuleClassName)
-
-    DATA-RELATION relParameter FOR ttRuleParameters, ttRuleParameter
-        NESTED FOREIGN-KEY-HIDDEN
-        RELATION-FIELDS (RuleClassName, RuleClassName) .
-
-DEFINE VARIABLE hDocument   AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hRoot       AS HANDLE     NO-UNDO.
-DEFINE VARIABLE hRules      AS HANDLE     NO-UNDO.
-
-DEFINE VARIABLE i           AS INTEGER    NO-UNDO .
-
-DEFINE VARIABLE oJson       AS JsonObject NO-UNDO .
-DEFINE VARIABLE oRules      AS JsonArray  NO-UNDO .
-DEFINE VARIABLE oRule       AS JsonObject NO-UNDO .
-DEFINE VARIABLE oParameters AS JsonArray  NO-UNDO .
-DEFINE VARIABLE oParameter  AS JsonObject NO-UNDO .
-DEFINE VARIABLE iValue      AS INTEGER    NO-UNDO .
-
-/* ***************************  Main Block  *************************** */
-
-CREATE X-DOCUMENT hDocument .
-CREATE X-NODEREF hRoot .
-CREATE X-NODEREF hRules .
-
-hDocument:LOAD("file":U,
-               pcSonarBackup,
-               FALSE) .
-
-hDocument:GET-DOCUMENT-ELEMENT(hRoot) .
-
-rules-loop:
-DO i = 1 TO hRoot:NUM-CHILDREN:
-    hRoot:GET-CHILD(hRules, i) .
-
-    IF hRules:NAME = "rules":U THEN
-        LEAVE rules-loop.
-END.
-
-DATASET dsRuleRuleParameter:READ-XML ("handle":U, hRules,
-                                      "empty":U,
-                                      ?, ?, ?, ?).
-
-rules-loop:
-FOR EACH ttRule BY ttRule.RuleClassName:
-    IF NOT ttRule.RuleClassName BEGINS "eu.rssw.":U THEN DO:
-        DELETE ttRule.
-        NEXT rules-loop .
-    END.
-
-    ASSIGN ttRule.RuleName = ENTRY (NUM-ENTRIES (ttRule.RuleClassName, ".":U), ttRule.RuleClassName, ".":U) .
-END.
-
-oJson = NEW JsonObject () .
-oRules = NEW JsonArray () .
-
-oJson:Add ("activeRules":U, oRules) .
-
-FOR EACH ttRule BY ttRule.RuleName:
-    ASSIGN oRule = NEW JsonObject () .
-
-    oRules:Add (oRule) .
-
-    oRule:Add ("repository":U, ttRule.RuleRepository) .
-    oRule:Add ("name":U, ttRule.RuleName) .
-    oRule:Add ("class":U, ttRule.RuleClassName) .
-
-    IF CAN-FIND (FIRST ttRuleParameter WHERE ttRuleParameter.RuleClassName = ttRule.RuleClassName) THEN DO:
-        oParameters = NEW JsonArray () .
-
-        oRule:Add ("parameters":U, oParameters) .
-
-        FOR EACH ttRuleParameter WHERE ttRuleParameter.RuleClassName = ttRule.RuleClassName:
-            oParameter = NEW JsonObject () .
-
-            oParameters:Add (oParameter) .
-
-            oParameter:Add ("name":U, ttRuleParameter.ParameterName) .
-
-            IF ttRuleParameter.ParameterValue = "true":U THEN
-                oParameter:Add ("value":U, TRUE) .
-            ELSE IF ttRuleParameter.ParameterValue = "false":U THEN
-                oParameter:Add ("value":U, FALSE) .
-            ELSE DO:
-                {&_proparse_ prolint-nowarn(avoidnoerror)}
-                ASSIGN iValue = INTEGER (ttRuleParameter.ParameterValue) NO-ERROR .
-
-                IF ttRuleParameter.ParameterValue = "":U OR ERROR-STATUS:NUM-MESSAGES > 0 THEN
-                    oParameter:Add ("value":U, ttRuleParameter.ParameterValue) .
-                ELSE
-                    oParameter:Add ("value":U, iValue) .
-            END.
-        END.
-    END.
-END.
-
-oJson:WriteFile (pcCablJson, TRUE) .
-
-FINALLY:
-    IF VALID-HANDLE (hRules) THEN
-        DELETE OBJECT hRules.
-
-    IF VALID-HANDLE (hRoot) THEN
-        DELETE OBJECT hRoot.
-
-    IF VALID-HANDLE (hDocument) THEN
-        DELETE OBJECT hDocument .
-END FINALLY.
-```
-
-CABL rules execution required a valid license; please send an email to contact@riverside-software.fr to receive your license (if you have an active subscription).
 
 ## Unit tests
 
@@ -367,8 +229,8 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
 Also inspired by vscode-go and vscode-rust extensions.
 
-Thanks to all the contributors: mscheblein
+Thanks to all the contributors: mscheblein, [Peter Judge](https://github.com/peterjudgeza)
 
 ## License
 VSCode Plugin Code is licensed under the [MIT](LICENSE) License.
-Language Server code is (c) Copyright Riverside Software.
+Language Server code is © Copyright Riverside Software.
