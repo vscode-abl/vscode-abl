@@ -128,7 +128,7 @@ The debugger supports those features:
 
 You first need to create the launch configuration in your `.vscode/launch.json` file ; use `Ctrl + Shift + D` to open the "Run and Debug" view, then click on "Add Configuration" and select one of the ABL options.
 
-```JSON
+```json
 {
   "version": "0.2.0",
   "configurations": [

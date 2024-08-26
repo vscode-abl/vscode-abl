@@ -57,7 +57,7 @@ pipeline {
               sh 'npx @vscode/vsce package --pre-release --target linux-x64'
             } else {
               sh 'npx @vscode/vsce package'
-              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.12+9-jre jre'
+              sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.12+7-jre jre'
               sh 'npx @vscode/vsce package --target win32-x64'
               sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-17.0.12+7-jre jre'
               sh 'npx @vscode/vsce package --target linux-x64'
