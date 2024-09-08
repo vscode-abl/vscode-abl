@@ -48,7 +48,7 @@ pipeline {
       steps {
         script {
           withSonarQubeEnv('RSSW2') {
-            sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json'
+            sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && npm run grammar-version'
             if ("develop" == env.BRANCH_NAME) {
               sh 'npx @vscode/vsce package --pre-release'
               sh 'unzip -q resources/jre-windows.zip && mv jdk-17.0.12+7-jre jre'

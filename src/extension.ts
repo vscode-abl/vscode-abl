@@ -50,6 +50,9 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
+    fs.readFile(path.join(__dirname, '../resources/grammar-version.txt'), (err, data) => {
+        outputChannel.appendLine("TextMate grammar version: " + data.toString().trim())
+      });
     ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
 
     const env: any = { ...process.env };
