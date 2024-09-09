@@ -224,6 +224,7 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 * Check the .builder directory in your project, it contains valuable log files
 * Make sure you have `source` directories in your configuration file ; `propath` entries are not monitored and thus nothing would be recompiled
 * Check the ABL Language Server output: open Output view (Ctrl + Shift + U) then ABL Language Server in the combo-box
+* Include the grammar version number (shown in the ABL output tab) if your problem is about syntax highlight
 
 ## Greetings
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
