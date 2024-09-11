@@ -71,6 +71,44 @@
       "description": "Default build directory (if not specified in source directory)",
       "type": "string"
     },
+    "preprocessor": {
+      "id": "/properties/preprocessor",
+      "description": "Custom preprocessor values in Proparse",
+      "properties": {
+        "opsys": {
+          "description": "{&OPSYS} variable and OPSYS function",
+          "enum": [
+            "windows",
+            "unix"
+          ],
+          "type": "string"
+        },
+        "windowSystem": {
+          "description": "{&WINDOW-SYSTEM} variable",
+          "type": "string"
+        },
+        "proversion": {
+          "description": "PROVERSION function",
+          "type": "string"
+        },
+        "batchMode": {
+          "description": "{&BATCH-MODE} variable",
+          "type": "boolean"
+        },
+        "processArchitecture": {
+          "description": "{&PROCESS-ARCHITECTURE} variable",
+          "enum": [
+            32,
+            64
+          ],
+          "type": "integer"
+        },
+        "tokenStartChars": {
+          "description": "Comma-separated list of characters that can start function or procedure names. Valid characters are &, /, ^, ;, *, !, #, % and backtick",
+          "type": "string"
+        }
+      }
+    },
     "buildPath": {
       "id": "/properties/buildPath",
       "description": "Source and PROPATH entries",
@@ -259,6 +297,44 @@
                 "id": "/properties/buildDirectory",
                 "description": "Default build directory (if not specified in source directory). Can be an absolute path, or relative to root directory",
                 "type": "string"
+              },
+              "preprocessor": {
+                "id": "/properties/preprocessor",
+                "description": "Custom preprocessor values in Proparse",
+                "properties": {
+                  "opsys": {
+                    "description": "{&OPSYS} variable and OPSYS function",
+                    "enum": [
+                      "windows",
+                      "unix"
+                    ],
+                    "type": "string"
+                  },
+                  "windowSystem": {
+                    "description": "{&WINDOW-SYSTEM} variable",
+                    "type": "string"
+                  },
+                  "proversion": {
+                    "description": "PROVERSION function",
+                    "type": "string"
+                  },
+                  "batchMode": {
+                    "description": "{&BATCH-MODE} variable",
+                    "type": "boolean"
+                  },
+                  "processArchitecture": {
+                    "description": "{&PROCESS-ARCHITECTURE} variable",
+                    "enum": [
+                      32,
+                      64
+                    ],
+                    "type": "integer"
+                  },
+                  "tokenStartChars": {
+                    "description": "Comma-separated list of characters that can start function or procedure names. Valid characters are &, /, ^, ;, *, !, #, % and backtick",
+                    "type": "string"
+                  }
+                }
               },
               "buildPath": {
                 "id": "/properties/buildPath",
