@@ -1,6 +1,8 @@
 1.12.0
 ======
 
+* Added `preprocessor` section in openedge-project.json
+* `-checkdbe` option can now be added without having AVM complain about thread.p
 
 1.10.0
 ======
