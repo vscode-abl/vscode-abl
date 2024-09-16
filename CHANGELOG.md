@@ -3,6 +3,8 @@
 
 * Added `preprocessor` section in openedge-project.json
 * `-checkdbe` option can now be added without having AVM complain about thread.p
+* Initial support for classes with static methods in code completion
+* Remove bundled CABL implementation, sonarlint extension is now required 
 
 1.10.0
 ======
