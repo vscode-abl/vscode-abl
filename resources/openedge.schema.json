@@ -56,11 +56,6 @@
       "default": false,
       "type": "boolean"
     },
-    "sonarlintProperties": {
-      "id": "/properties/sonarlint",
-      "description": "SonarLint extra properties",
-      "type": "object"
-    },
     "extraParameters": {
       "id": "/properties/parameterFiles",
       "description": "Extra parameters passed to Progress executable",
@@ -288,11 +283,6 @@
                 "description": "Extra parameters passed to Progress executable",
                 "type": "string"
               },
-              "sonarlintProperties": {
-                "id": "/properties/sonarlint",
-                "description": "SonarLint extra properties",
-                "type": "object"
-              },
               "buildDirectory": {
                 "id": "/properties/buildDirectory",
                 "description": "Default build directory (if not specified in source directory). Can be an absolute path, or relative to root directory",
@@ -303,7 +293,7 @@
                 "description": "Custom preprocessor values in Proparse",
                 "properties": {
                   "opsys": {
-                    "description": "{&OPSYS} variable and OPSYS function",
+                    "description": "{&OPSYS} variable and OPSYS function ('windows' value will return WIN32)",
                     "enum": [
                       "windows",
                       "unix"
