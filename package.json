@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.10.0",
+    "version": "1.11.4",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -25,7 +25,8 @@
         "package": "webpack --mode production --devtool hidden-source-map",
         "pretest": "npm run compile",
         "test": "mocha -u tdd ./out/test",
-        "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+        "grammar-version": "npm list abl-tmlanguage --depth=0 | head -2 | tail -1 | cut -c 5- > resources/grammar-version.txt"
     },
     "icon": "resources/images/progress_icon.png",
     "engines": {
@@ -606,7 +607,7 @@
         "@vscode/debugadapter": "^1.65.0",
         "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
-        "abl-tmlanguage": "github:Riverside-Software/abl-tmlanguage",
+        "abl-tmlanguage": "^1.3.7",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",

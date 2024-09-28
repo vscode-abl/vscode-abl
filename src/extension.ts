@@ -50,6 +50,9 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
+    fs.readFile(path.join(__dirname, '../resources/grammar-version.txt'), (err, data) => {
+        outputChannel.appendLine("TextMate grammar version: " + data.toString().trim())
+      });
     ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
 
     const env: any = { ...process.env };
@@ -103,9 +106,7 @@ function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
         '-Dorg.slf4j.simpleLogger.showLogName=false',
-        '-Dorg.slf4j.simpleLogger.log.eu.rssw.openedge.ls.lint.SonarLintLogger=WARN',
         '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
-        '-Deu.rssw.openedge.ls.pluginsDir=' + path.join(__dirname, '../resources'),
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
 
