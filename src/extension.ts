@@ -87,7 +87,10 @@ export function deactivate(): Thenable<void> | undefined {
 }
 
 export function getProject(path: string): OpenEdgeProjectConfig {
-    return projects.find(project => path.startsWith(project.rootDir));
+    const srchPath = process.platform === 'win32' ? path.toLowerCase() : path;
+    return projects.find(project => process.platform === 'win32' ? 
+        srchPath.startsWith(project.rootDir.toLowerCase()) :
+        srchPath.startsWith(project.rootDir) );
 }
 
 export function getProjectByName(name: string): OpenEdgeProjectConfig {
@@ -173,6 +176,21 @@ function switchDocTo122(): void {
 function switchDocTo128(): void {
   docNodeProvider.updateMode(3);
   docNodeProvider.refresh();
+}
+
+function getDlcDir(params: string[]): string {
+  // Command used by tasks (among other things) to return the OE directory of a project
+  if (params.length < 2) {
+    vscode.window.showErrorMessage("Invalid argument passed to getDlcDir");
+    return "";
+  }
+  const cfg = getProject(params[1]);
+  if (!cfg) {
+    vscode.window.showErrorMessage("No OpenEdge project found for launch configuration in " + params[1]);
+    return "";
+  }
+
+  return cfg.dlc;
 }
 
 function setDefaultProject(): void {
@@ -665,6 +683,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
 
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));

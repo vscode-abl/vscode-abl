@@ -90,6 +90,12 @@
         ],
         "commands": [
             {
+                "command": "abl.getDlcDirectory",
+                "title": "ABL: Return OE dir",
+                "enablement": "false",
+                "description": "Return the OpenEdge installation directory for a project"
+            },
+            {
                 "command": "abl.debugListingLine",
                 "title": "ABL: Find debug listing line",
                 "description": "Find debug listing line"
