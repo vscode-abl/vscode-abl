@@ -1,6 +1,9 @@
 1.14.0
 ======
 
+* Add support for `${command:abl.getDlcDirectory}` in VS Code tasks
+* Code completion after VAR statement
+* Various bugfixes
 
 1.12.0
 ======
