@@ -11,7 +11,8 @@ export class AblDebugConfigurationProvider implements vscode.DebugConfigurationP
     }
 
     public resolveDebugConfiguration?(folder: vscode.WorkspaceFolder | undefined, debugConfiguration: vscode.DebugConfiguration, _token?: vscode.CancellationToken): vscode.DebugConfiguration {
-        const cfg = this.getProject(folder.uri.fsPath);
+        const folderPath = folder.uri.fsPath + ( process.platform === 'win32' ? '\\' : '/' );
+        const cfg = this.getProject(folderPath);
 
         if (!debugConfiguration || !debugConfiguration.request) { // if 'request' is missing interpret this as a missing launch.json
             const activeEditor = vscode.window.activeTextEditor;
@@ -35,7 +36,10 @@ export class AblDebugConfigurationProvider implements vscode.DebugConfigurationP
         return debugConfiguration;
     }
 
-    public getProject(uri: string): OpenEdgeProjectConfig {
-        return this.projects.find(config => uri.startsWith(config.rootDir));
+    public getProject(path: string): OpenEdgeProjectConfig {
+      const srchPath = process.platform === 'win32' ? path.toLowerCase() : path;
+      return this.projects.find(project => process.platform === 'win32' ? 
+          srchPath.startsWith(project.rootDir.toLowerCase()) :
+          srchPath.startsWith(project.rootDir) );
     }
 }

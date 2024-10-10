@@ -749,7 +749,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     const prjConfig = new OpenEdgeProjectConfig();
     prjConfig.name = config.name
     prjConfig.version = config.version
-    prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath
+    prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath + ( process.platform === 'win32' ? '\\' : '/' )
     prjConfig.dlc = getDlcDirectory(config.oeversion);
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
     prjConfig.oeversion = config.oeversion;
