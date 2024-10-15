@@ -92,7 +92,7 @@ export class DocViewPanel {
     // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel('OEDOC', 'OpenEdge Documentation',
       column || vscode.ViewColumn.One,
-      { enableScripts: true }
+      { enableScripts: true, enableFindWidget: true }
     );
 
     DocViewPanel.currentPanel = new DocViewPanel(panel, page);
