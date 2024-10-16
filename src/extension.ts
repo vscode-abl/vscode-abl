@@ -87,7 +87,7 @@ export function deactivate(): Thenable<void> | undefined {
 }
 
 export function getProject(path: string): OpenEdgeProjectConfig {
-    const srchPath = process.platform === 'win32' ? path.toLowerCase() : path;
+    const srchPath = (process.platform === 'win32' ? path.toLowerCase() + '\\' : path + '/');
     return projects.find(project => process.platform === 'win32' ? 
         srchPath.startsWith(project.rootDir.toLowerCase()) :
         srchPath.startsWith(project.rootDir) );
