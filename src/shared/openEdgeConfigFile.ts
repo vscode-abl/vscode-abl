@@ -121,13 +121,10 @@ export class OpenEdgeProjectConfig extends ProfileConfig {
 
 }
 
-export async function loadConfigFile(filename: string): Promise<OpenEdgeMainConfig> {
-  if (!filename) {
-    return Promise.reject();
-  }
+export function loadConfigFile(filename: string): OpenEdgeMainConfig {
   try {
     return JSON.parse(jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })));
   } catch (caught) {
-    return Promise.reject();
+    return null;
   }
 }

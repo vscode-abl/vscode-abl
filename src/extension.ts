@@ -50,16 +50,12 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
-    fs.readFile(path.join(__dirname, '../resources/grammar-version.txt'), (err, data) => {
-        outputChannel.appendLine("TextMate grammar version: " + data.toString().trim())
-      });
-    ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
+    readGlobalOpenEdgeRuntimes();
+    readWorkspaceOEConfigFiles();
 
-    const env: any = { ...process.env };
-    vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", env));
+    client = createLanguageClient();
 
-    registerCommands(ctx);
-
+    // Show status bar
     oeStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     oeStatusBarItem.text = 'No ABL Language Server';
     oeStatusBarItem.tooltip = 'ABL plugin status';
@@ -67,8 +63,16 @@ export function activate(ctx: vscode.ExtensionContext) {
     oeStatusBarItem.command = 'abl.changeBuildMode';
     ctx.subscriptions.push(oeStatusBarItem);
 
-    client = createLanguageClient();
-    client.start();
+    // Monitor configuration changes
+    vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
+    // Monitor changes in all openedge-project.json files
+    vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
+
+    fs.readFile(path.join(__dirname, '../resources/grammar-version.txt'), (err, data) => {
+        outputChannel.appendLine("TextMate grammar version: " + data.toString().trim())
+      });
+    registerCommands(ctx);
+    vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", { ...process.env }));
 
     // Return extension entry point
     return {
@@ -677,7 +681,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
     });
 
-    vscode.window.registerTreeDataProvider('openEdgeDocumentation', docNodeProvider);
+    ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
+
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo117', switchDocTo117));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
@@ -708,18 +713,14 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.runProwin.currentFile', runCurrentFileProwin));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd));
 
+    vscode.window.registerTreeDataProvider('openEdgeDocumentation', docNodeProvider);
     docNodeProvider.fetchData();
-    readGlobalOpenEdgeRuntimes();
-    vscode.workspace.onDidChangeConfiguration(event => { readGlobalOpenEdgeRuntimes() });
-
-    readWorkspaceOEConfigFiles();
-    // Monitor changes in all openedge-project.json files
-    vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
 }
 
 function readOEConfigFile(uri) {
     outputChannel.appendLine("OpenEdge project config file found: " + uri.fsPath);
-    loadConfigFile(uri.fsPath).then(config => {
+    const config = loadConfigFile(uri.fsPath);
+    if (config) {
         const prjConfig = parseOpenEdgeProjectConfig(uri, config);
         if (prjConfig.dlc != "") {
             outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
@@ -736,12 +737,20 @@ function readOEConfigFile(uri) {
         } else {
             outputChannel.appendLine("Skip OpenEdge project in " + prjConfig.rootDir + " -- OpenEdge install not found")
         }
-    });
+    } else {
+        outputChannel.appendLine(" --> Invalid config file");
+    }
 }
 
 function readWorkspaceOEConfigFiles() {
     vscode.workspace.findFiles('**/openedge-project.json').then(list => {
-        list.forEach(uri => { readOEConfigFile(uri); });
+        list.forEach(uri => readOEConfigFile(uri) );
+        if (projects.length > 0) {
+            outputChannel.appendLine("Now starting ABL language server...")
+            client.start();
+        } else {
+            outputChannel.appendLine("No OpenEdge projects found in workspace")
+        }
     });
 }
 
