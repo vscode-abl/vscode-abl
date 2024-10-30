@@ -621,7 +621,7 @@
         "openedge-abl-lsp": "file:",
         "rimraf": "^3.0.1",
         "util.promisify": "^1.0.1",
-        "vscode-languageclient": "^7.0.0",
+        "vscode-languageclient": "^9.0.1",
         "xml2js": "^0.6.2"
     },
     "devDependencies": {

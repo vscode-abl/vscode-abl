@@ -143,21 +143,19 @@ function createLanguageClient(): LanguageClient {
     };
 
     const tmp = new LanguageClient('ablLanguageServer', 'ABL Language Server', serverOptions, clientOptions);
-    tmp.onReady().then(() => {
-        client.onNotification("proparse/status", (statusParams: any) => {
-            const numProjects = statusParams.projects.length;
-            let str = "";
-            if (numProjects == 0)
-                str = "No projects found";
-            else if (numProjects > statusParams.numInitializedProjects)
-                str = "Project init: " + statusParams.numInitializedProjects + "/" + numProjects;
-            else
-                str = numProjects + " project(s)";
-            str += " • " + statusParams.pendingTasks + " task(s)";
-            oeStatusBarItem.text = str;
+    tmp.onNotification("proparse/status", (statusParams: any) => {
+        const numProjects = statusParams.projects.length;
+        let str = "";
+        if (numProjects == 0)
+            str = "No projects found";
+        else if (numProjects > statusParams.numInitializedProjects)
+            str = "Project init: " + statusParams.numInitializedProjects + "/" + numProjects;
+        else
+            str = numProjects + " project(s)";
+        str += " • " + statusParams.pendingTasks + " task(s)";
+        oeStatusBarItem.text = str;
 
-            oeStatusBarItem.tooltip = "Build mode: " + buildModeName(buildMode) + "\n" + statusParams.projects.join("\n")
-        });
+        oeStatusBarItem.tooltip = "Build mode: " + buildModeName(buildMode) + "\n" + statusParams.projects.join("\n")
     });
 
     return tmp;
