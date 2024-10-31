@@ -10,7 +10,7 @@ import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurat
 import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
 import { tmpdir } from 'os';
-import { outputChannel } from './ablStatus';
+import { outputChannel, lsOutputChannel } from './ablStatus';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
 
 let client: LanguageClient;
@@ -132,6 +132,7 @@ function createLanguageClient(): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
+        outputChannel: lsOutputChannel,
         initializationOptions: {
             abl: vscode.workspace.getConfiguration('abl')
         },
