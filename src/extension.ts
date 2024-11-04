@@ -12,6 +12,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from
 import { tmpdir } from 'os';
 import { outputChannel, lsOutputChannel } from './ablStatus';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import moment = require('moment');
 
 let client: LanguageClient;
 
@@ -220,11 +221,17 @@ function dumpLangServStatus(): void {
 }
 
 function restartLangServer(): void {
-    client.stop().then(() => {
-        outputChannel.appendLine("ABL Language Server stopped");
+    outputChannel.appendLine("[" + moment().toISOString(true) +  "] Received request to restart ABL Language Server");
+    client.stop(5000)
+      .then(() => {
+        outputChannel.appendLine("[" + moment().toISOString(true) +  "] ABL Language Server stopped");
         client = createLanguageClient();
+        outputChannel.appendLine("[" + moment().toISOString(true) +  "] Starting new ABL Language Server");
         client.start();
-    }).catch(caught => { outputChannel.appendLine("ABL Language Server didn't stop correctly: " + caught); });
+      })
+      .catch(caught => {
+        outputChannel.appendLine("[" + moment().toISOString(true) +  "] ABL Language Server didn't stop correctly: " + caught);
+      });
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {

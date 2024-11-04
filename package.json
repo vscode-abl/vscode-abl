@@ -617,6 +617,7 @@
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
+        "moment": "^2.30.1",
         "node-fetch": "2.7.0",
         "openedge-abl-lsp": "file:",
         "rimraf": "^3.0.1",
