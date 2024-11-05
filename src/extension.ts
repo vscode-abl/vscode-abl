@@ -45,7 +45,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
         const langServExecutable = getJavaExecutable();
-        outputChannel.appendLine("ABL Debug Adapter - Command line: " + langServExecutable + " " + execOptions2.join(" "));
+        outputChannel.appendLine(`[${moment().toISOString(true)}] ABL Debug Adapter - Command line: ${langServExecutable} ${execOptions2.join(" ")}`);
         return new vscode.DebugAdapterExecutable(langServExecutable, execOptions2, { env: this.env });
     }
 }
@@ -70,7 +70,7 @@ export function activate(ctx: vscode.ExtensionContext) {
     vscode.workspace.createFileSystemWatcher('**/openedge-project.json').onDidChange(uri => readOEConfigFile(uri));
 
     fs.readFile(path.join(__dirname, '../resources/grammar-version.txt'), (err, data) => {
-        outputChannel.appendLine("TextMate grammar version: " + data.toString().trim())
+        outputChannel.appendLine(`[${moment().toISOString(true)}] TextMate grammar version: ${data.toString().trim()}`)
       });
     registerCommands(ctx);
     vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", { ...process.env }));
@@ -113,18 +113,18 @@ function getJavaExecutable(): string {
 function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
-        '-Dorg.slf4j.simpleLogger.showLogName=false',
-        '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (langServDebug ? 'DEBUG' : 'INFO'),
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
+    const debugLogLevel = [ '-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG' ];
 
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
-    const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+    const execOptions0 = langServDebug ? debugLogLevel.concat(defaultExecOptions) : defaultExecOptions;
+    const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? execOptions0.concat('--trace') : execOptions0;
     const execOptions2 = langServOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : langServOptionsFromSettings;
     const langServExecutable = getJavaExecutable();
 
-    outputChannel.appendLine("ABL Language Server - Command line: " + langServExecutable + " " + execOptions2.join(" "));
+    outputChannel.appendLine(`[${moment().toISOString(true)}] ABL Language Server - Command line: ${langServExecutable} ${execOptions2.join(" ")}`);
     const serverExec: Executable = {
         command: langServExecutable,
         args: execOptions2
@@ -617,7 +617,7 @@ function generateProenvStartUnix(path: string) {
     }
     scriptContent += "exit 0\n"
 
-    outputChannel.appendLine(scriptContent)
+    // outputChannel.appendLine(scriptContent)
 
     fs.writeFileSync(path, scriptContent, { mode: 0o700 });
 }
@@ -724,12 +724,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 }
 
 function readOEConfigFile(uri) {
-    outputChannel.appendLine("OpenEdge project config file found: " + uri.fsPath);
+    outputChannel.appendLine(`[${moment().toISOString(true)}] OpenEdge project config file found: ${uri.fsPath}`);
     const config = loadConfigFile(uri.fsPath);
     if (config) {
         const prjConfig = parseOpenEdgeProjectConfig(uri, config);
         if (prjConfig.dlc != "") {
-            outputChannel.appendLine("OpenEdge project configured in " + prjConfig.rootDir + " -- DLC: " + prjConfig.dlc);
+            outputChannel.appendLine(`[${moment().toISOString(true)}] OpenEdge project configured in ${prjConfig.rootDir} -- DLC: ${prjConfig.dlc}`);
             const idx = projects.findIndex(element => (element.name == prjConfig.name) && (element.version == prjConfig.version))
             if (idx > -1) {
                 if (projects[idx].rootDir == prjConfig.rootDir)
@@ -741,10 +741,10 @@ function readOEConfigFile(uri) {
                 projects.push(prjConfig);
             }
         } else {
-            outputChannel.appendLine("Skip OpenEdge project in " + prjConfig.rootDir + " -- OpenEdge install not found")
+            outputChannel.appendLine(`[${moment().toISOString(true)}] Skip OpenEdge project in ${prjConfig.rootDir} -- OpenEdge install not found`)
         }
     } else {
-        outputChannel.appendLine(" --> Invalid config file");
+        outputChannel.appendLine(`[${moment().toISOString(true)}] --> Invalid config file`);
     }
 }
 
@@ -752,10 +752,10 @@ function readWorkspaceOEConfigFiles() {
     vscode.workspace.findFiles('**/openedge-project.json').then(list => {
         list.forEach(uri => readOEConfigFile(uri) );
         if (projects.length > 0) {
-            outputChannel.appendLine("Now starting ABL language server...")
+            outputChannel.appendLine(`[${moment().toISOString(true)}] Now starting ABL language server...`)
             client.start();
         } else {
-            outputChannel.appendLine("No OpenEdge projects found in workspace")
+            outputChannel.appendLine(`[${moment().toISOString(true)}] No OpenEdge projects found in workspace`)
         }
     });
 }
@@ -846,7 +846,7 @@ function readGlobalOpenEdgeRuntimes() {
 
     if (oeRuntimes.length == 0) {
         vscode.window.showWarningMessage('No OpenEdge runtime configured on this machine');
-        outputChannel.appendLine('No OpenEdge runtime configured on this machine');
+        outputChannel.appendLine(`[${moment().toISOString(true)}] No OpenEdge runtime configured on this machine`);
     }
 }
 
@@ -865,7 +865,7 @@ function getDlcDirectory(version: string): string {
     });
     if (dlc == "" && dfltDlc != "") {
         dlc = dfltDlc;
-        outputChannel.appendLine("OpenEdge version not configured in workspace settings, using default version (" + dfltName + ") in user settings.");
+        outputChannel.appendLine(`[${moment().toISOString(true)}] OpenEdge version not configured in workspace settings, using default version (${dfltName}) in user settings.`);
     }
     return dlc;
 }
