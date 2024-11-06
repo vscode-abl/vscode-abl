@@ -571,8 +571,7 @@ function changeBuildModeCmd() {
         quickPick.hide();
         buildMode = buildModeValue(item[0].label);
         vscode.workspace.getConfiguration("abl").update("buildMode", buildModeValue(item[0].label), vscode.ConfigurationTarget.Workspace);
-        vscode.window.showInformationMessage('Build mode changed, restarting language server…');
-        restartLangServer();
+        vscode.window.showInformationMessage('ABL build mode changed to ' + item[0].label);
     });
     quickPick.show();
 }
