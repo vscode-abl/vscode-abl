@@ -115,11 +115,10 @@ function createLanguageClient(): LanguageClient {
     const defaultExecOptions = [
         '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
     ];
-    const debugLogLevel = [ '-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG' ];
 
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
-    const execOptions0 = langServDebug ? debugLogLevel.concat(defaultExecOptions) : defaultExecOptions;
+    const execOptions0 = langServDebug ? defaultExecOptions.concat('--debug') : defaultExecOptions;
     const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? execOptions0.concat('--trace') : execOptions0;
     const execOptions2 = langServOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : langServOptionsFromSettings;
     const langServExecutable = getJavaExecutable();
