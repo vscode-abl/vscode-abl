@@ -321,7 +321,7 @@
                     "type": "integer"
                   },
                   "tokenStartChars": {
-                    "description": "Comma-separated list of characters that can start function or procedure names. Valid characters are &, /, ^, ;, *, !, #, % and backtick",
+                    "description": "List of characters (no separator) that can start function or procedure names. Valid characters are &, /, ^, ;, *, !, #, % and backtick.",
                     "type": "string"
                   }
                 }

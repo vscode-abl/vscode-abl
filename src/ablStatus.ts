@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import { ABL_MODE } from './ablMode';
 
 export const outputChannel = vscode.window.createOutputChannel('ABL');
+export const lsOutputChannel = vscode.window.createOutputChannel('ABL Language Server');
 
 let statusBarEntry: vscode.StatusBarItem;
 

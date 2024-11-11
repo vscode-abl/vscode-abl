@@ -58,16 +58,26 @@
             "preLaunchTask": "build"
         },
         {
-            "name": "Run Extension - SCL",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\Customers\\Consultingwerk\\SmartComponentLibrary"
-            ],
-            "sourceMaps": true,
-            "preLaunchTask": "build"
+          "name": "Run Extension - Workspace PCT/SOE",
+          "type": "extensionHost",
+          "request": "launch",
+          "runtimeExecutable": "${execPath}",
+          "args": [
+              "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\Projets\\TestWS.code-workspace"
+          ],
+          "sourceMaps": true,
+          "preLaunchTask": "build"
+        },
+        {
+          "name": "Run Extension - SCL",
+          "type": "extensionHost",
+          "request": "launch",
+          "runtimeExecutable": "${execPath}",
+          "args": [
+              "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\projets\\Customers\\Consultingwerk\\SmartComponentLibrary"
+          ],
+          "sourceMaps": true,
+          "preLaunchTask": "build"
         }
-
     ]
 }

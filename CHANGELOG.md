@@ -1,3 +1,14 @@
+1.14.0
+======
+
+* Add support for `${command:abl.getDlcDirectory}` in VS Code tasks
+* Code completion after VAR statement
+* Fix regression introduced in 1.12: typeInfo caches not regenerated, leading to missing or outdated rcode info in SonarLint
+* Clean exit of LS process in SSH remote sessions
+* Projects can be added and removed from workspace without restarting the language server
+* Changing build mode doesn't require restarting the language server
+* Various bugfixes
+
 1.12.0
 ======
 
