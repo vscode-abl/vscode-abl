@@ -137,8 +137,8 @@
             },
             {
                 "command": "abl.dataDictionary",
-                "title": "ABL: Open DataDictionary",
-                "description": "Open the DataDictionary external tool"
+                "title": "ABL: Open Data Dictionary",
+                "description": "Open the Data Dictionary external tool"
             },
             {
                 "command": "abl.restart.langserv",

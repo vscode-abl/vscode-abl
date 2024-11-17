@@ -244,6 +244,7 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
         const vsCodeDir = path.join(project.rootDir, ".vscode");
         fs.mkdirSync(vsCodeDir, { recursive: true });
         fs.writeFileSync(path.join(vsCodeDir, "profile.json"), JSON.stringify({ profile: label }));
+        project.activeProfile = label;
         restartLangServer();
     });
     quickPick.show();

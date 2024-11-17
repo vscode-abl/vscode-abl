@@ -1,7 +1,7 @@
 1.16.0
 ======
 
-* 
+* Fix "Open Data Dictionary" and project profiles
 
 1.14.0
 ======
