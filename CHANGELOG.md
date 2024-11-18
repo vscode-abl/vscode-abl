@@ -2,6 +2,8 @@
 ======
 
 * Fix "Open Data Dictionary" and project profiles
+* Code completion improvements
+* TextMate Grammar 1.3.8
 
 1.14.0
 ======
