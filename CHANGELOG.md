@@ -1,9 +1,10 @@
 1.16.0
 ======
 
-* Fix "Open Data Dictionary" and project profiles
-* Code completion improvements
-* TextMate Grammar 1.3.8
+* 🐛 Fix "Open Data Dictionary" and project profiles
+* ✨ Code completion improvements (*-lock after `for` / `find`, clean up datatypes, ...)
+* ⬆️ TextMate Grammar 1.3.8
+* 💥 File patterns in openedge-project.json (`includes`, `excludes`, `includeFileExtensions`) are now case-insensitive on Windows, and case-sensitive on any other OS
 
 1.14.0
 ======
