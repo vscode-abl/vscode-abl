@@ -31,17 +31,15 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
     ) { }
 
     async createDebugAdapterDescriptor(_session: vscode.DebugSession, _executable: vscode.DebugAdapterExecutable | undefined): Promise<vscode.DebugAdapterDescriptor> {
-        const logFile = path.join(tmpdir(), 'vscode-debug-adapter.txt');
         const debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
         const debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');
         const defaultExecOptions = [
-            '-Dorg.slf4j.simpleLogger.defaultLogLevel=' + (debugAdapterDebug ? 'DEBUG' : 'INFO'),
-            '-Dorg.slf4j.simpleLogger.logFile=' + logFile,
             '-jar', path.join(__dirname, '../resources/abl-dap.jar')
         ];
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
-        const execOptions1 = debugAdapterTrace ? defaultExecOptions.concat('--trace') : defaultExecOptions;
+        const execOptions0 = debugAdapterDebug ? defaultExecOptions.concat('--debug') : defaultExecOptions;
+        const execOptions1 = debugAdapterTrace ? execOptions0.concat('--trace') : execOptions0;
         const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
         const langServExecutable = getJavaExecutable();
@@ -244,6 +242,7 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
         const vsCodeDir = path.join(project.rootDir, ".vscode");
         fs.mkdirSync(vsCodeDir, { recursive: true });
         fs.writeFileSync(path.join(vsCodeDir, "profile.json"), JSON.stringify({ profile: label }));
+        project.activeProfile = label;
         restartLangServer();
     });
     quickPick.show();
