@@ -1,3 +1,8 @@
+1.16.1
+======
+
+* 🐛 Solved issue with case-insensitive pattern matching on Linux
+
 1.16.0
 ======
 
