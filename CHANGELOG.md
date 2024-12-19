@@ -1,3 +1,9 @@
+1.17.x
+======
+
+* 🚧 First versions of 1.17.x cycle can be quite unstable, switch back to 1.16.1 if you're looking for stability
+* ✨ Hover and definition (F12) improvements (method calls)
+
 1.16.1
 ======
 
