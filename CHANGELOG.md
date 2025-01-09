@@ -2,7 +2,7 @@
 ======
 
 * 🚧 First versions of 1.17.x cycle can be quite unstable, switch back to 1.16.1 if you're looking for stability
-* 🎅 Christmas break, see you next year!
+* 🐛 Use correct profile when starting OE sessions (#168)
 * ✨ Hover and definition (F12) improvements (method calls, include files, preprocessor variables, ...)
 
 1.16.1
