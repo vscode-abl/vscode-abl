@@ -4,7 +4,8 @@
 * 🚧 First versions of 1.17.x cycle can be quite unstable, switch back to 1.16.1 if you're looking for stability
 * 🐛 Use correct profile when starting OE sessions (#168)
 * 🐛 Fix "Change to uppercase/lowercase" regression introduced in 1.16.0
-* ✨ Hover and definition (F12) improvements (method calls, include files, preprocessor variables, ...)
+* 🐛 Fix code completion regression introduced in 1.16.0 (no items offered)
+* ✨ Hover and definition (F12) improvements (class properties, method calls, include files, preprocessor variables, ...)
 * ➖ Merge Language Server / Debug Adapter into a single artifact (reducing extension size by 25Mb)
 
 1.16.1
