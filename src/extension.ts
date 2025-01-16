@@ -40,7 +40,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
         const execOptions0 = debugAdapterDebug ? defaultExecOptions.concat('--debug') : defaultExecOptions;
         const execOptions1 = debugAdapterTrace ? execOptions0.concat('--trace') : execOptions0;
-        const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? execOptions1.concat(extraArgs) : debugAdapterOptionsFromSettings;
+        const execOptions2 = debugAdapterOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : debugAdapterOptionsFromSettings;
 
         const langServExecutable = getJavaExecutable();
         outputChannel.appendLine(`[${moment().toISOString(true)}] ABL Debug Adapter - Command line: ${langServExecutable} ${execOptions2.join(" ")}`);
@@ -118,7 +118,7 @@ function createLanguageClient(): LanguageClient {
     const extraArgs = vscode.workspace.getConfiguration('abl').get('langServerExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
     const execOptions0 = langServDebug ? defaultExecOptions.concat('--debug') : defaultExecOptions;
     const execOptions1 = vscode.workspace.getConfiguration('abl').get('langServerTrace') ? execOptions0.concat('--trace') : execOptions0;
-    const execOptions2 = langServOptionsFromSettings.length == 0 ? execOptions1.concat(extraArgs) : langServOptionsFromSettings;
+    const execOptions2 = langServOptionsFromSettings.length == 0 ? extraArgs.concat(execOptions1) : langServOptionsFromSettings;
     const langServExecutable = getJavaExecutable();
 
     outputChannel.appendLine(`[${moment().toISOString(true)}] ABL Language Server - Command line: ${langServExecutable} ${execOptions2.join(" ")}`);
