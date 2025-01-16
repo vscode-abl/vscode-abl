@@ -19,7 +19,7 @@ pipeline {
     stage('Dependencies') {
       steps {
         script {
-          def ablsVersion = "1.19.0-SNAPSHOT"
+          def ablsVersion = "1.19.0"
           withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'hudson.tasks.Maven$MavenInstallation'}"]) {
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-lsp-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-lsp-bootstrap/${ablsVersion}/abl-lsp-bootstrap-${ablsVersion}.jar resources/abl-lsda.jar"
             // Curl -L in order to follow redirects
