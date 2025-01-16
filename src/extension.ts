@@ -34,7 +34,7 @@ export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDesc
         const debugAdapterDebug = vscode.workspace.getConfiguration('abl').get('debugAdapterDebug');
         const debugAdapterTrace = vscode.workspace.getConfiguration('abl').get('debugAdapterTrace');
         const defaultExecOptions = [
-            '-jar', path.join(__dirname, '../resources/abl-dap.jar')
+            '-jar', path.join(__dirname, '../resources/abl-lsda.jar'), '--debug-adapter'
         ];
         const debugAdapterOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('debugAdapterJavaArgs', []);
         const extraArgs = vscode.workspace.getConfiguration('abl').get('debugAdapterExtraJavaArgs', '').trim().split(' ').filter((str) => str !== '');
@@ -111,7 +111,7 @@ function getJavaExecutable(): string {
 function createLanguageClient(): LanguageClient {
     // For debugger: add '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,quiet=y'
     const defaultExecOptions = [
-        '-jar', path.join(__dirname, '../resources/abl-lsp.jar')
+        '-jar', path.join(__dirname, '../resources/abl-lsda.jar')
     ];
 
     const langServOptionsFromSettings = vscode.workspace.getConfiguration('abl').get('langServerJavaArgs', []);

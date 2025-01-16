@@ -1,15 +1,14 @@
 import * as fs from 'fs';
 import * as cp from 'child_process';
 import * as path from 'path';
-import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
 import * as crypto from 'crypto';
+import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
 import { tmpdir } from 'os';
 
 export function openDataDictionary(project: OpenEdgeProjectConfig) {
     const env = process.env;
-    env.DLC = project.dlc;
-
     const currProfile = project.profiles.get(project.activeProfile);
+    env.DLC = currProfile.dlc;
     const prmFileName = path.join(tmpdir(), 'datadict-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,

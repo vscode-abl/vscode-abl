@@ -2,8 +2,8 @@
 This extension provides rich OpenEdge ABL support for Visual Studio Code - [Extension page](https://marketplace.visualstudio.com/items?itemName=RiversideSoftware.openedge-abl-lsp)
 
 ## Current Status
-This extension is based on the existing work by Christophe Camicas but has undergone a complete overhaul due to the addition of the Language Server. This extension is actively maintained, so unless you do not want to switch to the new configuration files, you should use this extension.
-This extension is currently available for free; however, please note that some features might only be available in a commercial edition in the future.
+This extension is based on the work of Christophe Camicas but has been completely overhauled with the addition of the Language Server. It is actively maintained, so unless you prefer not to switch to the new configuration files, you should use this extension.
+Currently, this extension is available for free; however, please note that some features might become available only in a commercial edition in the future.
 
 ## Features
 * Syntax highlighting

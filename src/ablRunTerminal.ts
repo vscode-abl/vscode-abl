@@ -21,12 +21,13 @@ function checkBuilderDirectoryExists(rootDir: string) {
 
 export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     checkBuilderDirectoryExists(project.rootDir);
-    const terminal = vscode.window.createTerminal({ name: "TTY execution", env: {DLC: project.dlc}});
+    const currProfile = project.profiles.get(project.activeProfile);
+    const terminal = vscode.window.createTerminal({ name: "TTY execution", env: {DLC: currProfile.dlc}});
     const prmFileName = path.join(tmpdir(), 'runtty-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections,
-        propath: project.propath,
+        databases: currProfile.dbConnections,
+        propath: currProfile.propath,
         parameters: [],
         returnValue: '',
         super: true,
@@ -35,23 +36,25 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
-    const cmd = project.getTTYExecutable() + ' ' + project.extraParameters.split(' ').concat(["-clientlog", path.join(project.rootDir, ".builder", "runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]).join(' ');
+    const cmd = currProfile.getTTYExecutable() + ' ' + currProfile.extraParameters.split(' ').concat(["-clientlog", path.join(project.rootDir, ".builder", "runtty.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]).join(' ');
     terminal.sendText(cmd.replace(/\\/g, '/'), true);
     terminal.show();
 }
 
 export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     checkBuilderDirectoryExists(project.rootDir);
+    const currProfile = project.profiles.get(project.activeProfile);
+
     outputChannel.clear();
 
     const env = process.env;
-    env.DLC = project.dlc;
+    env.DLC = currProfile.dlc;
 
     const prmFileName = path.join(tmpdir(), 'runbatch-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections,
-        propath: project.propath,
+        databases: currProfile.dbConnections,
+        propath: currProfile.propath,
         parameters: [],
         returnValue: '',
         super: true,
@@ -60,5 +63,5 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
-    create(project.getTTYExecutable(), project.extraParameters.split(' ').concat(["-b", "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]), { env: env, cwd: project.rootDir, detached: true }, outputChannel);
+    create(currProfile.getTTYExecutable(), currProfile.extraParameters.split(' ').concat(["-b", "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]), { env: env, cwd: project.rootDir, detached: true }, outputChannel);
 }

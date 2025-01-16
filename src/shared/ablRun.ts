@@ -19,46 +19,17 @@ function checkBuilderDirectoryExists(rootDir: string) {
     }
 }
 
-export function debug(filename: string, project: OpenEdgeProjectConfig, executable: string): cp.ChildProcessWithoutNullStreams {
-    checkBuilderDirectoryExists(project.rootDir);
-    const env = process.env;
-    env.DLC = project.dlc;
-
-    const prmFileName = path.join(tmpdir(), 'debugger-' + crypto.randomBytes(16).toString('hex') + '.json');
-    const cfgFile = {
-        verbose: false,
-        databases: project.dbConnections,
-        propath: project.propath,
-        parameters: [],
-        returnValue: '',
-        super: true,
-        output: [],
-        procedure: filename,
-        debugger: true
-    };
-    fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
-    // create the .builder directory if it does not exist
-    const val = fs.statSync(path.join(project.rootDir, ".builder"));
-    if (!val.isDirectory() && !val.isFile()) {
-        fs.mkdirSync(path.join(project.rootDir, ".builder"));
-    }
-    const prms = [ "-clientlog", path.join(project.rootDir, ".builder\\debugger.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName , "-debugReady", "3099"];
-    const prms2 = prms.concat(project.extraParameters.split(' '));
-
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Debug - Command line: ${executable} ${prms2.join(" ")}`);
-    return cp.spawn( executable, prms2, { env: env, cwd: project.rootDir, detached: true, stdio: 'pipe' });
-}
-
 export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     checkBuilderDirectoryExists(project.rootDir);
+    const currProfile = project.profiles.get(project.activeProfile);
     const env = process.env;
-    env.DLC = project.dlc;
+    env.DLC = currProfile.dlc;
 
     const prmFileName = path.join(tmpdir(), 'rungui-' + crypto.randomBytes(16).toString('hex') + '.json');
     const cfgFile = {
         verbose: false,
-        databases: project.dbConnections,
-        propath: project.propath,
+        databases: currProfile.dbConnections,
+        propath: currProfile.propath,
         parameters: [],
         returnValue: '',
         super: true,
@@ -67,10 +38,10 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
     const prms = ["-clientlog", path.join(project.rootDir, ".builder\\rungui.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
-    const prms2 = prms.concat(project.extraParameters.split(' '));
+    const prms2 = prms.concat(currProfile.extraParameters.split(' '));
 
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Run with prowin - Command line: ${project.getExecutable(true)} ${prms2.join(" ")}`);
-    cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: project.rootDir, detached: true });
+    outputChannel.appendLine(`[${moment().toISOString(true)}] Run with prowin - Command line: ${currProfile.getExecutable(true)} ${prms2.join(" ")}`);
+    cp.spawn(currProfile.getExecutable(true), prms2, { env: env, cwd: project.rootDir, detached: true });
 }
 
 export function openInAB(filename: string, rootDir: string, project: ProfileConfig) {

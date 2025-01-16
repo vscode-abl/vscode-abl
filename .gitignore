@@ -5,8 +5,7 @@ node_modules
 out
 .vscode-test
 resources/abl.tmLanguage.json
-resources/abl-lsp.jar
-resources/abl-dap.jar
+resources/abl-lsda.jar
 resources/sonar-openedge-plugin.jar
 resources/progress-rules-plugin.jar
 resources/riverside-rules-plugin.jar
