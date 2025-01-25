@@ -1,3 +1,8 @@
+1.18.1
+======
+
+* 🐛 Fix another code completion regression introduced in 1.16.0 (no items offered in some cases)
+
 1.18.0
 ======
 
