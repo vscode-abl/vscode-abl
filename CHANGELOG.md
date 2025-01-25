@@ -1,10 +1,14 @@
-1.17.x
+1.18.1
 ======
 
-* 🚧 First versions of 1.17.x cycle can be quite unstable, switch back to 1.16.1 if you're looking for stability
+* 🐛 Fix another code completion regression introduced in 1.16.0 (no items offered in some cases)
+
+1.18.0
+======
+
 * 🐛 Use correct profile when starting OE sessions (#168)
 * 🐛 Fix "Change to uppercase/lowercase" regression introduced in 1.16.0
-* 🐛 Fix code completion regression introduced in 1.16.0 (no items offered)
+* 🐛 Fix code completion regression introduced in 1.16.0 (no items offered in some cases)
 * ✨ Hover and definition (F12) improvements (class properties, method calls, include files, preprocessor variables, ...)
 * ➖ Merge Language Server / Debug Adapter into a single artifact (reducing extension size by 25Mb)
 
