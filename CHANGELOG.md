@@ -4,6 +4,7 @@
 * ✨ `HideAVMWindow` on OpenEdge 11.x
 * ✨ Don't stop Language Server when propath entries can't be read
 * ✨ Show extent information on hover
+* ✨ Code completion improvements (functions, ...)
 * 🐛 Include files created during the session were not offered in code completion
 
 1.18.1
