@@ -7,6 +7,7 @@
 * ✨ Code completion improvements (functions, ...)
 * 🐛 Include files created during the session were not offered in code completion
 * ⬆️ TextMate Grammar 1.3.9
+* ⬆️ CABL 3.0.0
 
 1.18.1
 ======
