@@ -5,7 +5,6 @@ import * as crypto from 'crypto';
 import { ProfileConfig, OpenEdgeProjectConfig } from './openEdgeConfigFile';
 import { tmpdir } from 'os';
 import { outputChannel } from '../ablStatus';
-import moment = require('moment');
 
 const builderExists: { [rootDir: string]: boolean } = {};
 
@@ -40,7 +39,7 @@ export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
     const prms = ["-clientlog", path.join(project.rootDir, ".builder\\rungui.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
     const prms2 = prms.concat(currProfile.extraParameters.split(' '));
 
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Run with prowin - Command line: ${currProfile.getExecutable(true)} ${prms2.join(" ")}`);
+    outputChannel.info(`Run with prowin - Command line: ${currProfile.getExecutable(true)} ${prms2.join(" ")}`);
     cp.spawn(currProfile.getExecutable(true), prms2, { env: env, cwd: project.rootDir, detached: true });
 }
 
@@ -65,7 +64,7 @@ export function openInAB(filename: string, rootDir: string, project: ProfileConf
     const prms = ["-clientlog", path.join(rootDir, ".builder\\openInAB.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
     const prms2 = prms.concat(project.extraParameters.split(' '));
 
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Open in AppBuilder - Command line: ${project.getExecutable(true)} ${prms2.join(" ")}`);
+    outputChannel.info(`Open in AppBuilder - Command line: ${project.getExecutable(true)} ${prms2.join(" ")}`);
     cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: rootDir, detached: true });
 }
 
@@ -90,6 +89,6 @@ export function openInProcEditor(filename: string, rootDir: string, project: Pro
     const prms = ["-clientlog", path.join(rootDir, ".builder\\openInProcEd.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName, "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini')];
     const prms2 = prms.concat(project.extraParameters.split(' '));
 
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Open in procedure editor - Command line: ${project.getExecutable(true)} ${prms2.join(" ")}`);
+    outputChannel.info(`Open in procedure editor - Command line: ${project.getExecutable(true)} ${prms2.join(" ")}`);
     cp.spawn(project.getExecutable(true), prms2, { env: env, cwd: rootDir, detached: true });
 }
