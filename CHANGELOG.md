@@ -13,6 +13,11 @@
 * ⬆️ CABL 3.0.0
 * 🚧 Changed single-line comments to multi-lines comments in `thread.p` (pre-11.7 compatibility)
 
+1.18.2
+======
+
+* 🎨 Non-technical changes
+
 1.18.1
 ======
 

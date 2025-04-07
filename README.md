@@ -240,3 +240,4 @@ Thanks to all the contributors: mscheblein, [Peter Judge](https://github.com/pet
 ## License
 VSCode Plugin Code is licensed under the [MIT](LICENSE) License.
 Language Server code is © Copyright Riverside Software.
+OpenEdge and ABL are registered trademarks of Progress Software Corporation.
