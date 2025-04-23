@@ -6,10 +6,11 @@
 * ✨ Show extent information on hover
 * ✨ Code completion improvements (functions, ...)
 * ✨ ABL log output can be part of compound log
+* ✨ Improved debugger startup time
 * 🐛 Include files created during the session were not offered in code completion
 * 🐛 Fix documentSymbol total failure with incomplete code
 * 🐛 Fix LS startup failure when includeFile or excludeFile is empty
-* ⬆️ TextMate Grammar 1.3.9
+* ⬆️ TextMate Grammar 1.3.10
 * ⬆️ CABL 3.0.0
 * 🚧 Changed single-line comments to multi-lines comments in `thread.p` (pre-11.7 compatibility)
 
