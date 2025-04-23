@@ -25,7 +25,6 @@ let buildMode = 1;
 
 export class AblDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
     public constructor(
-        private startScriptPath: string,
         private env?: any
     ) { }
 
@@ -70,7 +69,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         outputChannel.info(`TextMate grammar version: ${data.toString().trim()}`)
       });
     registerCommands(ctx);
-    vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory("", { ...process.env }));
+    vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory({ ...process.env }));
 
     // Return extension entry point
     return {
