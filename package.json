@@ -613,7 +613,7 @@
         "@vscode/debugadapter": "^1.65.0",
         "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
-        "abl-tmlanguage": "^1.3.10",
+        "abl-tmlanguage": "^1.3.11",
         "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "minimatch": "^3.0.4",
