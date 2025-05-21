@@ -4,14 +4,16 @@
 * ✨ `HideAVMWindow` on OpenEdge 11.x
 * ✨ Don't stop Language Server when propath entries can't be read
 * ✨ Show extent information on hover
-* ✨ Code completion improvements (functions, ...)
+* ✨ Code completion improvements (functions, references to static classes, ...)
 * ✨ ABL log output can be part of compound log
 * ✨ Improved debugger startup time
+* ✨ Don't specify SAVE INTO directory if identical to source directory (#310)
 * 🐛 Include files created during the session were not offered in code completion
 * 🐛 Fix documentSymbol total failure with incomplete code
 * 🐛 Fix LS startup failure when includeFile or excludeFile is empty
 * ⬆️ TextMate Grammar 1.3.12
-* ⬆️ CABL 3.0.0
+* ⬆️ CABL 3.1.0
+* ⬆️ LSP4J 0.24.0
 * 🚧 Changed single-line comments to multi-lines comments in `thread.p` (pre-11.7 compatibility)
 
 1.18.2
