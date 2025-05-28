@@ -2,6 +2,7 @@
 ======
 
 * ✨ `HideAVMWindow` on OpenEdge 11.x
+* ✨ Compilation diagnostics now have location of include files
 * ✨ Don't stop Language Server when propath entries can't be read
 * ✨ Hover improvements (extent information, static properties / methods, ...)
 * ✨ Code completion improvements (functions, references to static classes, ...)
