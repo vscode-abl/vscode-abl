@@ -5,7 +5,7 @@
 * ✨ Compilation diagnostics now have location of include files
 * ✨ Don't stop Language Server when propath entries can't be read
 * ✨ Hover improvements (extent information, static properties / methods, ...)
-* ✨ Code completion improvements (functions, references to static classes, ...)
+* ✨ Code completion improvements (functions, references to static classes, interface properties, ...)
 * ✨ ABL log output can be part of compound log
 * ✨ Improved debugger startup time
 * ✨ Don't specify SAVE INTO directory if identical to source directory (#310)
