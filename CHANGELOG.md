@@ -1,10 +1,11 @@
 1.19.x
 ======
 
+* 🚀 Extension now sponsored by Progress!
 * ✨ `HideAVMWindow` on OpenEdge 11.x
 * ✨ Compilation diagnostics now have location of include files
 * ✨ Don't stop Language Server when propath entries can't be read
-* ✨ Hover improvements (extent information, static properties / methods, ...)
+* ✨ Hover improvements (extent information, static properties / methods, constructors, ...)
 * ✨ Code completion improvements (functions, references to static classes, interface properties, ...)
 * ✨ ABL log output can be part of compound log
 * ✨ Improved debugger startup time
@@ -13,6 +14,7 @@
 * 🐛 Fix documentSymbol total failure with incomplete code
 * 🐛 Fix LS startup failure when includeFile or excludeFile is empty
 * 🐛 Fix PASOE `cont` messages
+* 🐛 Recompile classes referenced by interface with changes in property definition
 * ⬆️ TextMate Grammar 1.3.12
 * ⬆️ CABL 3.1.0
 * ⬆️ LSP4J 0.24.0
