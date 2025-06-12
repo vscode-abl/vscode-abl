@@ -5,6 +5,8 @@ This extension provides rich OpenEdge ABL support for Visual Studio Code - [Exte
 This extension is based on the work of Christophe Camicas but has been completely overhauled with the addition of the Language Server. It is actively maintained, so unless you prefer not to switch to the new configuration files, you should use this extension.
 Currently, this extension is available for free; however, please note that some features might become available only in a commercial edition in the future.
 
+🆕 🚀 This extension is now [sponsored](https://community.progress.com/s/question/0D5Pb00002M3AAsKAN/exciting-news-progress-openedge-sponsors-vs-code-plugin) by Progress Software! 🚀
+
 ## Features
 * Syntax highlighting
 * OpenEdge project configuration (propath, database connections, aliases, etc.)
