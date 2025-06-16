@@ -15,6 +15,7 @@
 * 🐛 Fix LS startup failure when includeFile or excludeFile is empty
 * 🐛 Fix PASOE `cont` messages
 * 🐛 Recompile classes referenced by interface with changes in property definition
+* 🐛 Better error handling when receiving compilation messages
 * ⬆️ TextMate Grammar 1.3.12
 * ⬆️ CABL 3.1.0
 * ⬆️ LSP4J 0.24.0
