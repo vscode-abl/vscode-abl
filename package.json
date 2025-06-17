@@ -600,8 +600,17 @@
                 "key": "alt+L"
             }
         ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                  "id": "openedge-view",
+                  "title": "OpenEdge Resources",
+                  "icon": "resources/images/progress_logo.svg"
+                }
+            ]
+        },
         "views": {
-            "explorer": [
+            "openedge-view": [
                 {
                     "id": "openEdgeDocumentation",
                     "name": "OpenEdge Documentation"
