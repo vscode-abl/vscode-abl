@@ -17,7 +17,7 @@
 * 🐛 Fix PASOE `cont` messages
 * 🐛 Recompile classes referenced by interface with changes in property definition
 * 🐛 Better error handling when receiving compilation messages + structured error handling in thread.p
-* ⬆️ TextMate Grammar 1.3.12
+* ⬆️ TextMate Grammar 1.3.13
 * ⬆️ CABL 3.1.0
 * ⬆️ LSP4J 0.24.0
 * 🚧 Changed single-line comments to multi-lines comments in `thread.p` (pre-11.7 compatibility)
