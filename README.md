@@ -193,32 +193,7 @@ CABL rules will now be executed when any ABL file is saved in VS Code:
 
 ## Unit tests
 
-** Unit tests are currently inactive **
-
-Based upon the ABLUnit framework (need to be installed locally), you can specify launch parameters to find and execute test files
-```json
-{
-    "test": {
-        "files":[
-            "tests/*.test.p"
-        ],
-        "beforeEach": {
-            "cmd": "%ProgramFiles%\\Git\\bin\\sh.exe",
-            "args": [
-                "-c",
-                "echo starting"
-            ]
-        },
-        "afterEach": {
-            "cmd": "%ProgramFiles%\\Git\\bin\\sh.exe",
-            "args": [
-                "-c",
-                "echo done"
-            ]
-        }
-    }
-}
-```
+Use [ABLUnit Test Runner](https://marketplace.visualstudio.com/items?itemName=kherring.ablunit-test-runner) extension
 
 ## Configuration checklist
 

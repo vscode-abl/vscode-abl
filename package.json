@@ -124,16 +124,6 @@
                 "description": "Run current file in GUI session"
             },
             {
-                "command": "abl.test",
-                "title": "ABL: Test",
-                "description": "Run all UnitTest"
-            },
-            {
-                "command": "abl.test.currentFile",
-                "title": "ABL: Test current file",
-                "description": "Run current UnitTest file"
-            },
-            {
                 "command": "abl.dataDictionary",
                 "title": "ABL: Open Data Dictionary",
                 "description": "Open the Data Dictionary external tool"
@@ -547,14 +537,6 @@
                 {
                     "command": "abl.runProgres.currentFile",
                     "when": "editorLangId == 'abl'"
-                },
-                {
-                    "command": "abl.test",
-                    "when": "editorLangId == 'abl'"
-                },
-                {
-                    "command": "abl.test.currentFile",
-                    "when": "editorLangId == 'abl'"
                 }
             ],
             "view/title": [
@@ -621,14 +603,10 @@
         "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
         "abl-tmlanguage": "^1.3.13",
-        "glob": "^7.1.6",
         "jsonminify": "^0.4.1",
         "node-fetch": "2.7.0",
         "openedge-abl-lsp": "file:",
-        "rimraf": "^3.0.1",
-        "util.promisify": "^1.0.1",
-        "vscode-languageclient": "^9.0.1",
-        "xml2js": "^0.6.2"
+        "vscode-languageclient": "^9.0.1"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
