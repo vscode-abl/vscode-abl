@@ -58,6 +58,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   "includeFileExtensions": [ ".i", ".f" ],
   "buildPath": [
     // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
+    // Source directories must be subdirectories of the project root directory. Relative paths are highly recommended.
     { "type": "source", "path": "src/procedures" },
     { "type": "source", "path": "src/classes" },
     // Include and exclude patterns are case-insensitive on Windows, and case-sensitive on any other operating system
