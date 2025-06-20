@@ -20,6 +20,7 @@
 * ⬆️ TextMate Grammar 1.3.13
 * ⬆️ CABL 3.1.0
 * ⬆️ LSP4J 0.24.0
+* ⬆️ ABL-LS 1.20.0
 * 🚧 Changed single-line comments to multi-lines comments in `thread.p` (pre-11.7 compatibility)
 
 1.18.2
