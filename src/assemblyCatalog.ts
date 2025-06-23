@@ -6,7 +6,6 @@ import * as crypto from 'crypto';
 import { tmpdir } from 'os';
 import { outputChannel } from './ablStatus';
 import * as vscode from 'vscode';
-import moment = require('moment');
 
 export function executeGenCatalog(project: OpenEdgeProjectConfig) {
     const env = process.env;
@@ -31,10 +30,10 @@ export function executeGenCatalog(project: OpenEdgeProjectConfig) {
     if (project.gui)
         prms.push( "-basekey", "INI", "-ininame", path.join(__dirname, '../resources/abl-src/empty.ini'));
 
-    outputChannel.appendLine(`[${moment().toISOString(true)}] Assembly Catalog Generation - Command line: ${project.getExecutable()} ${project.extraParameters.split(' ').concat(prms).join(" ")}`);
+    outputChannel.info(`Assembly Catalog Generation - Command line: ${project.getExecutable()} ${project.extraParameters.split(' ').concat(prms).join(" ")}`);
     const ps = cp.spawn(project.getExecutable(true), project.extraParameters.split(' ').concat(prms), { env: env, cwd: project.rootDir, detached: true });
     ps.on('close', (code) => {
-      outputChannel.appendLine(`[${moment().toISOString(true)}] Assembly Catalog Generation - Process exited with code ${code}`)
+      outputChannel.info(`Assembly Catalog Generation - Process exited with code ${code}`)
       if (code == 0) {
         vscode.window.showInformationMessage("Assembly catalog generation completed successfully");
       } else {

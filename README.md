@@ -5,6 +5,8 @@ This extension provides rich OpenEdge ABL support for Visual Studio Code - [Exte
 This extension is based on the work of Christophe Camicas but has been completely overhauled with the addition of the Language Server. It is actively maintained, so unless you prefer not to switch to the new configuration files, you should use this extension.
 Currently, this extension is available for free; however, please note that some features might become available only in a commercial edition in the future.
 
+🆕 🚀 This extension is now [sponsored](https://community.progress.com/s/question/0D5Pb00002M3AAsKAN/exciting-news-progress-openedge-sponsors-vs-code-plugin) by Progress Software! 🚀
+
 ## Features
 * Syntax highlighting
 * OpenEdge project configuration (propath, database connections, aliases, etc.)
@@ -56,6 +58,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   "includeFileExtensions": [ ".i", ".f" ],
   "buildPath": [
     // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
+    // Source directories must be subdirectories of the project root directory. Relative paths are highly recommended.
     { "type": "source", "path": "src/procedures" },
     { "type": "source", "path": "src/classes" },
     // Include and exclude patterns are case-insensitive on Windows, and case-sensitive on any other operating system
@@ -191,32 +194,7 @@ CABL rules will now be executed when any ABL file is saved in VS Code:
 
 ## Unit tests
 
-** Unit tests are currently inactive **
-
-Based upon the ABLUnit framework (need to be installed locally), you can specify launch parameters to find and execute test files
-```json
-{
-    "test": {
-        "files":[
-            "tests/*.test.p"
-        ],
-        "beforeEach": {
-            "cmd": "%ProgramFiles%\\Git\\bin\\sh.exe",
-            "args": [
-                "-c",
-                "echo starting"
-            ]
-        },
-        "afterEach": {
-            "cmd": "%ProgramFiles%\\Git\\bin\\sh.exe",
-            "args": [
-                "-c",
-                "echo done"
-            ]
-        }
-    }
-}
-```
+Use [ABLUnit Test Runner](https://marketplace.visualstudio.com/items?itemName=kherring.ablunit-test-runner) extension
 
 ## Configuration checklist
 

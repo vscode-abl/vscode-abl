@@ -116,10 +116,14 @@ function getOption(options: Options | undefined, evaluateOption: (options: Optio
 function subscribeToDataEvent(readable: Readable, outputChannel: OutputChannel, saveData: boolean,
                               dataStorage: string): void {
     readable.on('data', (chunk) => {
-        const chunkAsString = typeof chunk === 'string' ? chunk : chunk.toString();
-        outputChannel.append(chunkAsString);
+        const chunkAsString: string = typeof chunk === 'string' ? chunk : chunk.toString();
+        const chunkLines: string[] = chunkAsString.split(/\r?\n/);
+        for (const line of chunkLines.slice(0, -1)) {
+            outputChannel.appendLine(line)
+        }
         if (saveData) {
             dataStorage += chunkAsString;
         }
     });
 }
+
