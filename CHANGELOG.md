@@ -1,4 +1,4 @@
-1.19.x
+1.20.0
 ======
 
 * 🚀 Extension now sponsored by Progress!
