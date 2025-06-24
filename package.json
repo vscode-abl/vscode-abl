@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.19.19",
+    "version": "1.20.0",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -26,7 +26,7 @@
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "grammar-version": "npm list abl-tmlanguage --depth=0 | head -2 | tail -1 | cut -c 5- > resources/grammar-version.txt"
     },
-    "icon": "resources/images/progress_icon.png",
+    "icon": "resources/images/logo.png",
     "engines": {
         "vscode": "^1.76.0"
     },
