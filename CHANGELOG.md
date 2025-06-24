@@ -1,3 +1,8 @@
+1.21.x
+======
+
+* 🚑️ Nothing for now, just make sure prerelease is available
+
 1.20.0
 ======
 
