@@ -1,7 +1,7 @@
 1.21.x
 ======
 
-* 🚑️ Nothing for now, just make sure prerelease is available
+* ✨ Fix `getDlcDirectory` command when called with multiple parameters (#353)
 
 1.20.0
 ======
