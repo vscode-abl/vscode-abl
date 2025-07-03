@@ -177,16 +177,22 @@ function switchDocTo128(): void {
   docNodeProvider.refresh();
 }
 
+// Note: when called from a task, it looks like all task parameters are passed to the function as an array
+// I didn't find any specification for the order of the parameters, but it seems that the project directory
+// is always passed as the last parameter. 
 function getDlcDir(params: string[]): string {
   // Command used by tasks (among other things) to return the OE directory of a project
   if (params.length < 2) {
     vscode.window.showErrorMessage("Invalid argument passed to getDlcDir");
     return "";
   }
-  const cfg = getProject(params[1]);
+  const projectDir = params[params.length - 1]
+  const cfg = getProject(projectDir);
   if (!cfg) {
-    vscode.window.showErrorMessage("No OpenEdge project found for launch configuration in " + params[1]);
-    return "";
+    const defaultRuntime = oeRuntimes.find(runtime => runtime.default);
+    if (!defaultRuntime)
+      vscode.window.showErrorMessage("No OpenEdge project found for launch configuration in " + projectDir);
+    return defaultRuntime ? defaultRuntime.path : "";
   }
 
   return cfg.dlc;
