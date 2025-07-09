@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.21.1",
+    "version": "1.21.2",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
