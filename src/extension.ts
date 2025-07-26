@@ -162,11 +162,6 @@ function openDocumentationEntry(uri: string): void {
   DocViewPanel.createOrShow(uri);
 }
 
-function switchDocTo117(): void {
-  docNodeProvider.updateMode(1);
-  docNodeProvider.refresh();
-}
-
 function switchDocTo122(): void {
   docNodeProvider.updateMode(2);
   docNodeProvider.refresh();
@@ -693,7 +688,6 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('abl', new AblDebugConfigurationProvider(projects)));
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
-    ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo117', switchDocTo117));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
 
