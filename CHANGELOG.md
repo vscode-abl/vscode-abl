@@ -1,3 +1,8 @@
+1.20.1
+======
+
+* 📝 Remove (broken) links to OpenEdge 11.7 documentation (#360)
+
 1.20.0
 ======
 
