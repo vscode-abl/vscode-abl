@@ -3,7 +3,7 @@
 
 * ✨ Fix `getDlcDirectory` command when called with multiple parameters (#353)
 * 🐛 Include variables from parent scope when caret is in internal procedure / function (#357)
-* ⬆️ TextMate Grammar 1.3.14
+* ⬆️ TextMate Grammar 1.3.15
 
 1.20.1
 ======
