@@ -1,17 +1,17 @@
 import path = require('path');
-import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as crypto from 'crypto';
-import { openDataDictionary } from './ablDataDictionary';
-import { executeGenCatalog } from './assemblyCatalog';
-import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
-import { runTTY, runBatch } from './ablRunTerminal';
-import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
-import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
-import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
+import * as fs from 'fs';
 import { tmpdir } from 'os';
-import { outputChannel, lsOutputChannel } from './ablStatus';
+import * as vscode from 'vscode';
+import { Executable, LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
+import { openDataDictionary } from './ablDataDictionary';
+import { runBatch, runTTY } from './ablRunTerminal';
+import { lsOutputChannel, outputChannel } from './ablStatus';
+import { executeGenCatalog } from './assemblyCatalog';
+import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
+import { loadConfigFile, OpenEdgeConfig, OpenEdgeMainConfig, OpenEdgeProjectConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 
 let client: LanguageClient;
 
@@ -778,7 +778,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     prjConfig.dbConnections = config.dbConnections
     prjConfig.procedures = config.procedures
 
-    prjConfig.profiles.set("default", prjConfig);
+    prjConfig.profiles.set(prjConfig.name, prjConfig);
     if (config.profiles) {
         config.profiles.forEach(profile => {
             const p = parseOpenEdgeConfig(profile.value);
