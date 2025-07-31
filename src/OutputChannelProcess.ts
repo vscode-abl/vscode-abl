@@ -39,11 +39,16 @@ export async function create(spawnCommand: string, spawnArgs: string[] | undefin
     spawnOptions.stdio = 'pipe';
     const spawnedProcess = spawn(spawnCommand, spawnArgs, spawnOptions);
     outputChannel.show();
+    if (spawnedProcess.pid)
+      outputChannel.appendLine("Started AVM session - PID " + spawnedProcess.pid);
     const result = await process(spawnedProcess, outputChannel, { displayClose: false, displayExit: false });
+    if (spawnedProcess.pid)
+      outputChannel.appendLine("AVM session stopped - PID " + spawnedProcess.pid);
     if (result.success && result.code === 0) {
         // outputChannel.hide();
         // outputChannel.dispose();
     }
+
     return result;
 }
 

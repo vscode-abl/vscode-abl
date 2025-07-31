@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 import * as vscode from 'vscode';
 import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
 import { tmpdir } from 'os';
-import { outputChannel } from './ablStatus';
+import { outputChannel, batchOutputChannel } from './ablStatus';
 import { create } from './OutputChannelProcess';
 
 const builderExists: { [rootDir: string]: boolean } = {};
@@ -45,8 +45,6 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     checkBuilderDirectoryExists(project.rootDir);
     const currProfile = project.profiles.get(project.activeProfile);
 
-    outputChannel.clear();
-
     const env = process.env;
     env.DLC = currProfile.dlc;
 
@@ -63,5 +61,5 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
-    create(currProfile.getTTYExecutable(), currProfile.extraParameters.split(' ').concat(["-b", "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]), { env: env, cwd: project.rootDir, detached: true }, outputChannel);
+    create(currProfile.getTTYExecutable(), currProfile.extraParameters.split(' ').concat(["-b", "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"), "-p", path.join(__dirname, '../resources/abl-src/dynrun.p'), "-param", prmFileName]), { env: env, cwd: project.rootDir, detached: true }, batchOutputChannel);
 }
