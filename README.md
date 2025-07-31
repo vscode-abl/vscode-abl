@@ -154,8 +154,8 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
 }
 ```
 
-To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-classic-appserver-development-117/page/Attaching-the-Debugger-to-an-AppServer-session.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
-When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode-specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
+To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-developer-studio-help/page/Attach-the-Debugger-to-an-external-AVM.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application.
+When debugging a local procedure, the debugger will stop at the first instruction, which is always a VS Code specific procedure. You can use `F5` to jump to the first executable line of *your* procedure.
 
 ![Legacy Debugger Demo](resources/images/debugger01.webp)
 [Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger01.webp)
