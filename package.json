@@ -535,11 +535,6 @@
             ],
             "view/title": [
                 {
-                    "command": "oeDoc.switchTo117",
-                    "when": "view == openEdgeDocumentation",
-                    "group": "navigation"
-                },
-                {
                     "command": "oeDoc.switchTo122",
                     "when": "view == openEdgeDocumentation",
                     "group": "navigation"
