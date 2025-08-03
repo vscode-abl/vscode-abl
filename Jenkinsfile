@@ -38,6 +38,11 @@ pipeline {
           reuseNode true
         }
       }
+      environment {
+        OP_CLI_PATH = '/usr/local/bin/'
+        OVSX_PAT = 'op://Jenkins/OpenVSX/password'
+        VSCE_PAT = 'op://Jenkins/AzureDevOps/password'
+      }
       steps {
         script {
           withSonarQubeEnv('RSSW2') {
@@ -58,12 +63,13 @@ pipeline {
           }
           archiveArtifacts artifacts: '*.vsix'
           if ("develop" == env.BRANCH_NAME) {
-            withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
+            withSecrets() {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
             }
           } else if ("main" == env.BRANCH_NAME) {
-            withCredentials([string(credentialsId: 'VSCODE_PAT', variable: 'VSCE_PAT')]) {
+            withSecrets() {
               sh "npx @vscode/vsce publish --packagePath *.vsix"
+              sh "npx ovsx publish *.vsix"
             }
           } else {
             sh "echo Artifacts not published!"
