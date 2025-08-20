@@ -400,7 +400,7 @@
                 "abl.completion.upperCase": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use uppercase or lowercase keywords in code completion"
+                    "description": "Use uppercase keywords for code completion"
                 },
                 "abl.useProcedureEditorKeyBindings": {
                     "type": "boolean",
