@@ -20,6 +20,11 @@
       "description": "Project version",
       "type": "string"
     },
+    "defaultProfileName": {
+      "id": "/properties/defaultProfileName",
+      "description": "Default profile name",
+      "type": "string"
+    },
     "oeversion": {
       "id": "/properties/oeversion",
       "description": "OpenEdge version for this project",

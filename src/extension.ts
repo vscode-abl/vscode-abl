@@ -231,7 +231,7 @@ function restartLangServer(): void {
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = Array.from(project.profiles.keys()).map(label => ({ label }));
+    const list = Array.from(project.profiles.keys()).map(key => ({ label: key == "default" && project.defaultProfileName ? project.defaultProfileName : key }));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
@@ -761,6 +761,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
     const prjConfig = new OpenEdgeProjectConfig();
     prjConfig.name = config.name
     prjConfig.version = config.version
+    prjConfig.defaultProfileName = config.defaultProfileName
     prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath + ( process.platform === 'win32' ? '\\' : '/' )
     prjConfig.dlc = getDlcDirectory(config.oeversion);
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""
