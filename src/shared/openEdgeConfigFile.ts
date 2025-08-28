@@ -40,7 +40,7 @@ export interface OpenEdgeMainConfig extends OpenEdgeConfig {
   // JSON mapping of openedge-project.json
   name: string;
   version: string;
-  defaultProfileName?: string;
+  defaultProfileDisplayName?: string;
   profiles?: OEProfile[];
 }
 
@@ -118,7 +118,7 @@ export class ProfileConfig {
 export class OpenEdgeProjectConfig extends ProfileConfig {
   activeProfile: string;
   rootDir: string;
-  defaultProfileName: string;
+  defaultProfileDisplayName: string;
   profiles: Map<string, ProfileConfig> = new Map<string, ProfileConfig>();
 }
 

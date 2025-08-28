@@ -20,9 +20,9 @@
       "description": "Project version",
       "type": "string"
     },
-    "defaultProfileName": {
-      "id": "/properties/defaultProfileName",
-      "description": "Default profile name",
+    "defaultProfileDisplayName": {
+      "id": "/properties/defaultProfileDisplayName",
+      "description": "Default profile display name",
       "type": "string"
     },
     "oeversion": {
