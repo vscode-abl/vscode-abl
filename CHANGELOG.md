@@ -4,6 +4,7 @@
 * ✨ Separate output for `Run with _progres -b` action
 * ✨ Fix `getDlcDirectory` command when called with multiple parameters (#353)
 * ✨ Show content of array variables in object instances (#372) 
+* ✨ Add `defaultProfileDisplayName` attribute (#368) 
 * 🐛 Include variables from parent scope when caret is in internal procedure / function (#357)
 * ⬆️ TextMate Grammar 1.3.15
 * ⬆️ Java 21
