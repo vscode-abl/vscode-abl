@@ -71,10 +71,16 @@ export function activate(ctx: vscode.ExtensionContext) {
     registerCommands(ctx);
     vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory({ ...process.env }));
 
-    // Return extension entry point
+    // Return extension entrypoints
     return {
         async getFileInfo(uri: string) {
             return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        },
+        async getSchema(uri: string) {
+            return await client.sendRequest("proparse/schema", { projectUri: uri});
+        },
+        async status() {
+            return await client.sendRequest("proparse/status");
         }
     };
 }
