@@ -2,7 +2,19 @@ USING Progress.Json.ObjectModel.JsonArray.
 USING Progress.Json.ObjectModel.JsonObject.
 USING Progress.Json.ObjectModel.ObjectModelParser.
 
-ROUTINE-LEVEL ON ERROR UNDO, THROW.
+&scoped-define MAJOR INTEGER(SUBSTRING(PROVERSION, 1, INDEX(PROVERSION, '.') - 1))
+&scoped-define MAJOR_SZ LENGTH({&MAJOR})
+
+&scoped-define PROVERSION_MINOR SUBSTRING(PROVERSION(1), {&MAJOR_SZ} + 2)
+&scoped-define MINOR INTEGER(SUBSTRING({&PROVERSION_MINOR}, 1, INDEX({&PROVERSION_MINOR}, '.') - 1))
+&scoped-define MINOR_SZ LENGTH({&MINOR})
+
+&scoped-define PROVERSION_PATH SUBSTRING(PROVERSION(1), {&MAJOR_SZ} + {&MINOR_SZ} + 3)
+&scoped-define PATCH INTEGER(SUBSTRING({&PROVERSION_PATH}, 1, INDEX({&PROVERSION_PATH}, '.') - 1))
+
+&if ({&MAJOR} ge 11) &then
+block-level on error undo, throw.
+&endif
 
 DEFINE NEW SHARED VARIABLE pctVerbose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE noErrorOnQuit AS LOGICAL NO-UNDO.
@@ -34,8 +46,6 @@ DEFINE VARIABLE zz2 AS INTEGER     NO-UNDO.
 DEFINE VARIABLE xx AS INTEGER     NO-UNDO.
 DEFINE VARIABLE yy AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE ww AS HANDLE      NO-UNDO.
-DEFINE VARIABLE out1 AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE out2 AS CHARACTER   NO-UNDO.
 
 ASSIGN jsonParser = NEW ObjectModelParser().
 ASSIGN configJson = CAST(jsonParser:ParseFile(SESSION:PARAMETER), JsonObject).
@@ -90,9 +100,6 @@ IF (configJson:has("parameters")) THEN DO:
   END.
 END.
 
-// Output parameters
-ASSIGN outprmEntries = configJson:GetJsonArray("output").
-
 IF configJson:getLogical("super") THEN DO:
   SESSION:ADD-SUPER-PROCEDURE(THIS-PROCEDURE).
 END.
@@ -122,53 +129,17 @@ IF (configJson:has("procedures")) THEN DO:
 END.
 
 // Execute procedure
-LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("RUN &1", configJson:getCharacter("procedure"))).
-RunBlock:
-DO ON QUIT UNDO, RETRY:
-  IF RETRY THEN DO:
-    IF noErrorOnQuit THEN i = 0. ELSE i = 66.
-    LEAVE RunBlock.
-  END.
-  IF (outprmEntries:Length EQ 0) THEN
-    RUN VALUE(configJson:getCharacter("procedure")) NO-ERROR.
-  ELSE IF (outprmEntries:Length EQ 1) THEN
-    RUN VALUE(configJson:getCharacter("procedure")) (OUTPUT out1) NO-ERROR.
-  ELSE IF (outprmEntries:Length EQ 2) THEN
-    RUN VALUE(configJson:getCharacter("procedure")) (OUTPUT out1, OUTPUT out2) NO-ERROR.
-END.
-IF ERROR-STATUS:ERROR THEN
-  ASSIGN i = 1.
-IF (i EQ ?) THEN
-  ASSIGN i = INTEGER (ENTRY(1, RETURN-VALUE, " ")) NO-ERROR.
-IF (i EQ ?) THEN
-  ASSIGN i = 1.
-RUN returnValue(i).
+log-manager:write-message(substitute("RUN &1", configJson:getCharacter("procedure"))).
+run value(configJson:getCharacter("procedure")).
+quit.
 
-IF (outprmEntries:Length GE 1) THEN
-  RUN writeOutputParam (out1, outprmEntries:getCharacter(1)).
-IF (outprmEntries:Length GE 2) THEN
-  RUN writeOutputParam (out2, outprmEntries:getCharacter(2)).
-
-QUIT.
-
-PROCEDURE returnValue PRIVATE.
-  DEFINE INPUT PARAMETER retVal AS INTEGER NO-UNDO.
-
-  IF configJson:getCharacter("returnValue") EQ '' THEN RETURN.
-  LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Return value : &1", retVal)).
-  OUTPUT TO VALUE(configJson:getCharacter("returnValue")) CONVERT TARGET "utf-8".
-  PUT UNFORMATTED retVal SKIP.
-  OUTPUT CLOSE.
-
-END PROCEDURE.
-
-PROCEDURE writeOutputParam PRIVATE.
-  DEFINE INPUT PARAMETER prm AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER outFile AS CHARACTER NO-UNDO.
-
-  LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("OUTPUT PARAMETER : &1", prm)).
-  OUTPUT TO VALUE(outFile) CONVERT TARGET "utf-8".
-  PUT UNFORMATTED prm SKIP.
-  OUTPUT CLOSE.
-
-END PROCEDURE.
+catch err as Progress.Lang.Error:
+  &IF ({&MAJOR} GE 12) OR (({&MAJOR} EQ 11 ) AND ({&MINOR} EQ 7) AND ({&PATCH} GE 3)) &THEN
+  session:exit-code = 1.
+  &ENDIF
+  message "Unexpected error(s):".
+  do zz = 1 to err:NumMessages:
+    message substitute(" &1", err:getMessage(zz)).
+  end.
+  quit.
+end catch.
