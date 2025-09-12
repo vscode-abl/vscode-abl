@@ -81,6 +81,9 @@ export function activate(ctx: vscode.ExtensionContext) {
         },
         async status() {
             return await client.sendRequest("proparse/status");
+        },
+        async restartLanguageServer() {
+          return await restartLangServer();
         }
     };
 }
@@ -222,17 +225,18 @@ function dumpLangServStatus(): void {
     client.sendNotification("proparse/dumpStatus", {});
 }
 
-function restartLangServer(): void {
+function restartLangServer(): Promise<void> {
     outputChannel.info("Received request to restart ABL Language Server");
-    client.stop(5000)
+    return client.stop(5000)
       .then(() => {
         outputChannel.info("ABL Language Server stopped");
         client = createLanguageClient();
         outputChannel.info("Starting new ABL Language Server");
-        client.start();
+        return client.start();
       })
       .catch(caught => {
         outputChannel.info("ABL Language Server didn't stop correctly: " + caught);
+        throw caught;
       });
 }
 
