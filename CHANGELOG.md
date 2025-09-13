@@ -5,11 +5,14 @@
 * ✨ Fix `getDlcDirectory` command when called with multiple parameters (#353)
 * ✨ Show content of array variables in object instances (#372) 
 * ✨ Add `defaultProfileDisplayName` attribute (#368) 
-* ✨ Add status and getSchema entrypoints
+* ✨ Add status, getSchema and restartLanguageServer entrypoints
 * 🐛 Include variables from parent scope when caret is in internal procedure / function (#357)
 * 🐛 Compiler error 196 now always shown (#381)
+* 🐛 Code completion when at the beginning of a statement always showed datatypes first
+* 🐛 Hover / outline / definition not always available immediately after opening file (#281)
 * ⬆️ TextMate Grammar 1.3.15
 * ⬆️ Java 21
+* ⬆️ CABL 3.4.0-SNAPSHOT
 
 1.20.1
 ======
