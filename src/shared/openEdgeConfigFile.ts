@@ -1,6 +1,7 @@
 import * as jsonminify from 'jsonminify';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as vscode from 'vscode';
 
 export interface TestConfig {
   files?: string[];
@@ -117,6 +118,7 @@ export class ProfileConfig {
 
 export class OpenEdgeProjectConfig extends ProfileConfig {
   activeProfile: string;
+  uri: vscode.Uri;
   rootDir: string;
   defaultProfileDisplayName: string;
   profiles: Map<string, ProfileConfig> = new Map<string, ProfileConfig>();

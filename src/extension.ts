@@ -285,7 +285,7 @@ function compileBuffer() {
 }
 
 function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
-    client.sendRequest("proparse/compileBuffer", { projectUri: project.rootDir, bufferUri: bufferUri, buffer: buffer }).then(result => {
+    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri, bufferUri: bufferUri, buffer: buffer }).then(result => {
         if (!result)
             vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
     });
@@ -301,7 +301,7 @@ function debugListingLine() {
     }
 
     vscode.window.showInputBox({ title: "Enter debug listing line number:", prompt: "Go To Source Line" }).then(input => {
-        client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) });
+        client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), lineNumber: parseInt(input) });
     });
 }
 
@@ -314,7 +314,7 @@ function dumpFileStatus() {
         return;
     }
 
-    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function preprocessFile() {
@@ -326,7 +326,7 @@ function preprocessFile() {
         return;
     }
 
-    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateListing() {
@@ -338,7 +338,7 @@ function generateListing() {
         return;
     }
 
-    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateDebugListing() {
@@ -350,7 +350,7 @@ function generateDebugListing() {
         return;
     }
 
-    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateXref() {
@@ -361,7 +361,7 @@ function generateXref() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function generateXmlXref() {
@@ -373,7 +373,7 @@ function generateXmlXref() {
         return;
     }
 
-    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function fixUpperCasing() {
@@ -384,7 +384,7 @@ function fixUpperCasing() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function fixLowerCasing() {
@@ -396,7 +396,7 @@ function fixLowerCasing() {
         return;
     }
 
-    client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function generateCatalog() {
@@ -441,7 +441,7 @@ function switchProfileCmd() {
 
 function rebuildProject() {
     if (projects.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].rootDir });
+        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].uri });
     } else {
         const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
@@ -452,7 +452,7 @@ function rebuildProject() {
         quickPick.items = list;
         quickPick.onDidChangeSelection(args => {
             quickPick.hide();
-            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).rootDir });
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).uri });
         });
         quickPick.show();
     }
@@ -730,8 +730,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     docNodeProvider.fetchData();
 }
 
-function readOEConfigFile(uri) {
-    outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
+function readOEConfigFile(uri : vscode.Uri) {
+    outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`)
     const config = loadConfigFile(uri.fsPath);
     if (config) {
         const prjConfig = parseOpenEdgeProjectConfig(uri, config);
@@ -769,6 +769,7 @@ function readWorkspaceOEConfigFiles() {
 
 function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig): OpenEdgeProjectConfig {
     const prjConfig = new OpenEdgeProjectConfig();
+    prjConfig.uri = vscode.Uri.parse(path.dirname(uri.path))
     prjConfig.name = config.name
     prjConfig.version = config.version
     prjConfig.defaultProfileDisplayName = config.defaultProfileDisplayName
