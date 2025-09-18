@@ -354,6 +354,13 @@
                                 "type": "string",
                                 "description": "PASOE debugger password",
                                 "default": ""
+                            },
+                            "projects": {
+                                "type": "array",
+                                "description": "Referenced projects",
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     }
