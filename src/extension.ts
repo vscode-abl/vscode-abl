@@ -285,7 +285,7 @@ function compileBuffer() {
 }
 
 function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
-    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri, bufferUri: bufferUri, buffer: buffer }).then(result => {
+    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
         if (!result)
             vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
     });
@@ -441,7 +441,7 @@ function switchProfileCmd() {
 
 function rebuildProject() {
     if (projects.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].uri });
+        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].uri.toString() });
     } else {
         const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
@@ -452,7 +452,7 @@ function rebuildProject() {
         quickPick.items = list;
         quickPick.onDidChangeSelection(args => {
             quickPick.hide();
-            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).uri });
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).uri.toString() });
         });
         quickPick.show();
     }
