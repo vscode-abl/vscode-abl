@@ -205,6 +205,88 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 * Check the ABL Language Server output: open the Output view (Ctrl + Shift + U) then select ABL Language Server in the combo-box.
 * Include the grammar version number (shown in the ABL output tab) if your problem is related to syntax highlighting.
 
+## Extension API Entrypoints
+
+This extension exposes several API entrypoints that can be used by other extensions or programmatically. These are returned by the `activate` function and can be accessed when the extension is active.
+
+### `getFileInfo(uri: string)`
+**Description:** Retrieve detailed information about an ABL file.
+
+**Input Parameters:**
+- `uri` (string): The URI of the file to analyze
+
+**Output:** Returns a promise that resolves to an object containing file information such as:
+- Syntax tree information
+- Parse status
+- File dependencies
+- Compilation errors/warnings
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const fileInfo = await ablExtension.exports.getFileInfo('file:///path/to/your/file.p');
+    console.log(fileInfo);
+}
+```
+
+### `getSchema(uri: string)`
+**Description:** Retrieve the database schema information for a project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project to get schema information for
+
+**Output:** Returns a promise that resolves to an object containing:
+- Database schema definitions
+- Table structures
+- Field definitions
+- Index information
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const schema = await ablExtension.exports.getSchema('file:///path/to/project');
+    console.log(schema);
+}
+```
+
+### `status()`
+**Description:** Get the current status of the ABL Language Server.
+
+**Input Parameters:** None
+
+**Output:** Returns a promise that resolves to an object containing:
+- Language server status
+- Number of active projects
+- Compilation queue status
+- Background task information
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const status = await ablExtension.exports.status();
+    console.log(`Active projects: ${status.projects?.length || 0}`);
+}
+```
+
+### `restartLanguageServer()`
+**Description:** Restart the ABL Language Server process.
+
+**Input Parameters:** None
+
+**Output:** Returns a promise that resolves when the language server has been successfully restarted
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    await ablExtension.exports.restartLanguageServer();
+    console.log('Language server restarted');
+}
+```
+
 ## Greetings
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
 Also inspired by vscode-go and vscode-rust extensions.
