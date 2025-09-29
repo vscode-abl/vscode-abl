@@ -463,13 +463,6 @@
                     "default": false,
                     "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
                 },
-                "abl.sonarlint.rules": {
-                    "type": "array",
-                    "description": "Path to custom SonarLint rules",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "abl.configuration.defaultRuntime": {
                     "type": "string",
                     "description": "Default OpenEdge Execution Environment name",
