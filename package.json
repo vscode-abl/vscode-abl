@@ -417,7 +417,7 @@
                 "abl.langServerDebug": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Enable language server debug logging"
+                    "description": "Enable language server verbose logging"
                 },
                 "abl.defaultProject": {
                     "type": "string",
@@ -441,7 +441,7 @@
                 "abl.debugAdapterDebug": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Enable debug adapter debug logging (in $TMP/vscode-debug-adapter.txt)"
+                    "description": "Enable debug adapter verbose logging (in $TMP/vscode-debug-adapter.txt)"
                 },
                 "abl.debugAdapterTrace": {
                     "type": "boolean",
