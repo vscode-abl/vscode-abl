@@ -1,3 +1,9 @@
+1.23.x
+======
+
+* ✨ Support for multiple projects in debugger (work in progress)
+* ⬆️ ABL-LS 1.22.0-SNAPSHOT
+
 1.22.0
 ======
 
