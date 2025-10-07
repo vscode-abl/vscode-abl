@@ -20,7 +20,7 @@
 * ⬆️ TextMate Grammar 1.3.15
 * ⬆️ Java 21
 * ⬆️ CABL 3.4.0
-* ⬆️ ABL-LS 1.21.0-SNAPSHOT
+* ⬆️ ABL-LS 1.21.0
 
 1.20.1
 ======
