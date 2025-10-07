@@ -209,6 +209,31 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 
 This extension exposes several API entrypoints that can be used by other extensions or programmatically. These are returned by the `activate` function and can be accessed when the extension is active.
 
+### `getProjectInfo(uri: string)`
+**Description:** Retrieve detailed information about an ABL project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project
+
+**Output:** Returns a promise that resolves to an object containing project information such as:
+- Root directory
+- Source directories
+- Build directories
+- XREF directories
+- Schema cache location
+- Propath
+- Encoding
+- Catalog
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const projectInfo = await ablExtension.exports.getProjectInfo('file:///path/to/your/project');
+    console.log(projectInfo);
+}
+```
+
 ### `getFileInfo(uri: string)`
 **Description:** Retrieve detailed information about an ABL file.
 
@@ -216,10 +241,12 @@ This extension exposes several API entrypoints that can be used by other extensi
 - `uri` (string): The URI of the file to analyze
 
 **Output:** Returns a promise that resolves to an object containing file information such as:
-- Syntax tree information
-- Parse status
-- File dependencies
-- Compilation errors/warnings
+- Project information
+- Source directory
+- Build directory
+- RCode location
+- XREF location
+- Relative path
 
 **Example Usage:**
 ```typescript

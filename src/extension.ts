@@ -12,7 +12,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from
 import { tmpdir } from 'os';
 import { outputChannel, lsOutputChannel } from './ablStatus';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
-import { FileInfo } from './shared/FileInfo';
+import { FileInfo, ProjectInfo } from './shared/FileInfo';
 
 let client: LanguageClient;
 
@@ -74,6 +74,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 
     // Return extension entrypoints
     return {
+        async getProjectInfo(uri: string) {
+            return await client.sendRequest("proparse/projectInfo", { projectUri: uri});
+        },
         async getFileInfo(uri: string) {
             return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
         },
@@ -183,15 +186,20 @@ function switchDocTo128(): void {
 }
 
 // Note: when called from a task, it looks like all task parameters are passed to the function as an array
-// I didn't find any specification for the order of the parameters, but it seems that the project directory
-// is always passed as the last parameter. 
-function getDlcDir(params: string[]): string {
-  // Command used by tasks (among other things) to return the OE directory of a project
-  if (params.length < 2) {
+// I didn't find any specification for the order of the parameters, so the first entry in reverse order which matches a directory
+// is returned, or 'undefined' if none is found
+function getDirectoryFromArgs(params: any[]): string {
+  const copy = [].concat(params).reverse();
+  const projectDir = copy.find(it => fs.existsSync(it) && fs.statSync(it).isDirectory());
+  return projectDir || "";
+}
+
+function getDlcDir(params: any[]): string {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
     vscode.window.showErrorMessage("Invalid argument passed to getDlcDir");
     return "";
   }
-  const projectDir = params[params.length - 1]
   const cfg = getProject(projectDir);
   if (!cfg) {
     const defaultRuntime = oeRuntimes.find(runtime => runtime.default);
@@ -203,12 +211,60 @@ function getDlcDir(params: string[]): string {
   return cfg.dlc;
 }
 
+async function getPropath(params: any[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getPropath");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.propath && result.propath != "") {
+    if (process.platform === "win32")
+      return result.propath;
+    else
+      return result.propath.replace(",", ":");
+  } else {
+    return ""
+  }
+}
+
+async function getSourceDirs(params: string[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getSourceDirs");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.buildDirs && result.sourceDirs != "") {
+    return result.sourceDirs;
+  } else {
+    return ""
+  }
+}
+
+async function getBuildDirs(params: string[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getBuildDirs");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.buildDirs && result.buildDirs != "") {
+    return result.buildDirs;
+  } else {
+    return ""
+  }
+}
+
 async function getRelativePath(): Promise<string | undefined> {
   if (vscode.window.activeTextEditor == undefined) {
     vscode.window.showErrorMessage("getRelativePath error: no active buffer");
     return undefined;
   }
-  
+
   const result = await client.sendRequest("proparse/fileInfo", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }) as FileInfo;
   if (result && result.relativePath && result.relativePath != "") {
     return result.relativePath;
@@ -719,6 +775,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getPropath', getPropath));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getSourceDirs', getSourceDirs));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getBuildDirs', getBuildDirs));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
