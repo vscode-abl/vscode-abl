@@ -27,20 +27,10 @@ export class AblDebugConfigurationProvider implements vscode.DebugConfigurationP
                 program: '${file}'
             };
         }
-        const refProjects: Array<String> = [];
-        if (debugConfiguration.projects) {
-          debugConfiguration.projects.forEach(prj => {
-            const project = this.getProjectByName(prj)
-            if (project)
-              refProjects.push(project.rootDir)
-          })
-        }
-
         if (cfg) {
             debugConfiguration['ablsrc'] = path.join(__dirname, '../resources/abl-src');
             debugConfiguration['dlc'] = cfg.dlc;
             debugConfiguration['oeversion'] = cfg.oeversion;
-            debugConfiguration['refProjects'] = refProjects
         }
 
         return debugConfiguration;
@@ -52,9 +42,4 @@ export class AblDebugConfigurationProvider implements vscode.DebugConfigurationP
           srchPath.startsWith(project.rootDir.toLowerCase()) :
           srchPath.startsWith(project.rootDir) );
     }
-
-    public getProjectByName(name: string): OpenEdgeProjectConfig {
-      return this.projects.find(project => name == project.name);
-    }
-
 }
