@@ -1,4 +1,4 @@
-1.21.x
+1.22.0
 ======
 
 * ✨ Separate output for `Run with _progres -b` action
@@ -6,7 +6,6 @@
 * ✨ Show content of array variables in object instances (#372) 
 * ✨ Add `defaultProfileDisplayName` attribute (#368) 
 * ✨ Add `status`, `projectInfo`, `getSchema` and `restartLanguageServer` entry points
-* ✨ Support for multiple projects in debugger (work in progress)
 * ✨ Add `abl.compileLog` setting
 * ✨ Add `abl.getRelativePath` command (can be used as the `-p` parameter in tasks)
 * ✨ Add `abl.getPropath` command (comma-separated list on Windows, colon-separated string on Linux) (#290)
