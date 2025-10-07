@@ -204,6 +204,7 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 * Make sure you have `source` directories in your configuration file; `propath` entries are not monitored, and thus nothing would be recompiled.
 * Check the ABL Language Server output: open the Output view (Ctrl + Shift + U) then select ABL Language Server in the combo-box.
 * Include the grammar version number (shown in the ABL output tab) if your problem is related to syntax highlighting.
+* Accented characters in user home directory can lead to problems with the ABL extension (see #387)
 
 ## Extension API Entrypoints
 
