@@ -8,6 +8,7 @@
 * ✨ Add status, getSchema and restartLanguageServer entrypoints
 * ✨ Support for multiple projects in debugger (work in progress)
 * ✨ Add `abl.compileLog` setting
+* ✨ Add `abl.getRelativePath` command (can be used as the `-p` parameter in tasks)
 * 🐛 Include variables from parent scope when caret is in internal procedure / function (#357)
 * 🐛 Compiler error 196 not always shown (#381)
 * 🐛 Code completion when at the beginning of a statement always showed datatypes first
