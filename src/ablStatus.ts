@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import { ABL_MODE } from './ablMode';
 
 export const outputChannel = vscode.window.createOutputChannel('ABL', {log: true});
+export const batchOutputChannel = vscode.window.createOutputChannel('ABL Batch', {log: true});
 export const lsOutputChannel = vscode.window.createOutputChannel('ABL Language Server');
 
 let statusBarEntry: vscode.StatusBarItem;

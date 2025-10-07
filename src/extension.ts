@@ -12,6 +12,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from
 import { tmpdir } from 'os';
 import { outputChannel, lsOutputChannel } from './ablStatus';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { FileInfo, ProjectInfo } from './shared/FileInfo';
 
 let client: LanguageClient;
 
@@ -71,10 +72,22 @@ export function activate(ctx: vscode.ExtensionContext) {
     registerCommands(ctx);
     vscode.debug.registerDebugAdapterDescriptorFactory("abl", new AblDebugAdapterDescriptorFactory({ ...process.env }));
 
-    // Return extension entry point
+    // Return extension entrypoints
     return {
+        async getProjectInfo(uri: string) {
+            return await client.sendRequest("proparse/projectInfo", { projectUri: uri});
+        },
         async getFileInfo(uri: string) {
             return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        },
+        async getSchema(uri: string) {
+            return await client.sendRequest("proparse/schema", { projectUri: uri});
+        },
+        async status() {
+            return await client.sendRequest("proparse/status");
+        },
+        async restartLanguageServer() {
+          return await restartLangServer();
         }
     };
 }
@@ -172,19 +185,93 @@ function switchDocTo128(): void {
   docNodeProvider.refresh();
 }
 
-function getDlcDir(params: string[]): string {
-  // Command used by tasks (among other things) to return the OE directory of a project
-  if (params.length < 2) {
+// Note: when called from a task, it looks like all task parameters are passed to the function as an array
+// I didn't find any specification for the order of the parameters, so the first entry in reverse order which matches a directory
+// is returned, or 'undefined' if none is found
+function getDirectoryFromArgs(params: any[]): string {
+  const copy = [].concat(params).reverse();
+  const projectDir = copy.find(it => fs.existsSync(it) && fs.statSync(it).isDirectory());
+  return projectDir || "";
+}
+
+function getDlcDir(params: any[]): string {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
     vscode.window.showErrorMessage("Invalid argument passed to getDlcDir");
     return "";
   }
-  const cfg = getProject(params[1]);
+  const cfg = getProject(projectDir);
   if (!cfg) {
-    vscode.window.showErrorMessage("No OpenEdge project found for launch configuration in " + params[1]);
-    return "";
+    const defaultRuntime = oeRuntimes.find(runtime => runtime.default);
+    if (!defaultRuntime)
+      vscode.window.showErrorMessage("No OpenEdge project found for launch configuration in " + projectDir);
+    return defaultRuntime ? defaultRuntime.path : "";
   }
 
   return cfg.dlc;
+}
+
+async function getPropath(params: any[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getPropath");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.propath && result.propath != "") {
+    if (process.platform === "win32")
+      return result.propath;
+    else
+      return result.propath.replace(",", ":");
+  } else {
+    return ""
+  }
+}
+
+async function getSourceDirs(params: string[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getSourceDirs");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.buildDirs && result.sourceDirs != "") {
+    return result.sourceDirs;
+  } else {
+    return ""
+  }
+}
+
+async function getBuildDirs(params: string[]): Promise<string | undefined> {
+  const projectDir = getDirectoryFromArgs(params);
+  if (projectDir === "") {
+    vscode.window.showErrorMessage("Invalid argument passed to getBuildDirs");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/projectInfo", { projectUri: vscode.Uri.file(projectDir).toString() }) as ProjectInfo;
+  if (result && result.buildDirs && result.buildDirs != "") {
+    return result.buildDirs;
+  } else {
+    return ""
+  }
+}
+
+async function getRelativePath(): Promise<string | undefined> {
+  if (vscode.window.activeTextEditor == undefined) {
+    vscode.window.showErrorMessage("getRelativePath error: no active buffer");
+    return undefined;
+  }
+
+  const result = await client.sendRequest("proparse/fileInfo", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }) as FileInfo;
+  if (result && result.relativePath && result.relativePath != "") {
+    return result.relativePath;
+  } else {
+    // Fall back to full path if file does not belong to any project
+    return vscode.window.activeTextEditor.document.fileName;
+  }
 }
 
 function setDefaultProject(): void {
@@ -210,22 +297,23 @@ function dumpLangServStatus(): void {
     client.sendNotification("proparse/dumpStatus", {});
 }
 
-function restartLangServer(): void {
+function restartLangServer(): Promise<void> {
     outputChannel.info("Received request to restart ABL Language Server");
-    client.stop(5000)
+    return client.stop(5000)
       .then(() => {
         outputChannel.info("ABL Language Server stopped");
         client = createLanguageClient();
         outputChannel.info("Starting new ABL Language Server");
-        client.start();
+        return client.start();
       })
       .catch(caught => {
         outputChannel.info("ABL Language Server didn't stop correctly: " + caught);
+        throw caught;
       });
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = Array.from(project.profiles.keys()).map(label => ({ label }));
+    const list = Array.from(project.profiles.keys()).map(key => ({ label: key == "default" && project.defaultProfileDisplayName ? project.defaultProfileDisplayName : key }));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
@@ -269,7 +357,7 @@ function compileBuffer() {
 }
 
 function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
-    client.sendRequest("proparse/compileBuffer", { projectUri: project.rootDir, bufferUri: bufferUri, buffer: buffer }).then(result => {
+    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
         if (!result)
             vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
     });
@@ -285,7 +373,7 @@ function debugListingLine() {
     }
 
     vscode.window.showInputBox({ title: "Enter debug listing line number:", prompt: "Go To Source Line" }).then(input => {
-        client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir, lineNumber: parseInt(input) });
+        client.sendNotification("proparse/showDebugListingLine", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), lineNumber: parseInt(input) });
     });
 }
 
@@ -298,7 +386,7 @@ function dumpFileStatus() {
         return;
     }
 
-    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendNotification("proparse/dumpFileStatus", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function preprocessFile() {
@@ -310,7 +398,7 @@ function preprocessFile() {
         return;
     }
 
-    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateListing() {
@@ -322,7 +410,7 @@ function generateListing() {
         return;
     }
 
-    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateDebugListing() {
@@ -334,7 +422,7 @@ function generateDebugListing() {
         return;
     }
 
-    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function generateXref() {
@@ -345,7 +433,7 @@ function generateXref() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function generateXmlXref() {
@@ -357,7 +445,7 @@ function generateXmlXref() {
         return;
     }
 
-    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
+    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
 }
 
 function fixUpperCasing() {
@@ -368,7 +456,7 @@ function fixUpperCasing() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: true, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function fixLowerCasing() {
@@ -380,7 +468,7 @@ function fixLowerCasing() {
         return;
     }
 
-    client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
 function generateCatalog() {
@@ -425,7 +513,7 @@ function switchProfileCmd() {
 
 function rebuildProject() {
     if (projects.length == 1) {
-        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].rootDir });
+        client.sendRequest("proparse/rebuildProject", { projectUri: projects[0].uri.toString() });
     } else {
         const list = projects.map(project => ({ label: project.name, description: project.rootDir }));
         list.sort((a, b) => a.label.localeCompare(b.label));
@@ -436,7 +524,7 @@ function rebuildProject() {
         quickPick.items = list;
         quickPick.onDidChangeSelection(args => {
             quickPick.hide();
-            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).rootDir });
+            client.sendRequest("proparse/rebuildProject", { projectUri: getProjectByName(args[0].label).uri.toString() });
         });
         quickPick.show();
     }
@@ -685,7 +773,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
 
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getPropath', getPropath));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getSourceDirs', getSourceDirs));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getBuildDirs', getBuildDirs));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.restart.langserv', restartLangServer));
@@ -714,8 +806,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     docNodeProvider.fetchData();
 }
 
-function readOEConfigFile(uri) {
-    outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
+function readOEConfigFile(uri : vscode.Uri) {
+    outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`)
     const config = loadConfigFile(uri.fsPath);
     if (config) {
         const prjConfig = parseOpenEdgeProjectConfig(uri, config);
@@ -753,8 +845,10 @@ function readWorkspaceOEConfigFiles() {
 
 function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig): OpenEdgeProjectConfig {
     const prjConfig = new OpenEdgeProjectConfig();
+    prjConfig.uri = vscode.Uri.parse(path.dirname(uri.path))
     prjConfig.name = config.name
     prjConfig.version = config.version
+    prjConfig.defaultProfileDisplayName = config.defaultProfileDisplayName
     prjConfig.rootDir = vscode.Uri.parse(path.dirname(uri.path)).fsPath + ( process.platform === 'win32' ? '\\' : '/' )
     prjConfig.dlc = getDlcDirectory(config.oeversion);
     prjConfig.extraParameters = config.extraParameters ? config.extraParameters : ""

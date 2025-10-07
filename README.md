@@ -154,8 +154,8 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
 }
 ```
 
-To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-classic-appserver-development-117/page/Attaching-the-Debugger-to-an-AppServer-session.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application server.
-When debugging a local procedure, VSCode will always start the AVM session with `-debugReady 9999`, so it won't be possible to start two debug sessions at the same time. This limitation will *probably* be lifted in the future. The debugger will also stop at the first instruction, which is always a VSCode-specific procedure. You can immediately type `F5` to jump to the first executable line of *your* procedure.
+To attach to a remote process, it needs to be [debug-ready](https://docs.progress.com/bundle/openedge-developer-studio-help/page/Attach-the-Debugger-to-an-external-AVM.html). The easiest way to achieve that is to add `-debugReady 3099` to the startup parameters (`.pf` file) of your application.
+When debugging a local procedure, the debugger will stop at the first instruction, which is always a VS Code specific procedure. You can use `F5` to jump to the first executable line of *your* procedure.
 
 ![Legacy Debugger Demo](resources/images/debugger01.webp)
 [Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger01.webp)
@@ -163,13 +163,9 @@ When debugging a local procedure, VSCode will always start the AVM session with 
 ![PASOE Debugger Demo](resources/images/debugger02.webp)
 [Full size image](https://raw.githubusercontent.com/vscode-abl/vscode-abl/main/resources/images/debugger02.webp)
 
-## Code Analysis in VSCode
+## ABL Code Analysis in VS Code
 
-[CABL](https://wiki.rssw.eu/cabl/Home.md) (Code analysis for ABL) is now available as a separate [VS Code extension](https://github.com/Riverside-Software/sonarlint-vscode/releases/latest). It is currently **not** available on the VS Code marketplace, the extension has to be downloaded from its GitHub repository, and installed with "Extensions: Install from VSIX..." command (type `Ctrl` + `Shift` + `P`, then `vsix`).
-
-SonarLint CABL requires Java 17 to be executed. If Java 17 is not available in your PATH, you can configure it in the VS Code settings:
-
-![SonarLint Settings](resources/images/cabl01.png)
+[CABL](https://wiki.rssw.eu/cabl/Home.md) (Code analysis for ABL) is now available as a separate [VS Code extension](https://github.com/Riverside-Software/sonarlint-vscode/releases/latest), and can be installed from the [marketplace](https://marketplace.visualstudio.com/items?itemName=RiversideSoftware.sonarlint-abl).
 
 Once configured and initialized, configure the connection to your SonarQube server. Open the "SonarLint CABL" view, and click on the "Add SonarQube Connection" button. Note that SonarCloud connection is not supported with ABL (and will never be supported).
 
@@ -209,6 +205,115 @@ Here are a few things to verify before opening [issues](https://github.com/vscod
 * Check the ABL Language Server output: open the Output view (Ctrl + Shift + U) then select ABL Language Server in the combo-box.
 * Include the grammar version number (shown in the ABL output tab) if your problem is related to syntax highlighting.
 * Accented characters in user home directory can lead to problems with the ABL extension (see #387)
+
+## Extension API Entrypoints
+
+This extension exposes several API entrypoints that can be used by other extensions or programmatically. These are returned by the `activate` function and can be accessed when the extension is active.
+
+### `getProjectInfo(uri: string)`
+**Description:** Retrieve detailed information about an ABL project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project
+
+**Output:** Returns a promise that resolves to an object containing project information such as:
+- Root directory
+- Source directories
+- Build directories
+- XREF directories
+- Schema cache location
+- Propath
+- Encoding
+- Catalog
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const projectInfo = await ablExtension.exports.getProjectInfo('file:///path/to/your/project');
+    console.log(projectInfo);
+}
+```
+
+### `getFileInfo(uri: string)`
+**Description:** Retrieve detailed information about an ABL file.
+
+**Input Parameters:**
+- `uri` (string): The URI of the file to analyze
+
+**Output:** Returns a promise that resolves to an object containing file information such as:
+- Project information
+- Source directory
+- Build directory
+- RCode location
+- XREF location
+- Relative path
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const fileInfo = await ablExtension.exports.getFileInfo('file:///path/to/your/file.p');
+    console.log(fileInfo);
+}
+```
+
+### `getSchema(uri: string)`
+**Description:** Retrieve the database schema information for a project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project to get schema information for
+
+**Output:** Returns a promise that resolves to an object containing:
+- Database schema definitions
+- Table structures
+- Field definitions
+- Index information
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const schema = await ablExtension.exports.getSchema('file:///path/to/project');
+    console.log(schema);
+}
+```
+
+### `status()`
+**Description:** Get the current status of the ABL Language Server.
+
+**Input Parameters:** None
+
+**Output:** Returns a promise that resolves to an object containing:
+- Language server status
+- Number of active projects
+- Compilation queue status
+- Background task information
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const status = await ablExtension.exports.status();
+    console.log(`Active projects: ${status.projects?.length || 0}`);
+}
+```
+
+### `restartLanguageServer()`
+**Description:** Restart the ABL Language Server process.
+
+**Input Parameters:** None
+
+**Output:** Returns a promise that resolves when the language server has been successfully restarted
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    await ablExtension.exports.restartLanguageServer();
+    console.log('Language server restarted');
+}
+```
 
 ## Greetings
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
