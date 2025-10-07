@@ -5,15 +5,18 @@
 * ✨ Fix `getDlcDirectory` command when called with multiple parameters (#353)
 * ✨ Show content of array variables in object instances (#372) 
 * ✨ Add `defaultProfileDisplayName` attribute (#368) 
-* ✨ Add status, getSchema and restartLanguageServer entrypoints
+* ✨ Add `status`, `projectInfo`, `getSchema` and `restartLanguageServer` entry points
 * ✨ Support for multiple projects in debugger (work in progress)
 * ✨ Add `abl.compileLog` setting
 * ✨ Add `abl.getRelativePath` command (can be used as the `-p` parameter in tasks)
-* 🐛 Include variables from parent scope when caret is in internal procedure / function (#357)
+* ✨ Add `abl.getPropath` command (comma-separated list on Windows, colon-separated string on Linux) (#290)
+* ✨ Add `abl.getSourceDirs` command (comma-separated list of relative directory names) (#290)
+* ✨ Add `abl.getBuildDirs` command (comma-separated list of absolute directory names) (#290)
+* 🐛 Include variables from parent scope when caret is in internal procedure/function (#357)
 * 🐛 Compiler error 196 not always shown (#381)
 * 🐛 Code completion when at the beginning of a statement always showed datatypes first
-* 🐛 Hover / outline / definition not always available immediately after opening file (#281)
-* 🐛 Fix multiple LS and OE issues with directory names having spaces, accents, ...
+* 🐛 Hover/outline/definition not always available immediately after opening file (#281)
+* 🐛 Fix multiple LS and OE issues with directory names having spaces, accents, etc.
 * ⬆️ TextMate Grammar 1.3.15
 * ⬆️ Java 21
 * ⬆️ CABL 3.4.0
