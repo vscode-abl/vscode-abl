@@ -12,6 +12,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from
 import { tmpdir } from 'os';
 import { outputChannel, lsOutputChannel } from './ablStatus';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { FileInfo } from './shared/FileInfo';
 
 let client: LanguageClient;
 
@@ -200,6 +201,21 @@ function getDlcDir(params: string[]): string {
   }
 
   return cfg.dlc;
+}
+
+async function getRelativePath(): Promise<string | undefined> {
+  if (vscode.window.activeTextEditor == undefined) {
+    vscode.window.showErrorMessage("getRelativePath error: no active buffer");
+    return undefined;
+  }
+  
+  const result = await client.sendRequest("proparse/fileInfo", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }) as FileInfo;
+  if (result && result.relativePath && result.relativePath != "") {
+    return result.relativePath;
+  } else {
+    // Fall back to full path if file does not belong to any project
+    return vscode.window.activeTextEditor.document.fileName;
+  }
 }
 
 function setDefaultProject(): void {
@@ -701,6 +717,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
 
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dumpLangServStatus', dumpLangServStatus));
