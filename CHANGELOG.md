@@ -2,7 +2,8 @@
 ======
 
 * ✨ Support for multiple projects in debugger (work in progress)
-* 🐛 Compiler messages at line 0 break error reporting
+* 🐛 Compiler messages at line 0 break error reporting (#399)
+* 🐛 Fix problem when starting sessions with -ininame parameter (#398)
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 
 1.22.0
