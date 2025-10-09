@@ -1,3 +1,10 @@
+1.22.1
+======
+
+* 🐛 Compiler messages at line 0 break error reporting (#399)
+* 🐛 Fix problem when starting sessions with -ininame parameter (#398)
+* ⬆️ ABL-LS 1.21.1
+
 1.22.0
 ======
 
