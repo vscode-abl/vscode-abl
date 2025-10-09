@@ -2,6 +2,7 @@
 ======
 
 * ✨ Support for multiple projects in debugger (work in progress)
+* 🐛 Compiler messages at line 0 break error reporting
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 
 1.22.0
