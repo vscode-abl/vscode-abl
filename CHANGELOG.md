@@ -1,6 +1,7 @@
 1.23.x
 ======
 
+* ✨ Improved support of hover and code completion on .Net classes (#389)
 * ✨ Support for multiple projects in debugger (work in progress)
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 
