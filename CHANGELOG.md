@@ -1,3 +1,9 @@
+1.22.2
+======
+
+* 🐛 Fix getFileInfo entry point (#397)
+* ⬆️ ABL-LS 1.21.1
+
 1.22.1
 ======
 
