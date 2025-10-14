@@ -3,6 +3,7 @@
 
 * ✨ Improved support of hover and code completion on .Net classes (#389)
 * ✨ Support for multiple projects in debugger (work in progress)
+* 🐛 Fix getFileInfo entry point (#397)
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 
 1.22.1
