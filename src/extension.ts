@@ -1,7 +1,7 @@
 import path = require('path');
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as crypto from 'crypto';
+import * as fs from 'node:fs';
+import * as crypto from 'node:crypto';
 import { openDataDictionary } from './ablDataDictionary';
 import { executeGenCatalog } from './assemblyCatalog';
 import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
@@ -79,6 +79,9 @@ export function activate(ctx: vscode.ExtensionContext) {
         },
         async getFileInfo(uri: string) {
             return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        },
+        async compile(uri: string) {
+            return await client.sendRequest("proparse/compileFile", { fileUri: uri });
         },
         async getSchema(uri: string) {
             return await client.sendRequest("proparse/schema", { projectUri: uri});
@@ -398,7 +401,14 @@ function preprocessFile() {
         return;
     }
 
-    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during preprocess: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateListing() {
@@ -410,7 +420,14 @@ function generateListing() {
         return;
     }
 
-    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during listing generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateDebugListing() {
@@ -422,7 +439,14 @@ function generateDebugListing() {
         return;
     }
 
-    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during debug listing generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateXref() {
@@ -433,7 +457,14 @@ function generateXref() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
+    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateXmlXref() {
@@ -445,7 +476,14 @@ function generateXmlXref() {
         return;
     }
 
-    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XML XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function fixUpperCasing() {

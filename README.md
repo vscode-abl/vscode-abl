@@ -258,6 +258,23 @@ if (ablExtension?.isActive) {
 }
 ```
 
+### `compile(uri: string)`
+**Description:** Retrieve detailed information about an ABL project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project
+
+**Output:** Returns a promise that resolves to an object containing compilation status (as a boolean)
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const status = await ablExtension.exports.compile('file:///path/to/your/file.p') as any;
+    console.log("Compilation status: " + status.success);
+}
+```
+
 ### `getSchema(uri: string)`
 **Description:** Retrieve the database schema information for a project.
 
