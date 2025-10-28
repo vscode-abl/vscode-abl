@@ -1,8 +1,10 @@
 1.23.x
 ======
 
-* ✨ Improved support of hover and code completion on .Net classes (#389)
-* ✨ Support for multiple projects in debugger (work in progress)
+* ✨ Improved support for hover and code completion for .NET classes (#389)
+* ✨ Support for APL files (#753)
+* ✨ Add `compile` entry point (#403)
+* ✨ Support for multiple projects in the debugger (work in progress)
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.16
 
