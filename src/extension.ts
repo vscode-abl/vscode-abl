@@ -366,6 +366,91 @@ function generateXmlXref() {
     client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString(), projectUri: cfg.rootDir })
 }
 
+function generateXrefAndJumpToCurrentLine() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    const currentEditor = vscode.window.activeTextEditor;
+    const currentLine = currentEditor.selection.active.line + 1; // Convert to 1-based line number
+    const currentFile = currentEditor.document.uri.fsPath;
+    
+    // Send notification to generate xref
+    client.sendNotification("proparse/xref", { fileUri: currentEditor.document.uri.toString(), projectUri: cfg.rootDir });
+    
+    // Wait for xref file to be created and then jump to line
+    waitForXrefAndJump(cfg.rootDir, currentFile, currentLine);
+}
+
+function waitForXrefAndJump(projectRoot: string, sourceFile: string, targetLine: number) {
+    const sourceFileName = path.basename(sourceFile, path.extname(sourceFile));
+    const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(async (document) => {
+        
+        const documentPath = document.document.uri.fsPath;
+        if (documentPath.endsWith('.xref') && documentPath.includes(sourceFileName)) {
+            vscode.window.showTextDocument(document.document).then(async editor => {
+                onDidChangeTextDocument.dispose();
+                clearTimeout(timeoutHandle);
+
+                const line = await jumpToLineInOpenXref(document.document, sourceFile, documentPath, targetLine);
+                const position = new vscode.Position(line, 0);
+                editor.selection = new vscode.Selection(position, position.with(line, 1000));
+                editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+            });
+        }
+    });
+    
+    // Set a timeout to clean up the listener if xref isn't opened within reasonable time
+    const timeoutHandle = setTimeout(() => {
+        onDidChangeTextDocument.dispose();
+        vscode.window.showErrorMessage("Timeout waiting for XREF file to be opened");
+    }, 1000);
+}
+
+async function jumpToLineInOpenXref(document: vscode.TextDocument, sourceFile: string, xrefFile: string, targetSourceLineNumber: number) {
+    // Parse the xref document content
+    const sourceBasename = path.basename(path.normalize(sourceFile));
+
+    // we actually "know" about the file path before it's even done being read
+    // we know they end in a newline, so try to use that to figure out if things are done
+    let xrefContent = '';        
+    for (let attempts = 0; attempts < 10; attempts++) {
+        xrefContent = fs.readFileSync(xrefFile, 'utf8');
+        if (xrefContent.at(-1) === "\n") {
+        break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    if (xrefContent.at(-1) !== "\n") {
+        vscode.window.showErrorMessage(`Failed to read complete XREF file after 10 attempts`);
+        return;
+    }
+    
+    let closestXrefLineNumber = -1;
+
+    const lines = xrefContent.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line === '') continue;
+        
+        // Parse xref line format: source_file reference_file line_number type ...
+        const parts = line.match(`${sourceBasename} (\\d+)`);
+        if (parts?.length === 2) {
+            const sourceLineNumber = parseInt(parts[1]);
+            if (sourceLineNumber > targetSourceLineNumber) {
+                break;
+            }
+            closestXrefLineNumber = i;
+        }
+    }
+    return closestXrefLineNumber;
+}
+
 function fixUpperCasing() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -703,6 +788,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXrefAndJumpToCurrentLine', generateXrefAndJumpToCurrentLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
