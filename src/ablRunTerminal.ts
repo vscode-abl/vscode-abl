@@ -37,18 +37,17 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
+    // prettier-ignore
     const cmd =
         currProfile.getTTYExecutable() +
         " " +
         currProfile.extraParameters
             .split(" ")
             .concat([
-                "-clientlog",
-                path.join(project.rootDir, ".builder", "runtty.log"),
-                "-p",
-                path.join(__dirname, "../resources/abl-src/dynrun.p"),
-                "-param",
-                prmFileName,
+                "-clientlog", path.join(project.rootDir, ".builder", "runtty.log"),
+                "-p", path.join(__dirname, "../resources/abl-src/dynrun.p"),
+                "-param", prmFileName,
+                "-T", path.join(project.rootDir, ".builder", "tmp")
             ])
             .join(" ");
     terminal.sendText(cmd.replace(/\\/g, "/"), true);
@@ -75,18 +74,17 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     };
     fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
+    // prettier-ignore
     create(
         currProfile.getTTYExecutable(),
         currProfile.extraParameters
             .split(" ")
             .concat([
                 "-b",
-                "-clientlog",
-                path.join(project.rootDir, ".builder", "runbatch.log"),
-                "-p",
-                path.join(__dirname, "../resources/abl-src/dynrun.p"),
-                "-param",
-                prmFileName,
+                "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"),
+                "-p", path.join(__dirname, "../resources/abl-src/dynrun.p"),
+                "-param", prmFileName,
+                "-T", path.join(project.rootDir, ".builder", "tmp")
             ]),
         { env: env, cwd: project.rootDir, detached: true },
         batchOutputChannel
