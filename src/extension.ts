@@ -914,6 +914,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
             if (profile.inherits && prjConfig.profiles.get(profile.inherits)) {
                 p.overwriteValues(prjConfig.profiles.get(profile.inherits));
             }
+            p.dlc = getDlcDirectory(p.oeversion);
             prjConfig.profiles.set(profile.name, p);
         });
     }
@@ -935,7 +936,6 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
 
 function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
     const retVal = new ProfileConfig();
-    retVal.dlc = getDlcDirectory(cfg.oeversion);
     retVal.extraParameters = cfg.extraParameters
     retVal.oeversion = cfg.oeversion;
     retVal.gui = cfg.graphicalMode;
