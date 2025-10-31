@@ -1,11 +1,13 @@
 1.23.x
 ======
 
+* 🐛 `compileBuffer` now return false if compilation failed
 * ✨ Improved support for hover and code completion for .NET classes (#389)
 * ✨ Support for APL files (#753)
 * ✨ Add `compile` entry point (#403)
 * ✨ Support for multiple projects in the debugger (work in progress)
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
+* ⬆️ CABL 3.5.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.16
 
 1.22.2 (October 14th, 2025)
