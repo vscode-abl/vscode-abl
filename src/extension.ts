@@ -360,9 +360,12 @@ function compileBuffer() {
 }
 
 function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
-    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
-        if (!result)
-            vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
+    client.sendRequest<any>("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
+      if (result.success === false) {
+        vscode.window.showErrorMessage("Compile buffer failed");
+      } else {
+        vscode.window.showInformationMessage("Syntax is correct");
+      }
     });
 }
 
