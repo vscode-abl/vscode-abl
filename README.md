@@ -22,7 +22,7 @@ This extension requires at least one OpenEdge installation with a developer lice
 OpenEdge runtimes have to be declared in the VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 
 ```jsonc
-    "abl.configuration.runtimes.default": "12.8", // Default ABL version
+    "abl.configuration.defaultRuntime": "12.8", // Default ABL version
     "abl.configuration.runtimes": [
         {
             "name": "12.8",

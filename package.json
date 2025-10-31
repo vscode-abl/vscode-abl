@@ -507,10 +507,6 @@
                                 "type": "string",
                                 "pattern": ".*(?<!\\/bin|\\/bin\\/|\\\\bin|\\\\bin\\\\)$",
                                 "description": "OpenEdge home directory.\n On Windows, backslashes must be escaped, i.e.\n\"path\":\"C:\\\\Progress\\\\OpenEdge-12.2\"."
-                            },
-                            "default": {
-                                "type": "boolean",
-                                "description": "deprecated: use 'abl.configuration.runtimes.default'"
                             }
                         },
                         "additionalProperties": false
