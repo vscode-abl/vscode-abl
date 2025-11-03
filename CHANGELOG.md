@@ -9,6 +9,7 @@
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 * ⬆️ CABL 3.5.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.16
+* ⬆️ Java 21.0.9+10
 
 1.22.2 (October 14th, 2025)
 ===========================
