@@ -2,6 +2,7 @@
 ======
 
 * 🐛 `compileBuffer` now return false if compilation failed
+* 🐛 Fix code completion issue #407
 * ✨ Improved support for hover and code completion for .NET classes (#389)
 * ✨ Support for APL files (#753)
 * ✨ Add `compile` entry point (#403)
