@@ -1,18 +1,18 @@
 import path = require('path');
-import * as vscode from 'vscode';
-import * as fs from 'node:fs';
-import * as crypto from 'node:crypto';
-import { openDataDictionary } from './ablDataDictionary';
-import { executeGenCatalog } from './assemblyCatalog';
-import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
-import { runTTY, runBatch } from './ablRunTerminal';
-import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
-import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
-import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { tmpdir } from 'os';
-import { outputChannel, lsOutputChannel } from './ablStatus';
+import * as vscode from 'vscode';
+import { Executable, LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
+import { openDataDictionary } from './ablDataDictionary';
+import { runBatch, runTTY } from './ablRunTerminal';
+import { lsOutputChannel, outputChannel } from './ablStatus';
+import { executeGenCatalog } from './assemblyCatalog';
+import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
+import { loadConfigFile, OpenEdgeConfig, OpenEdgeMainConfig, OpenEdgeProjectConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 
 let client: LanguageClient;
 
@@ -470,6 +470,79 @@ function generateXref() {
     })
 }
 
+function generateXrefAndJumpToCurrentLine() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    const currentEditor = vscode.window.activeTextEditor;
+    const currentLine = currentEditor.selection.active.line + 1; // Convert to 1-based line number
+    const currentFile = currentEditor.document.uri.fsPath;
+    
+    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName)).then(async editor => {
+            const result = await jumpToLineInOpenXref(currentFile, anyValue.fileName, currentLine);
+            if (result === null) {
+                vscode.window.showWarningMessage("XREF line mapping failed");
+                return;
+            }
+            const startPosition = new vscode.Position(result.start, 0);
+            const endPosition = new vscode.Position(result.start + result.count - 1, 1000);
+            editor.selection = new vscode.Selection(startPosition, endPosition);
+            editor.revealRange(new vscode.Range(startPosition, endPosition), vscode.TextEditorRevealType.InCenter);
+        });
+      }
+    });
+}
+
+async function jumpToLineInOpenXref(sourceFile: string, xrefFile: string, targetSourceLineNumber: number): Promise<{ start: number; count: number } | null> {
+    const sourceBasename = path.basename(path.normalize(sourceFile));
+    const xrefContent = fs.readFileSync(xrefFile, 'utf8');
+
+    if (xrefContent.at(-1) !== "\n") {
+        return null;
+    }
+    
+    let closestXrefLineNumber = -1;
+    let lastSeenSourceLineNumber = -1;
+    let matchCount = 1;
+    const lines = xrefContent.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line === '') continue;
+
+        // only consider xref entries for the source file, not eg includes
+        const parts = line.match(`${sourceBasename} (\\d+)`);
+        if (parts?.length === 2) {
+            const sourceLineNumber = parseInt(parts[1]);
+            if (sourceLineNumber > targetSourceLineNumber) {
+                break;
+            }
+
+            if (lastSeenSourceLineNumber === sourceLineNumber) {
+                matchCount++;
+            } else {
+                lastSeenSourceLineNumber = sourceLineNumber;
+                closestXrefLineNumber = i;
+                matchCount = 1;
+            }
+        }
+    }
+
+    if (closestXrefLineNumber === -1) {
+        return null;
+    }
+    return {start: closestXrefLineNumber, count: matchCount};
+}
+
 function generateXmlXref() {
     if (vscode.window.activeTextEditor == undefined)
         return;
@@ -830,6 +903,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXrefAndJumpToCurrentLine', generateXrefAndJumpToCurrentLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));

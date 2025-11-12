@@ -189,6 +189,11 @@
                 "description": "Generate XML-XREF of current file"
             },
             {
+                "command": "abl.generateXrefAndJumpToCurrentLine",
+                "title": "ABL: Generate XREF and jump to current source line",
+                "description": "Generate XREF of current file and jump to the current line in the XREF output"
+            },
+            {
                 "command": "abl.catalog",
                 "title": "ABL: Generate Assembly Catalog",
                 "description": "Generate Assembly Catalog"
