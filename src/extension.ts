@@ -489,7 +489,7 @@ function generateXrefAndJumpToCurrentLine() {
         vscode.window.showErrorMessage("Error during XREF generation: " + anyValue.message);
       } else {
         vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName)).then(async editor => {
-            const result = await jumpToLineInOpenXref(currentFile, anyValue.fileName, currentLine);
+            const result = await getXrefLineSelectionForSourceLine(currentFile, anyValue.fileName, currentLine);
             if (result === null) {
                 vscode.window.showWarningMessage("XREF line mapping failed");
                 return;
@@ -503,7 +503,7 @@ function generateXrefAndJumpToCurrentLine() {
     });
 }
 
-async function jumpToLineInOpenXref(sourceFile: string, xrefFile: string, targetSourceLineNumber: number): Promise<{ start: number; count: number } | null> {
+async function getXrefLineSelectionForSourceLine(sourceFile: string, xrefFile: string, targetSourceLineNumber: number): Promise<{ start: number; count: number } | null> {
     const sourceBasename = path.basename(path.normalize(sourceFile));
     const xrefContent = fs.readFileSync(xrefFile, 'utf8');
 
