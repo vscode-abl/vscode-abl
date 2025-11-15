@@ -316,7 +316,7 @@ function restartLangServer(): Promise<void> {
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = Array.from(project.profiles.keys()).map(key => ({ label: key == "default" && project.defaultProfileDisplayName ? project.defaultProfileDisplayName : key }));
+    const list = Array.from(project.profiles.keys()).map(key => ({ label: key, description: key == "default" && project.defaultProfileDisplayName ? project.defaultProfileDisplayName : "" }));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
