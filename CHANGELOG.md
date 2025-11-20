@@ -2,7 +2,11 @@
 ======
 
 * 🐛 `compileBuffer` now return false if compilation failed
-* 🐛 Fix code completion issue #407
+* 🐛 Fix code completion issue #407, #415
+* 🐛 Fix show debug listing line when rcode not present (#392)
+* 🐛 Fix bug in SourceWatcher on excluded files
+* 🐛 NPE when starting debugger if oeversion attribute is not specified
+* 🐛 Fix NPE on unnamed buffers (#424)
 * ✨ Improved support for hover and code completion for .NET classes (#389)
 * ✨ Support for APL files (#753)
 * ✨ Add `compile` entry point (#403)
