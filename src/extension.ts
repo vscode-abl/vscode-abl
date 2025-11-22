@@ -602,7 +602,11 @@ function openInAppbuilder() {
     }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
-    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+
+    const closeEditor = vscode.workspace.getConfiguration('abl').get('closeEditorAfterOpenExternal', true);
+    if (closeEditor) {
+        vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
 }
 
 function openInProcedureEditor() {
@@ -617,7 +621,11 @@ function openInProcedureEditor() {
     }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInProcEditor(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
-    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+
+    const closeEditor = vscode.workspace.getConfiguration('abl').get('closeEditorAfterOpenExternal', true);
+    if (closeEditor) {
+        vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
 }
 
 function runCurrentFile() {

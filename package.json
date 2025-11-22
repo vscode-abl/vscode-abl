@@ -407,6 +407,11 @@
                     "default": true,
                     "description": "If true, use the same shortcuts as the Progress Procedure Editor (F2, Shift+F2, ...)"
                 },
+                "abl.closeEditorAfterOpenExternal": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Close the active editor after opening the file in AppBuilder or Procedure Editor. When true, saving the file in the external editor will not trigger compilation by the language server."
+                },
                 "abl.langServerDebug": {
                     "type": "boolean",
                     "default": false,
