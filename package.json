@@ -165,8 +165,8 @@
             },
             {
                 "command": "abl.compileBuffer",
-                "title": "ABL: Compile current buffer",
-                "description": "Compile current buffer"
+                "title": "ABL: Syntax check active editor",
+                "description": "Syntax check active editor"
             },
             {
                 "command": "abl.generateListing",
