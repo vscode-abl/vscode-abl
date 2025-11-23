@@ -402,6 +402,19 @@
                     "default": false,
                     "description": "Use uppercase keywords for code completion"
                 },
+                "abl.methodSignature.perspective": {
+                    "type": "string",
+                    "enum": [
+                        "chronological",
+                        "reverse"
+                    ],
+                    "default": "chronological",
+                    "enumDescriptions": [
+                        "Chronological perspective (input ↓, output ↑)",
+                        "Reverse perspective (input ↑, output ↓)"
+                    ],
+                    "description": "Perspective for parameter flow arrows in method signatures"
+                },
                 "abl.useProcedureEditorKeyBindings": {
                     "type": "boolean",
                     "default": true,
