@@ -22,7 +22,7 @@ This extension requires at least one OpenEdge installation with a developer lice
 OpenEdge runtimes have to be declared in the VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
 
 ```jsonc
-    "abl.configuration.runtimes.default": "12.8", // Default ABL version
+    "abl.configuration.defaultRuntime": "12.8", // Default ABL version
     "abl.configuration.runtimes": [
         {
             "name": "12.8",
@@ -255,6 +255,23 @@ const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-
 if (ablExtension?.isActive) {
     const fileInfo = await ablExtension.exports.getFileInfo('file:///path/to/your/file.p');
     console.log(fileInfo);
+}
+```
+
+### `compile(uri: string)`
+**Description:** Retrieve detailed information about an ABL project.
+
+**Input Parameters:**
+- `uri` (string): The URI of the project
+
+**Output:** Returns a promise that resolves to an object containing compilation status (as a boolean)
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    const status = await ablExtension.exports.compile('file:///path/to/your/file.p') as any;
+    console.log("Compilation status: " + status.success);
 }
 ```
 

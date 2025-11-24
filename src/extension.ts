@@ -1,18 +1,18 @@
 import path = require('path');
-import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as crypto from 'crypto';
-import { openDataDictionary } from './ablDataDictionary';
-import { executeGenCatalog } from './assemblyCatalog';
-import { runGUI, openInAB, openInProcEditor } from './shared/ablRun';
-import { runTTY, runBatch } from './ablRunTerminal';
-import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
-import { loadConfigFile, OpenEdgeProjectConfig, OpenEdgeConfig, OpenEdgeMainConfig, ProfileConfig } from './shared/openEdgeConfigFile';
-import { LanguageClient, LanguageClientOptions, ServerOptions, Executable } from 'vscode-languageclient/node';
+import * as fs from 'fs';
 import { tmpdir } from 'os';
-import { outputChannel, lsOutputChannel } from './ablStatus';
+import * as vscode from 'vscode';
+import { Executable, LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
+import { openDataDictionary } from './ablDataDictionary';
+import { runBatch, runTTY } from './ablRunTerminal';
+import { lsOutputChannel, outputChannel } from './ablStatus';
+import { executeGenCatalog } from './assemblyCatalog';
+import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
+import { loadConfigFile, OpenEdgeConfig, OpenEdgeMainConfig, OpenEdgeProjectConfig, ProfileConfig } from './shared/openEdgeConfigFile';
 
 let client: LanguageClient;
 
@@ -79,6 +79,9 @@ export function activate(ctx: vscode.ExtensionContext) {
         },
         async getFileInfo(uri: string) {
             return await client.sendRequest("proparse/fileInfo", { fileUri: uri });
+        },
+        async compile(uri: string) {
+            return await client.sendRequest("proparse/compileFile", { fileUri: uri });
         },
         async getSchema(uri: string) {
             return await client.sendRequest("proparse/schema", { projectUri: uri});
@@ -313,7 +316,7 @@ function restartLangServer(): Promise<void> {
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
-    const list = Array.from(project.profiles.keys()).map(key => ({ label: key == "default" && project.defaultProfileDisplayName ? project.defaultProfileDisplayName : key }));
+    const list = Array.from(project.profiles.keys()).map(key => ({ label: key, description: key == "default" && project.defaultProfileDisplayName ? project.defaultProfileDisplayName : "" }));
     const quickPick = vscode.window.createQuickPick();
     quickPick.canSelectMany = false;
     quickPick.title = "Switch project to profile:";
@@ -357,9 +360,12 @@ function compileBuffer() {
 }
 
 function compileBufferInProject(project: OpenEdgeProjectConfig, bufferUri: string, buffer: string) {
-    client.sendRequest("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
-        if (!result)
-            vscode.window.showErrorMessage("Unable to compile buffer, check language server log");
+    client.sendRequest<any>("proparse/compileBuffer", { projectUri: project.uri.toString(), bufferUri: bufferUri, buffer: buffer }).then(result => {
+      if (result.success === false) {
+        vscode.window.showErrorMessage("Compile buffer failed");
+      } else {
+        vscode.window.showInformationMessage("Syntax is correct");
+      }
     });
 }
 
@@ -398,7 +404,14 @@ function preprocessFile() {
         return;
     }
 
-    client.sendNotification("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/preprocess", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during preprocess: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateListing() {
@@ -410,7 +423,14 @@ function generateListing() {
         return;
     }
 
-    client.sendNotification("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/listing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during listing generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateDebugListing() {
@@ -422,7 +442,14 @@ function generateDebugListing() {
         return;
     }
 
-    client.sendNotification("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/debugListing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during debug listing generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function generateXref() {
@@ -433,7 +460,87 @@ function generateXref() {
         vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
         return;
     }
-    client.sendNotification("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
+    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
+}
+
+function generateXrefAndJumpToCurrentLine() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    const currentEditor = vscode.window.activeTextEditor;
+    const currentLine = currentEditor.selection.active.line + 1; // Convert to 1-based line number
+    const currentFile = currentEditor.document.uri.fsPath;
+    
+    client.sendRequest("proparse/xref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName)).then(async editor => {
+            const result = await getXrefLineSelectionForSourceLine(currentFile, anyValue.fileName, currentLine);
+            if (result === null) {
+                vscode.window.showWarningMessage("XREF line mapping failed");
+                return;
+            }
+            const startPosition = new vscode.Position(result.start, 0);
+            const endPosition = new vscode.Position(result.start + result.count - 1, 1000);
+            editor.selection = new vscode.Selection(startPosition, endPosition);
+            editor.revealRange(new vscode.Range(startPosition, endPosition), vscode.TextEditorRevealType.InCenter);
+        });
+      }
+    });
+}
+
+async function getXrefLineSelectionForSourceLine(sourceFile: string, xrefFile: string, targetSourceLineNumber: number): Promise<{ start: number; count: number } | null> {
+    const sourceBasename = path.basename(path.normalize(sourceFile));
+    const xrefContent = fs.readFileSync(xrefFile, 'utf8');
+
+    if (xrefContent.at(-1) !== "\n") {
+        return null;
+    }
+    
+    let closestXrefLineNumber = -1;
+    let lastSeenSourceLineNumber = -1;
+    let matchCount = 1;
+    const lines = xrefContent.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line === '') continue;
+
+        // only consider xref entries for the source file, not eg includes
+        const parts = line.match(`${sourceBasename} (\\d+)`);
+        if (parts?.length === 2) {
+            const sourceLineNumber = parseInt(parts[1]);
+            if (sourceLineNumber > targetSourceLineNumber) {
+                break;
+            }
+
+            if (lastSeenSourceLineNumber === sourceLineNumber) {
+                matchCount++;
+            } else {
+                lastSeenSourceLineNumber = sourceLineNumber;
+                closestXrefLineNumber = i;
+                matchCount = 1;
+            }
+        }
+    }
+
+    if (closestXrefLineNumber === -1) {
+        return null;
+    }
+    return {start: closestXrefLineNumber, count: matchCount};
 }
 
 function generateXmlXref() {
@@ -445,7 +552,14 @@ function generateXmlXref() {
         return;
     }
 
-    client.sendNotification("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() })
+    client.sendRequest("proparse/xmlXref", { fileUri: vscode.window.activeTextEditor.document.uri.toString() }).then(result => {
+      const anyValue = result as any;
+      if (anyValue.fileName === "") {
+        vscode.window.showErrorMessage("Error during XML XREF generation: " + anyValue.message);
+      } else {
+        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      }
+    })
 }
 
 function fixUpperCasing() {
@@ -561,7 +675,11 @@ function openInAppbuilder() {
     }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInAB(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
-    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+
+    const closeEditor = vscode.workspace.getConfiguration('abl').get('closeEditorAfterOpenExternal', true);
+    if (closeEditor) {
+        vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
 }
 
 function openInProcedureEditor() {
@@ -576,7 +694,11 @@ function openInProcedureEditor() {
     }
     const cfg2 = cfg.profiles.get(cfg.activeProfile);
     openInProcEditor(vscode.window.activeTextEditor.document.uri.fsPath, cfg.rootDir, cfg2);
-    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+
+    const closeEditor = vscode.workspace.getConfiguration('abl').get('closeEditorAfterOpenExternal', true);
+    if (closeEditor) {
+        vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
 }
 
 function runCurrentFile() {
@@ -789,6 +911,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateDebugListing', generateDebugListing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXref', generateXref));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.generateXrefAndJumpToCurrentLine', generateXrefAndJumpToCurrentLine));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
@@ -873,6 +996,7 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
             if (profile.inherits && prjConfig.profiles.get(profile.inherits)) {
                 p.overwriteValues(prjConfig.profiles.get(profile.inherits));
             }
+            p.dlc = getDlcDirectory(p.oeversion);
             prjConfig.profiles.set(profile.name, p);
         });
     }
@@ -894,7 +1018,6 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
 
 function parseOpenEdgeConfig(cfg: OpenEdgeConfig): ProfileConfig {
     const retVal = new ProfileConfig();
-    retVal.dlc = getDlcDirectory(cfg.oeversion);
     retVal.extraParameters = cfg.extraParameters
     retVal.oeversion = cfg.oeversion;
     retVal.gui = cfg.graphicalMode;

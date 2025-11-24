@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.22.2",
+    "version": "1.23.12",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -165,8 +165,8 @@
             },
             {
                 "command": "abl.compileBuffer",
-                "title": "ABL: Compile current buffer",
-                "description": "Compile current buffer"
+                "title": "ABL: Syntax check active editor",
+                "description": "Syntax check active editor"
             },
             {
                 "command": "abl.generateListing",
@@ -187,6 +187,11 @@
                 "command": "abl.generateXmlXref",
                 "title": "ABL: Generate XML-XREF",
                 "description": "Generate XML-XREF of current file"
+            },
+            {
+                "command": "abl.generateXrefAndJumpToCurrentLine",
+                "title": "ABL: Generate XREF and jump to current source line",
+                "description": "Generate XREF of current file and jump to the current line in the XREF output"
             },
             {
                 "command": "abl.catalog",
@@ -402,10 +407,28 @@
                     "default": false,
                     "description": "Use uppercase keywords for code completion"
                 },
+                "abl.methodSignature.perspective": {
+                    "type": "string",
+                    "enum": [
+                        "chronological",
+                        "reverse"
+                    ],
+                    "default": "chronological",
+                    "enumDescriptions": [
+                        "Chronological perspective (input ↓, output ↑)",
+                        "Reverse perspective (input ↑, output ↓)"
+                    ],
+                    "description": "Perspective for parameter flow arrows in method signatures"
+                },
                 "abl.useProcedureEditorKeyBindings": {
                     "type": "boolean",
                     "default": true,
                     "description": "If true, use the same shortcuts as the Progress Procedure Editor (F2, Shift+F2, ...)"
+                },
+                "abl.closeEditorAfterOpenExternal": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Close the active editor after opening the file in AppBuilder or Procedure Editor. When true, saving the file in the external editor will not trigger compilation by the language server."
                 },
                 "abl.langServerDebug": {
                     "type": "boolean",
@@ -499,6 +522,7 @@
                                     "12.6",
                                     "12.7",
                                     "12.8",
+                                    "13.0",
                                     "ESAP"
                                 ],
                                 "description": "OpenEdge Execution Environment name. Must be unique."
@@ -507,10 +531,6 @@
                                 "type": "string",
                                 "pattern": ".*(?<!\\/bin|\\/bin\\/|\\\\bin|\\\\bin\\\\)$",
                                 "description": "OpenEdge home directory.\n On Windows, backslashes must be escaped, i.e.\n\"path\":\"C:\\\\Progress\\\\OpenEdge-12.2\"."
-                            },
-                            "default": {
-                                "type": "boolean",
-                                "description": "deprecated: use 'abl.configuration.runtimes.default'"
                             }
                         },
                         "additionalProperties": false
@@ -584,7 +604,7 @@
         "@vscode/debugadapter": "^1.65.0",
         "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
-        "abl-tmlanguage": "^1.3.15",
+        "abl-tmlanguage": "^1.3.16",
         "jsonminify": "^0.4.1",
         "node-fetch": "2.7.0",
         "openedge-abl-lsp": "file:",
