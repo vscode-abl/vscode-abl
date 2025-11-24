@@ -11,6 +11,9 @@
 * ✨ Support for APL files (#753)
 * ✨ Add `compile` entry point (#403)
 * ✨ Support for multiple projects in the debugger (work in progress)
+* ✨ Add `abl.closeEditorAfterOpenExternal` (#339) and `abl.methodSignature.perspective` properties
+* ✨ Generate XREF and jump to current source line action (#421) (by Matthew Marcus)
+* 🔨 Compile with Node 24
 * ⬆️ ABL-LS 1.22.0-SNAPSHOT
 * ⬆️ CABL 3.5.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.16
