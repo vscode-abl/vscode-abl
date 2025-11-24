@@ -30,11 +30,57 @@ pipeline {
       }
     }
 
-    stage('Build') { 
+    stage('👷 Build') { 
       agent {
         docker {
           image 'node:20'
-          args "-v ${tool name: 'SQScanner4', type: 'hudson.plugins.sonar.SonarRunnerInstallation'}:/scanner -e HOME=."
+          args "-e HOME=."
+          reuseNode true
+        }
+      }
+      steps {
+        script {
+          sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && npm run grammar-version'
+          if ("develop" == env.BRANCH_NAME) {
+            sh 'npx @vscode/vsce package --pre-release'
+            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
+            sh 'npx @vscode/vsce package --pre-release --target win32-x64'
+            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
+            sh 'npx @vscode/vsce package --pre-release --target linux-x64'
+          } else {
+            sh 'npx @vscode/vsce package'
+            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
+            sh 'npx @vscode/vsce package --target win32-x64'
+            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
+            sh 'npx @vscode/vsce package --target linux-x64'
+          }
+          archiveArtifacts artifacts: '*.vsix'
+        }
+      }
+    }           
+
+    stage('🔍 Sonar') { 
+      agent {
+        docker {
+          image 'sonarsource/sonar-scanner-cli:11.5.0.2154_7.3.0'
+          args "-e SONAR_USER_HOME=/tmp"
+          reuseNode true
+        }
+      }
+      steps {
+        script {
+          withSonarQubeEnv('RSSW') {
+            sh "sonar-scanner"
+          }
+        }
+      }
+    }
+
+    stage('📦 Publish') { 
+      agent {
+        docker {
+          image 'node:20'
+          args "-e HOME=."
           reuseNode true
         }
       }
@@ -45,23 +91,6 @@ pipeline {
       }
       steps {
         script {
-          withSonarQubeEnv('RSSW2') {
-            sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && npm run grammar-version'
-            if ("develop" == env.BRANCH_NAME) {
-              sh 'npx @vscode/vsce package --pre-release'
-              sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
-              sh 'npx @vscode/vsce package --pre-release --target win32-x64'
-              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
-              sh 'npx @vscode/vsce package --pre-release --target linux-x64'
-            } else {
-              sh 'npx @vscode/vsce package'
-              sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
-              sh 'npx @vscode/vsce package --target win32-x64'
-              sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
-              sh 'npx @vscode/vsce package --target linux-x64'
-            }
-          }
-          archiveArtifacts artifacts: '*.vsix'
           if ("develop" == env.BRANCH_NAME) {
             withSecrets() {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
@@ -76,7 +105,7 @@ pipeline {
           }
         }
       }
-    }           
+    }
   }
 
   post {
