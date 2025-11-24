@@ -1,5 +1,5 @@
-1.23.x
-======
+1.24.0 (November 24th, 2025)
+============================
 
 * 🐛 `compileBuffer` now return false if compilation failed
 * 🐛 Fix code completion issue #407, #415
@@ -14,8 +14,8 @@
 * ✨ Add `abl.closeEditorAfterOpenExternal` (#339) and `abl.methodSignature.perspective` properties
 * ✨ Generate XREF and jump to current source line action (#421) (by Matthew Marcus)
 * 🔨 Compile with Node 24
-* ⬆️ ABL-LS 1.22.0-SNAPSHOT
-* ⬆️ CABL 3.5.0-SNAPSHOT
+* ⬆️ ABL-LS 1.22.0
+* ⬆️ CABL 3.5.0
 * ⬆️ TextMate Grammar 1.3.16
 * ⬆️ Java 21.0.9+10
 
