@@ -33,7 +33,7 @@ pipeline {
     stage('👷 Build') { 
       agent {
         docker {
-          image 'node:20'
+          image 'node:24'
           args "-e HOME=."
           reuseNode true
         }
@@ -79,7 +79,7 @@ pipeline {
     stage('📦 Publish') { 
       agent {
         docker {
-          image 'node:20'
+          image 'node:24'
           args "-e HOME=."
           reuseNode true
         }
