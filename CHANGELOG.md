@@ -1,3 +1,8 @@
+1.24.1 (November 28th, 2025)
+============================
+
+* ✨ Removed support for multiple projects in the debugger (unstable)
+
 1.24.0 (November 24th, 2025)
 ============================
 
