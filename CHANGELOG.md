@@ -1,6 +1,9 @@
 1.25.x
 ======
 
+* 🐛 Fix excessive memory consumption when new code created in source directories while language server is online
+* ✨ Builtin classes attributes and method signatures now depend on the OE version used in the project (11.7, 12.2, 12.8 and 13.0)
+* ✨ Hover on system handles, code completion coming soon
 * ⬆️ ABL-LS 1.23.0-SNAPSHOT
 
 1.24.1 (November 28th, 2025)
