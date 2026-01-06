@@ -2,10 +2,13 @@
 ======
 
 * 🐛 Fix excessive memory consumption when new code is created in source directories while language server is online
+* 🐛 Fix hover and code completion on variables using generics
 * ✨ Builtin classes attributes and method signatures now depend on the OE version used in the project (11.7, 12.2, 12.8 and 13.0)
 * ✨ Builtin classes documentation per OE version in hover and code completion
 * ✨ Hover and code completion on system handles
+* ✨ Hover and code completion on `Progress.Collections.*` classes
 * ✨ Hover on builtin functions
+* ✨ Add `runGUI` and `runTTY` API entrypoints
 * ⬆️ ABL-LS 1.23.0-SNAPSHOT
 * ⬆️ CABL 3.6.0-SNAPSHOT
 
