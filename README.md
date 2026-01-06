@@ -332,6 +332,23 @@ if (ablExtension?.isActive) {
 }
 ```
 
+### `runGUI(projectPath: string, procedure: string)` and `runTTY(projectPath: string, procedure: string)`
+**Description:** Execute procedure with `prowin -p` .
+
+**Input Parameters:**
+- `projectPath` (string): the filesystem path of the project
+- `procedure` (string): procedure to be executed
+
+**Output:** None
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    ablExtension.exports.runGUI('C:\\Projects\\Project1', 'foo/bar/test.p');
+}
+```
+
 ## Greetings
 Initial plugin development done by [chriscamicas](https://github.com/chriscamicas). In turn, largely inspired by ZaphyrVonGenevese work (https://github.com/ZaphyrVonGenevese/vscode-abl).
 Also inspired by vscode-go and vscode-rust extensions.

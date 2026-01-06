@@ -91,6 +91,22 @@ export function activate(ctx: vscode.ExtensionContext) {
         },
         async restartLanguageServer() {
           return await restartLangServer();
+        },
+        runGUI(projectPath: string, procedure: string) {
+          const cfg = getProject(projectPath);
+          if (!cfg) {
+            vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+            return;
+          }
+          runGUI(procedure, cfg);
+        },
+        runTTY(projectPath: string, procedure: string) {
+          const cfg = getProject(projectPath);
+          if (!cfg) {
+            vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+            return;
+          }
+          runTTY(procedure, cfg);
         }
     };
 }
