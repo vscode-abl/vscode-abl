@@ -1003,11 +1003,16 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
 
     // Active profile
     if (fs.existsSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"))) {
-        const txt = JSON.parse(fs.readFileSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"), { encoding: 'utf8' }));
-        const actProf = txt['profile'];
-        if (prjConfig.profiles.has(actProf)) {
-            prjConfig.activeProfile = actProf;
-        } else {
+        try {
+            const txt = JSON.parse(fs.readFileSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"), { encoding: 'utf8' }));
+            const actProf = txt['profile'];
+            if (prjConfig.profiles.has(actProf)) {
+                prjConfig.activeProfile = actProf;
+            } else {
+                prjConfig.activeProfile = "default";
+            }
+        } catch (error) {
+            console.error('Error parsing profile.json:', error);
             prjConfig.activeProfile = "default";
         }
     } else {
