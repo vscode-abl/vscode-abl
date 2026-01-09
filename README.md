@@ -65,6 +65,12 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" },
     { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl", "documentation": "openedge.json" }
   ],
+  "dependencies": [
+    // Enable this section only if you have a working Nexus repository
+    // See discussion https://github.com/orgs/vscode-abl/discussions/432
+    // { "groupId": "com.progress.openedge",  "artifactId": "net", "version" : "12.8.9", "extension": "pl" },
+    // { "groupId": "com.progress.openedge", "artifactId": "core", "version" : "12.8.9", "extension": "apl" }
+  ],
   "buildDirectory": "build", // Optional global build directory
   "dbConnections": [ // Unlimited number of connections - Beware of -h
     {
