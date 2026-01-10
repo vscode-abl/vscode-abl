@@ -224,6 +224,11 @@
                 "shortTitle": "12.8",
                 "title": "Switch to 12.8 documentation",
                 "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "classBrowser.refresh",
+                "title": "Refresh Class Browser",
+                "icon": "$(refresh)"
             }
         ],
         "breakpoints": [
@@ -557,6 +562,11 @@
                     "command": "oeDoc.switchTo128",
                     "when": "view == openEdgeDocumentation",
                     "group": "navigation"
+                },
+                {
+                    "command": "classBrowser.refresh",
+                    "when": "view == classBrowser",
+                    "group": "navigation"
                 }
             ]
         },
@@ -597,6 +607,10 @@
                 {
                     "id": "openEdgeDocumentation",
                     "name": "OpenEdge Documentation"
+                },
+                {
+                    "id": "classBrowser",
+                    "name": "Class Browser"
                 }
             ]
         }

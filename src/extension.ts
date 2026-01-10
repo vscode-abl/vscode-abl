@@ -10,6 +10,7 @@ import { lsOutputChannel, outputChannel } from './ablStatus';
 import { executeGenCatalog } from './assemblyCatalog';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { ClassBrowserProvider } from './ClassBrowser';
 import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
 import { loadConfigFile, OpenEdgeConfig, OpenEdgeMainConfig, OpenEdgeProjectConfig, ProfileConfig } from './shared/openEdgeConfigFile';
@@ -18,6 +19,7 @@ let client: LanguageClient;
 
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 const docNodeProvider = new DocumentationNodeProvider();
+let classBrowserProvider: ClassBrowserProvider;
 let oeRuntimes: Array<any>;
 let langServDebug: boolean;
 let defaultProjectName: string;
@@ -202,6 +204,12 @@ function switchDocTo122(): void {
 function switchDocTo128(): void {
   docNodeProvider.updateMode(3);
   docNodeProvider.refresh();
+}
+
+function refreshClassBrowser(): void {
+  if (classBrowserProvider) {
+    classBrowserProvider.refresh();
+  }
 }
 
 // Note: when called from a task, it looks like all task parameters are passed to the function as an array
@@ -910,6 +918,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
+    ctx.subscriptions.push(vscode.commands.registerCommand('classBrowser.refresh', refreshClassBrowser));
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
@@ -943,6 +952,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     vscode.window.registerTreeDataProvider('openEdgeDocumentation', docNodeProvider);
     docNodeProvider.fetchData();
+
+    // Register Class Browser
+    classBrowserProvider = new ClassBrowserProvider(client, projects);
+    vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 }
 
 function readOEConfigFile(uri : vscode.Uri) {
