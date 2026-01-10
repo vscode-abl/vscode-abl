@@ -1,7 +1,7 @@
 {
   "name": "project1",
   "version": "1.0",
-  "oeversion": "12.2",
+  "oeversion": "12.8",
   // Single line comment
   "charset": "utf-8",
   "graphicalMode": true,
