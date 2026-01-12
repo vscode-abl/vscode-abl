@@ -609,6 +609,18 @@ function fixLowerCasing() {
     client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
+function organizeUsings() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    client.sendRequest("proparse/organizeUsing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
+}
+
 function generateCatalog() {
     if (projects.length == 1) {
         executeGenCatalog(projects[0]);
@@ -940,6 +952,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.organizeUsings', organizeUsings));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', switchProfileCmd));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', rebuildProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', openDataDictionaryCmd));

@@ -209,6 +209,11 @@
                 "description": "Convert keywords to lowercase"
             },
             {
+                "command": "abl.organizeUsings",
+                "title": "ABL: Organize Usings",
+                "description": "Organize USING statements"
+            },
+            {
                 "command": "abl.dumpLangServStatus",
                 "title": "ABL: Dump Language Server status",
                 "description": "Dump Language Server status"
