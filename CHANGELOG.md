@@ -1,3 +1,9 @@
+1.24.2 (January 13th, 2026)
+============================
+
+* 🐛 Improve memory usage of the language server
+* ⬆️ ABL-LS 1.22.2
+
 1.24.1 (November 28th, 2025)
 ============================
 
