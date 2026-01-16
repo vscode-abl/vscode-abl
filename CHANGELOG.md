@@ -16,6 +16,7 @@
 * ✨ Class browser
 * ⬆️ ABL-LS 1.23.0-SNAPSHOT
 * ⬆️ CABL 3.6.0-SNAPSHOT
+* ⬆️ TextMate Grammar 1.3.19
 
 1.24.2 (January 13th, 2026)
 ============================
