@@ -417,6 +417,16 @@
                     "default": false,
                     "description": "Use uppercase keywords for code completion"
                 },
+                "abl.completion.useWildcardUsings": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use wildcard format for USING statements (e.g., 'USING Progress.Lang.*' instead of individual class declarations)"
+                },
+                "abl.completion.includeFromClause": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Add FROM ASSEMBLY or FROM PROPATH clauses to USING statements"
+                },
                 "abl.methodSignature.perspective": {
                     "type": "string",
                     "enum": [
