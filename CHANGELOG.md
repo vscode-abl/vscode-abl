@@ -4,7 +4,7 @@
 * 🐛 Fix excessive memory consumption when new code is created in source directories while language server is online
 * 🐛 Fix hover and code completion on variables using generics
 * 🐛 Invalid USING statement added if package name is blank (#463)
-* ✨ Organize USINGs command
+* ✨ Organize USINGs command (`Ctrl + Shift + U`) + extra configuration options (wildcard and from option)
 * ✨ Support for dependencies in `openedge-project.json` (see discussion [here](https://github.com/orgs/vscode-abl/discussions/432))
 * ✨ Builtin classes attributes and method signatures now depend on the OE version used in the project (11.7, 12.2, 12.8 and 13.0)
 * ✨ Builtin classes documentation per OE version in hover and code completion
