@@ -606,6 +606,11 @@
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
                 "command": "abl.debugListingLine",
                 "key": "alt+L"
+            },
+            {
+                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+                "command": "abl.organizeUsings",
+                "key": "ctrl+shift+U"
             }
         ],
         "viewsContainers": {
