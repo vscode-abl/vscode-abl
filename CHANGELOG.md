@@ -14,8 +14,8 @@
 * ✨ Hover on builtin functions
 * ✨ Add `runGUI` and `runTTY` API entrypoints
 * ✨ Class browser
-* ⬆️ ABL-LS 1.23.0-SNAPSHOT
-* ⬆️ CABL 3.6.0-SNAPSHOT
+* ⬆️ ABL-LS 1.23.0
+* ⬆️ CABL 3.6.0
 * ⬆️ TextMate Grammar 1.3.19
 
 1.24.2 (January 13th, 2026)
