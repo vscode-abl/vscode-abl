@@ -1,7 +1,7 @@
 {
     "name": "openedge-abl-lsp",
     "publisher": "RiversideSoftware",
-    "version": "1.24.2",
+    "version": "1.25.13",
     "description": "OpenEdge ABL support for VS Code",
     "displayName": "OpenEdge ABL",
     "author": "chriscamicas",
@@ -209,6 +209,11 @@
                 "description": "Convert keywords to lowercase"
             },
             {
+                "command": "abl.organizeUsings",
+                "title": "ABL: Organize Usings",
+                "description": "Organize USING statements"
+            },
+            {
                 "command": "abl.dumpLangServStatus",
                 "title": "ABL: Dump Language Server status",
                 "description": "Dump Language Server status"
@@ -224,6 +229,11 @@
                 "shortTitle": "12.8",
                 "title": "Switch to 12.8 documentation",
                 "enablement": "view == openEdgeDocumentation"
+            },
+            {
+                "command": "classBrowser.refresh",
+                "title": "Refresh Class Browser",
+                "icon": "$(refresh)"
             }
         ],
         "breakpoints": [
@@ -407,6 +417,16 @@
                     "default": false,
                     "description": "Use uppercase keywords for code completion"
                 },
+                "abl.completion.useWildcardUsings": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use wildcard format for USING statements (e.g., 'USING Progress.Lang.*' instead of individual class declarations)"
+                },
+                "abl.completion.includeFromClause": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Add FROM ASSEMBLY or FROM PROPATH clauses to USING statements"
+                },
                 "abl.methodSignature.perspective": {
                     "type": "string",
                     "enum": [
@@ -494,6 +514,7 @@
                         "12.6",
                         "12.7",
                         "12.8",
+                        "13.0",
                         "ESAP"
                     ]
                 },
@@ -556,6 +577,11 @@
                     "command": "oeDoc.switchTo128",
                     "when": "view == openEdgeDocumentation",
                     "group": "navigation"
+                },
+                {
+                    "command": "classBrowser.refresh",
+                    "when": "view == classBrowser",
+                    "group": "navigation"
                 }
             ]
         },
@@ -580,6 +606,11 @@
                 "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
                 "command": "abl.debugListingLine",
                 "key": "alt+L"
+            },
+            {
+                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+                "command": "abl.organizeUsings",
+                "key": "ctrl+shift+U"
             }
         ],
         "viewsContainers": {
@@ -596,6 +627,10 @@
                 {
                     "id": "openEdgeDocumentation",
                     "name": "OpenEdge Documentation"
+                },
+                {
+                    "id": "classBrowser",
+                    "name": "Class Browser"
                 }
             ]
         }
@@ -604,7 +639,7 @@
         "@vscode/debugadapter": "^1.65.0",
         "@vscode/debugprotocol": "^1.65.0",
         "@vscode/vsce": "^2.24.0",
-        "abl-tmlanguage": "^1.3.16",
+        "abl-tmlanguage": "^1.3.19",
         "jsonminify": "^0.4.1",
         "node-fetch": "2.7.0",
         "openedge-abl-lsp": "file:",

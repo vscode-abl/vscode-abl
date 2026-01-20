@@ -3,7 +3,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run Extension - Workspace",
+            "name": "Extension - Workspace",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -14,7 +14,7 @@
             "preLaunchTask": "build"
         },
         {
-            "name": "Run Extension - Sample project 1",
+            "name": "Extension - Sample project 1",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -25,7 +25,7 @@
             "preLaunchTask": "build"
         },
         {
-            "name": "Run Extension - Sample project 2",
+            "name": "Extension - Sample project 2",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -36,18 +36,29 @@
             "preLaunchTask": "build"
         },
         {
-            "name": "Run Extension - SonarTestProject",
+            "name": "Extension - SonarTestProject - 12.8",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\Projets\\sonaroe-test-project"
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\Projets\\sonaroe-oe128"
             ],
             "sourceMaps": true,
             "preLaunchTask": "build"
         },
         {
-            "name": "Run Extension - PCT",
+            "name": "Extension - SonarTestProject - 13.0",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}", "${env:USERPROFILE}\\Projets\\sonaroe-oe130"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Extension - PCT",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -58,7 +69,7 @@
             "preLaunchTask": "build"
         },
         {
-          "name": "Run Extension - Workspace PCT/SOE",
+          "name": "Extension - Workspace PCT/SOE",
           "type": "extensionHost",
           "request": "launch",
           "runtimeExecutable": "${execPath}",
@@ -69,7 +80,7 @@
           "preLaunchTask": "build"
         },
         {
-          "name": "Run Extension - SCL",
+          "name": "Extension - SCL",
           "type": "extensionHost",
           "request": "launch",
           "runtimeExecutable": "${execPath}",

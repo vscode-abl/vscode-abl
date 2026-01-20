@@ -1,6 +1,6 @@
 import path = require('path');
-import * as crypto from 'crypto';
-import * as fs from 'fs';
+import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
 import { tmpdir } from 'os';
 import * as vscode from 'vscode';
 import { Executable, LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
@@ -10,6 +10,7 @@ import { lsOutputChannel, outputChannel } from './ablStatus';
 import { executeGenCatalog } from './assemblyCatalog';
 import { AblDebugConfigurationProvider } from './debugAdapter/ablDebugConfigurationProvider';
 import { DocumentationNodeProvider, DocViewPanel } from './OpenEdgeDocumentation';
+import { ClassBrowserProvider } from './ClassBrowser';
 import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
 import { loadConfigFile, OpenEdgeConfig, OpenEdgeMainConfig, OpenEdgeProjectConfig, ProfileConfig } from './shared/openEdgeConfigFile';
@@ -18,6 +19,7 @@ let client: LanguageClient;
 
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 const docNodeProvider = new DocumentationNodeProvider();
+let classBrowserProvider: ClassBrowserProvider;
 let oeRuntimes: Array<any>;
 let langServDebug: boolean;
 let defaultProjectName: string;
@@ -91,6 +93,22 @@ export function activate(ctx: vscode.ExtensionContext) {
         },
         async restartLanguageServer() {
           return await restartLangServer();
+        },
+        runGUI(projectPath: string, procedure: string) {
+          const cfg = getProject(projectPath);
+          if (!cfg) {
+            vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+            return;
+          }
+          runGUI(procedure, cfg);
+        },
+        runTTY(projectPath: string, procedure: string) {
+          const cfg = getProject(projectPath);
+          if (!cfg) {
+            vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+            return;
+          }
+          runTTY(procedure, cfg);
         }
     };
 }
@@ -186,6 +204,12 @@ function switchDocTo122(): void {
 function switchDocTo128(): void {
   docNodeProvider.updateMode(3);
   docNodeProvider.refresh();
+}
+
+function refreshClassBrowser(): void {
+  if (classBrowserProvider) {
+    classBrowserProvider.refresh();
+  }
 }
 
 // Note: when called from a task, it looks like all task parameters are passed to the function as an array
@@ -585,6 +609,18 @@ function fixLowerCasing() {
     client.sendRequest("proparse/fixCasing", { upper: false, fileUri: vscode.window.activeTextEditor.document.uri.toString() });
 }
 
+function organizeUsings() {
+    if (vscode.window.activeTextEditor == undefined)
+        return;
+    const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+    if (!cfg) {
+        vscode.window.showInformationMessage("Current buffer doesn't belong to any OpenEdge project");
+        return;
+    }
+
+    client.sendRequest("proparse/organizeUsing", { fileUri: vscode.window.activeTextEditor.document.uri.toString() });
+}
+
 function generateCatalog() {
     if (projects.length == 1) {
         executeGenCatalog(projects[0]);
@@ -894,6 +930,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
+    ctx.subscriptions.push(vscode.commands.registerCommand('classBrowser.refresh', refreshClassBrowser));
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir));
@@ -915,6 +952,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.catalog', generateCatalog));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing));
+    ctx.subscriptions.push(vscode.commands.registerCommand('abl.organizeUsings', organizeUsings));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.switch.profile', switchProfileCmd));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.project.rebuild', rebuildProject));
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.dataDictionary', openDataDictionaryCmd));
@@ -927,6 +965,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
     vscode.window.registerTreeDataProvider('openEdgeDocumentation', docNodeProvider);
     docNodeProvider.fetchData();
+
+    // Register Class Browser
+    classBrowserProvider = new ClassBrowserProvider(client, projects);
+    vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 }
 
 function readOEConfigFile(uri : vscode.Uri) {
@@ -1003,11 +1045,16 @@ function parseOpenEdgeProjectConfig(uri: vscode.Uri, config: OpenEdgeMainConfig)
 
     // Active profile
     if (fs.existsSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"))) {
-        const txt = JSON.parse(fs.readFileSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"), { encoding: 'utf8' }));
-        const actProf = txt['profile'];
-        if (prjConfig.profiles.has(actProf)) {
-            prjConfig.activeProfile = actProf;
-        } else {
+        try {
+            const txt = JSON.parse(fs.readFileSync(path.join(prjConfig.rootDir, ".vscode", "profile.json"), { encoding: 'utf8' }));
+            const actProf = txt['profile'];
+            if (prjConfig.profiles.has(actProf)) {
+                prjConfig.activeProfile = actProf;
+            } else {
+                prjConfig.activeProfile = "default";
+            }
+        } catch (error) {
+            console.error('Error parsing profile.json:', error);
             prjConfig.activeProfile = "default";
         }
     } else {

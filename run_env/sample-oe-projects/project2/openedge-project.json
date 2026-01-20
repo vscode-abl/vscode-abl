@@ -1,7 +1,7 @@
 {
   "name": "project2",
   "version": "1.0",
-  "oeversion": "12.2",
+  "oeversion": "12.8",
   "charset": "utf-8",
   "graphicalMode": true,
   "extraParameters": "",

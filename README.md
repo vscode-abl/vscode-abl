@@ -65,6 +65,12 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" },
     { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl", "documentation": "openedge.json" }
   ],
+  "dependencies": [
+    // Enable this section only if you have a working Nexus repository
+    // See discussion https://github.com/orgs/vscode-abl/discussions/432
+    // { "groupId": "com.progress.openedge",  "artifactId": "net", "version" : "12.8.9", "extension": "pl" },
+    // { "groupId": "com.progress.openedge", "artifactId": "core", "version" : "12.8.9", "extension": "apl" }
+  ],
   "buildDirectory": "build", // Optional global build directory
   "dbConnections": [ // Unlimited number of connections - Beware of -h
     {
@@ -329,6 +335,23 @@ const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-
 if (ablExtension?.isActive) {
     await ablExtension.exports.restartLanguageServer();
     console.log('Language server restarted');
+}
+```
+
+### `runGUI(projectPath: string, procedure: string)` and `runTTY(projectPath: string, procedure: string)`
+**Description:** Execute procedure with `prowin -p` .
+
+**Input Parameters:**
+- `projectPath` (string): the filesystem path of the project
+- `procedure` (string): procedure to be executed
+
+**Output:** None
+
+**Example Usage:**
+```typescript
+const ablExtension = vscode.extensions.getExtension('RiversideSoftware.openedge-abl-lsp');
+if (ablExtension?.isActive) {
+    ablExtension.exports.runGUI('C:\\Projects\\Project1', 'foo/bar/test.p');
 }
 ```
 
