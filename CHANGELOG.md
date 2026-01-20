@@ -1,6 +1,7 @@
 1.25.x
 ======
 
+* 🎉 Last prerelease before 1.26.0
 * 🐛 Fix excessive memory consumption when new code is created in source directories while language server is online
 * 🐛 Fix hover and code completion on variables using generics
 * 🐛 Invalid USING statement added if package name is blank (#463)
