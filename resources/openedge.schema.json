@@ -4,11 +4,7 @@
   "definitions": {},
   "id": "openedge.json",
   "type": "object",
-  "required": [
-    "name",
-    "version",
-    "charset"
-  ],
+  "required": ["name", "version", "charset"],
   "properties": {
     "name": {
       "id": "/properties/name",
@@ -77,10 +73,7 @@
       "properties": {
         "opsys": {
           "description": "{&OPSYS} variable and OPSYS function",
-          "enum": [
-            "windows",
-            "unix"
-          ],
+          "enum": ["windows", "unix"],
           "type": "string"
         },
         "windowSystem": {
@@ -97,10 +90,7 @@
         },
         "processArchitecture": {
           "description": "{&PROCESS-ARCHITECTURE} variable",
-          "enum": [
-            32,
-            64
-          ],
+          "enum": [32, 64],
           "type": "integer"
         },
         "tokenStartChars": {
@@ -114,17 +104,11 @@
       "description": "Source and PROPATH entries",
       "items": {
         "type": "object",
-        "required": [
-          "type",
-          "path"
-        ],
+        "required": ["type", "path"],
         "properties": {
           "type": {
             "description": "Entry type",
-            "enum": [
-              "source",
-              "propath"
-            ],
+            "enum": ["source", "propath"],
             "type": "string"
           },
           "path": {
@@ -172,10 +156,7 @@
       "description": "List of startup procedures, executed after DB connections and propath, but before main entry point",
       "items": {
         "type": "object",
-        "required": [
-          "name",
-          "mode"
-        ],
+        "required": ["name", "mode"],
         "properties": {
           "name": {
             "description": "Procedure name",
@@ -183,12 +164,7 @@
           },
           "mode": {
             "description": "RUN mode",
-            "enum": [
-              "init",
-              "once",
-              "persistent",
-              "super"
-            ],
+            "enum": ["init", "once", "persistent", "super"],
             "type": "string"
           }
         }
@@ -199,12 +175,7 @@
       "description": "Database connection strings (one DB per entry)",
       "items": {
         "type": "object",
-        "required": [
-          "name",
-          "schemaFile",
-          "connect",
-          "aliases"
-        ],
+        "required": ["name", "schemaFile", "connect", "aliases"],
         "properties": {
           "name": {
             "description": "Database logical name",
@@ -241,10 +212,7 @@
       "description": "Extra profiles",
       "items": {
         "type": "object",
-        "required": [
-          "name",
-          "value"
-        ],
+        "required": ["name", "value"],
         "properties": {
           "name": {
             "description": "Profile name",
@@ -300,10 +268,7 @@
                 "properties": {
                   "opsys": {
                     "description": "{&OPSYS} variable and OPSYS function ('windows' value will return WIN32)",
-                    "enum": [
-                      "windows",
-                      "unix"
-                    ],
+                    "enum": ["windows", "unix"],
                     "type": "string"
                   },
                   "windowSystem": {
@@ -320,10 +285,7 @@
                   },
                   "processArchitecture": {
                     "description": "{&PROCESS-ARCHITECTURE} variable",
-                    "enum": [
-                      32,
-                      64
-                    ],
+                    "enum": [32, 64],
                     "type": "integer"
                   },
                   "tokenStartChars": {
@@ -337,17 +299,11 @@
                 "description": "Source and PROPATH entries",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "type",
-                    "path"
-                  ],
+                  "required": ["type", "path"],
                   "properties": {
                     "type": {
                       "description": "Entry type",
-                      "enum": [
-                        "source",
-                        "propath"
-                      ],
+                      "enum": ["source", "propath"],
                       "type": "string"
                     },
                     "path": {
@@ -383,12 +339,7 @@
                 "description": "Database connection strings (one DB per entry)",
                 "items": {
                   "type": "object",
-                  "required": [
-                    "name",
-                    "schemaFile",
-                    "connect",
-                    "aliases"
-                  ],
+                  "required": ["name", "schemaFile", "connect", "aliases"],
                   "properties": {
                     "name": {
                       "description": "Database logical name",

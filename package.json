@@ -1,663 +1,663 @@
 {
-    "name": "openedge-abl-lsp",
-    "publisher": "RiversideSoftware",
-    "version": "1.26.0",
-    "description": "OpenEdge ABL support for VS Code",
-    "displayName": "OpenEdge ABL",
-    "author": "chriscamicas",
-    "license": "MIT",
-    "capabilities": {
-        "untrustedWorkspaces": {
-            "supported": false
-        }
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/vscode-abl/vscode-abl.git"
-    },
-    "bugs": {
-        "url": "https://github.com/vscode-abl/vscode-abl/issues"
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run package",
-        "webpack": "webpack --mode development",
-        "webpack-dev": "webpack --mode development --watch",
-        "package": "webpack --mode production --devtool hidden-source-map",
-        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-        "grammar-version": "npm list abl-tmlanguage --depth=0 | head -2 | tail -1 | cut -c 5- > resources/grammar-version.txt"
-    },
-    "icon": "resources/images/progress_icon.png",
-    "engines": {
-        "vscode": "^1.76.0"
-    },
-    "categories": [
-        "Programming Languages",
-        "Snippets",
-        "Debuggers",
-        "Formatters"
-    ],
-    "activationEvents": [
-        "workspaceContains:openedge-project.json"
-    ],
-    "main": "./dist/extension.js",
-    "contributes": {
-        "configurationDefaults": {
-            "[abl]": {
-                "editor.semanticHighlighting.enabled": false,
-                "editor.wordSeparators": "`~!@#$%^&()=+[{}]\\|;:'\",.<>/?"
-            }
-        },
-        "terminal": {
-            "profiles": [
-                {
-                    "title": "Proenv",
-                    "id": "proenv.terminal-profile"
-                }
-            ]
-        },
-        "languages": [
-            {
-                "id": "abl",
-                "aliases": [
-                    "OpenEdge ABL",
-                    "abl",
-                    "Progress",
-                    "Progress 4GL"
-                ],
-                "extensions": [
-                    ".w",
-                    ".p",
-                    ".i",
-                    ".cls"
-                ],
-                "configuration": "./resources/language-configuration.json"
-            },
-            {
-                "id": "jsonc",
-                "filenames": [
-                    "openedge-project.json"
-                ]
-            }
-        ],
-        "grammars": [
-            {
-                "language": "abl",
-                "scopeName": "source.abl",
-                "path": "./resources/abl.tmLanguage.json"
-            }
-        ],
-        "commands": [
-            {
-                "command": "abl.getDlcDirectory",
-                "title": "ABL: Return OE dir",
-                "enablement": "false",
-                "description": "Return the OpenEdge installation directory for a project"
-            },
-            {
-                "command": "abl.debugListingLine",
-                "title": "ABL: Find debug listing line",
-                "description": "Find debug listing line"
-            },
-            {
-                "command": "abl.openInAB",
-                "title": "ABL: Open file in AppBuilder",
-                "description": "Open current file in AppBuilder"
-            },
-            {
-                "command": "abl.openInProcEd",
-                "title": "ABL: Open file in procedure editor",
-                "description": "Open current file in procedure editor"
-            },
-            {
-                "command": "abl.runProgres.currentFile",
-                "title": "ABL: Run with _progres",
-                "description": "Run current file in TTY session"
-            },
-            {
-                "command": "abl.runBatch.currentFile",
-                "title": "ABL: Run with _progres -b",
-                "description": "Run current file in batch session"
-            },
-            {
-                "command": "abl.runProwin.currentFile",
-                "title": "ABL: Run with prowin",
-                "description": "Run current file in GUI session"
-            },
-            {
-                "command": "abl.dataDictionary",
-                "title": "ABL: Open Data Dictionary",
-                "description": "Open the Data Dictionary external tool"
-            },
-            {
-                "command": "abl.restart.langserv",
-                "title": "ABL: Restart Language Server",
-                "description": "Restart ABL Language Server"
-            },
-            {
-                "command": "abl.changeBuildMode",
-                "title": "ABL: Change build mode",
-                "description": "Change ABL Build Mode"
-            },
-            {
-                "command": "abl.project.rebuild",
-                "title": "ABL: Rebuild Project",
-                "description": "Rebuild Project"
-            },
-            {
-                "command": "abl.setDefaultProject",
-                "title": "ABL: Set default project",
-                "description": "Set default project"
-            },
-            {
-                "command": "abl.project.switch.profile",
-                "title": "ABL: Switch project to profile",
-                "description": "Switch project profile"
-            },
-            {
-                "command": "abl.preprocess",
-                "title": "ABL: Preprocess current file",
-                "description": "Preprocess current file"
-            },
-            {
-                "command": "abl.dumpFileStatus",
-                "title": "ABL: Dump current file status",
-                "description": "Dump current file status"
-            },
-            {
-                "command": "abl.compileBuffer",
-                "title": "ABL: Syntax check active editor",
-                "description": "Syntax check active editor"
-            },
-            {
-                "command": "abl.generateListing",
-                "title": "ABL: Generate listing",
-                "description": "Generate listing of current file"
-            },
-            {
-                "command": "abl.generateDebugListing",
-                "title": "ABL: Generate debug listing",
-                "description": "Generate debug listing of current file"
-            },
-            {
-                "command": "abl.generateXref",
-                "title": "ABL: Generate XREF",
-                "description": "Generate XREF of current file"
-            },
-            {
-                "command": "abl.generateXmlXref",
-                "title": "ABL: Generate XML-XREF",
-                "description": "Generate XML-XREF of current file"
-            },
-            {
-                "command": "abl.generateXrefAndJumpToCurrentLine",
-                "title": "ABL: Generate XREF and jump to current source line",
-                "description": "Generate XREF of current file and jump to the current line in the XREF output"
-            },
-            {
-                "command": "abl.catalog",
-                "title": "ABL: Generate Assembly Catalog",
-                "description": "Generate Assembly Catalog"
-            },
-            {
-                "command": "abl.fixUpperCasing",
-                "title": "ABL: Convert to uppercase",
-                "description": "Convert keywords to uppercase"
-            },
-            {
-                "command": "abl.fixLowerCasing",
-                "title": "ABL: Convert to lowercase",
-                "description": "Convert keywords to lowercase"
-            },
-            {
-                "command": "abl.organizeUsings",
-                "title": "ABL: Organize Usings",
-                "description": "Organize USING statements"
-            },
-            {
-                "command": "abl.dumpLangServStatus",
-                "title": "ABL: Dump Language Server status",
-                "description": "Dump Language Server status"
-            },
-            {
-                "command": "oeDoc.switchTo122",
-                "shortTitle": "12.2",
-                "title": "Switch to 12.2 documentation",
-                "enablement": "view == openEdgeDocumentation"
-            },
-            {
-                "command": "oeDoc.switchTo128",
-                "shortTitle": "12.8",
-                "title": "Switch to 12.8 documentation",
-                "enablement": "view == openEdgeDocumentation"
-            },
-            {
-                "command": "classBrowser.refresh",
-                "title": "Refresh Class Browser",
-                "icon": "$(refresh)"
-            }
-        ],
-        "breakpoints": [
-            {
-                "language": "abl"
-            }
-        ],
-        "debuggers": [
-            {
-                "type": "abl",
-                "languages": [
-                    "abl"
-                ],
-                "label": "ABL",
-                "configurationSnippets": [
-                    {
-                        "label": "ABL: Attach to AVM",
-                        "description": "Attach to AVM",
-                        "body": {
-                            "name": "${2:Attach to process}",
-                            "type": "abl",
-                            "request": "attach",
-                            "hostname": "Host name or IP address of process to be debugged",
-                            "mode": "legacy",
-                            "port": 3099,
-                            "localRoot": "^\"\\${workspaceFolder}\"",
-                            "pause": true
-                        }
-                    },
-                    {
-                        "label": "ABL: Attach to PASOE",
-                        "description": "Attach to PASOE session",
-                        "body": {
-                            "name": "${2:Attach to process}",
-                            "type": "abl",
-                            "request": "attach",
-                            "mode": "pasoe",
-                            "hostname": "Host name or IP address of PASOE instance",
-                            "port": 8810,
-                            "localRoot": "^\"\\${workspaceFolder}\"",
-                            "appName": "pasoe1",
-                            "password": ""
-                        }
-                    },
-                    {
-                        "label": "ABL: Debug program / Interactive GUI",
-                        "description": "Debug the current file in interactive GUI mode",
-                        "body": {
-                            "name": "${2:Debug program / Interactive GUI}",
-                            "type": "abl",
-                            "request": "launch",
-                            "program": "^\"${1:\\${file}}\"",
-                            "cwd": "^\"\\${workspaceFolder}\"",
-                            "graphicalMode": true
-                        }
-                    },
-                    {
-                        "label": "ABL: Debug program / Interactive TTY",
-                        "description": "Debug the current file in interactive TTY mode",
-                        "body": {
-                            "name": "${2:Debug program / Interactive TTY}",
-                            "type": "abl",
-                            "request": "launch",
-                            "program": "^\"${1:\\${file}}\"",
-                            "cwd": "^\"\\${workspaceFolder}\"",
-                            "graphicalMode": false
-                        }
-                    }
-                ],
-                "configurationAttributes": {
-                    "launch": {
-                        "required": [
-                            "program"
-                        ],
-                        "properties": {
-                            "stopOnEntry": {
-                                "type": "boolean",
-                                "description": "Automatically stop the program at the first line executed",
-                                "default": false
-                            },
-                            "program": {
-                                "type": "string",
-                                "description": "The program to start.",
-                                "default": "${file}"
-                            },
-                            "cwd": {
-                                "type": "string",
-                                "description": "The working directory.",
-                                "default": "${workspaceFolder}"
-                            },
-                            "graphicalMode": {
-                                "type": "boolean",
-                                "description": "Start session with _progres or prowin",
-                                "default": "false"
-                            }
-                        }
-                    },
-                    "attach": {
-                        "required": [
-                            "mode"
-                        ],
-                        "properties": {
-                            "mode": {
-                                "type": "string",
-                                "description": "Attach to AVM or PASOE"
-                            },
-                            "port": {
-                                "type": "integer",
-                                "description": "The port that the debugger is listening on",
-                                "default": 3099
-                            },
-                            "hostname": {
-                                "type": "string",
-                                "description": "The hostname the debugger is listening on",
-                                "default": "127.0.0.1"
-                            },
-                            "pause": {
-                                "type": "boolean",
-                                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
-                                "default": false
-                            },
-                            "localRoot": {
-                                "type": "string",
-                                "description": "The root directory for local source",
-                                "default": "${workspaceFolder}"
-                            },
-                            "appName": {
-                                "type": "string",
-                                "description": "PASOE ABL Application Name",
-                                "default": ""
-                            },
-                            "password": {
-                                "type": "string",
-                                "description": "PASOE debugger password",
-                                "default": ""
-                            }
-                        }
-                    }
-                }
-            }
-        ],
-        "configuration": {
-            "type": "object",
-            "title": "ABL configuration",
-            "properties": {
-                "abl.buildMode": {
-                    "type": "integer",
-                    "default": 1,
-                    "description": "Build mode",
-                    "enum": [
-                        1,
-                        2,
-                        3,
-                        4
-                    ],
-                    "enumItemLabels": [
-                        "Build everything",
-                        "Classes only",
-                        "Modified files only",
-                        "No build"
-                    ],
-                    "enumDescriptions": [
-                        "Scan all source code at startup, build if not up to date, and build when any source changed",
-                        "Scan all source code at startup, build only classes if not up to date, and build when any source changed",
-                        "Scan all source code at startup, don't rebuild anything, build only when any source changed",
-                        "Scan all source code at startup, never build anything"
-                    ]
-                },
-                "abl.outline.showIncludeFiles": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "When enabled outline shows list of include files"
-                },
-                "abl.outline.showContentInIncludeFiles": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "When enabled outline shows objects declared in include files"
-                },
-                "abl.completion.upperCase": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use uppercase keywords for code completion"
-                },
-                "abl.completion.useWildcardUsings": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use wildcard format for USING statements (e.g., 'USING Progress.Lang.*' instead of individual class declarations)"
-                },
-                "abl.completion.includeFromClause": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Add FROM ASSEMBLY or FROM PROPATH clauses to USING statements"
-                },
-                "abl.methodSignature.perspective": {
-                    "type": "string",
-                    "enum": [
-                        "chronological",
-                        "reverse"
-                    ],
-                    "default": "chronological",
-                    "enumDescriptions": [
-                        "Chronological perspective (input ↓, output ↑)",
-                        "Reverse perspective (input ↑, output ↓)"
-                    ],
-                    "description": "Perspective for parameter flow arrows in method signatures"
-                },
-                "abl.useProcedureEditorKeyBindings": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If true, use the same shortcuts as the Progress Procedure Editor (F2, Shift+F2, ...)"
-                },
-                "abl.closeEditorAfterOpenExternal": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Close the active editor after opening the file in AppBuilder or Procedure Editor. When true, saving the file in the external editor will not trigger compilation by the language server."
-                },
-                "abl.langServerDebug": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable language server verbose logging"
-                },
-                "abl.defaultProject": {
-                    "type": "string",
-                    "description": "Default project in multi-project workspaces"
-                },
-                "abl.langServerTrace": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable language server trace logging (in $TMP/vscode-language-server-trace.txt)"
-                },
-                "abl.langServerExtraJavaArgs": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Extra arguments on the Language Server command line"
-                },
-                "abl.debugAdapterExtraJavaArgs": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Extra arguments on the Debug Adapter command line"
-                },
-                "abl.debugAdapterDebug": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable debug adapter verbose logging (in $TMP/vscode-debug-adapter.txt)"
-                },
-                "abl.debugAdapterTrace": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable debug adapter trace logging (in $TMP/vscode-debug-adapter-trace.txt)"
-                },
-                "abl.langServerJavaExecutable": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Language Server Java executable"
-                },
-                "abl.configuration.maxThreads": {
-                    "type": "integer",
-                    "default": -1,
-                    "description": "Maximum number of AVM per OpenEdge project (-1 means no limit)"
-                },
-                "abl.configuration.hideAvmWindow": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
-                },
-                "abl.configuration.defaultRuntime": {
-                    "type": "string",
-                    "description": "Default OpenEdge Execution Environment name",
-                    "enum": [
-                        "9.1E",
-                        "10.2B",
-                        "11.5",
-                        "11.6",
-                        "11.7",
-                        "12.2",
-                        "12.4",
-                        "12.5",
-                        "12.6",
-                        "12.7",
-                        "12.8",
-                        "13.0",
-                        "ESAP"
-                    ]
-                },
-                "abl.configuration.runtimes": {
-                    "type": "array",
-                    "description": "Map OpenEdge Execution Environments to local installation",
-                    "items": {
-                        "type": "object",
-                        "default": {},
-                        "required": [
-                            "path",
-                            "name"
-                        ],
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "enum": [
-                                    "9.1E",
-                                    "10.2B",
-                                    "11.5",
-                                    "11.6",
-                                    "11.7",
-                                    "12.2",
-                                    "12.4",
-                                    "12.5",
-                                    "12.6",
-                                    "12.7",
-                                    "12.8",
-                                    "13.0",
-                                    "ESAP"
-                                ],
-                                "description": "OpenEdge Execution Environment name. Must be unique."
-                            },
-                            "path": {
-                                "type": "string",
-                                "pattern": ".*(?<!\\/bin|\\/bin\\/|\\\\bin|\\\\bin\\\\)$",
-                                "description": "OpenEdge home directory.\n On Windows, backslashes must be escaped, i.e.\n\"path\":\"C:\\\\Progress\\\\OpenEdge-12.2\"."
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    "default": []
-                }
-            }
-        },
-        "menus": {
-            "commandPalette": [
-                {
-                    "command": "abl.runProgres.currentFile",
-                    "when": "editorLangId == 'abl'"
-                }
-            ],
-            "view/title": [
-                {
-                    "command": "oeDoc.switchTo122",
-                    "when": "view == openEdgeDocumentation",
-                    "group": "navigation"
-                },
-                {
-                    "command": "oeDoc.switchTo128",
-                    "when": "view == openEdgeDocumentation",
-                    "group": "navigation"
-                },
-                {
-                    "command": "classBrowser.refresh",
-                    "when": "view == classBrowser",
-                    "group": "navigation"
-                }
-            ]
-        },
-        "jsonValidation": [
-            {
-                "fileMatch": "openedge-project.json",
-                "url": "./resources/openedge.schema.json"
-            }
-        ],
-        "keybindings": [
-            {
-                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.runBatch.currentFile",
-                "key": "F2"
-            },
-            {
-                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.openInAB",
-                "key": "shift+f8"
-            },
-            {
-                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.debugListingLine",
-                "key": "alt+L"
-            },
-            {
-                "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
-                "command": "abl.organizeUsings",
-                "key": "ctrl+shift+U"
-            }
-        ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                  "id": "openedge-view",
-                  "title": "OpenEdge Resources",
-                  "icon": "resources/images/progress_logo.svg"
-                }
-            ]
-        },
-        "views": {
-            "openedge-view": [
-                {
-                    "id": "openEdgeDocumentation",
-                    "name": "OpenEdge Documentation"
-                },
-                {
-                    "id": "classBrowser",
-                    "name": "Class Browser"
-                }
-            ]
-        }
-    },
-    "dependencies": {
-        "@vscode/debugadapter": "^1.65.0",
-        "@vscode/debugprotocol": "^1.65.0",
-        "@vscode/vsce": "^2.24.0",
-        "abl-tmlanguage": "^1.3.19",
-        "jsonminify": "^0.4.1",
-        "node-fetch": "2.7.0",
-        "openedge-abl-lsp": "file:",
-        "ovsx": "^0.10.5",
-        "vscode-languageclient": "^9.0.1"
-    },
-    "devDependencies": {
-        "@types/glob": "^7.1.1",
-        "@types/node": "^18.x",
-        "@types/node-fetch": "^2.6.11",
-        "@types/vscode": "^1.76.0",
-        "@typescript-eslint/eslint-plugin": "^6.13.1",
-        "@typescript-eslint/parser": "^6.13.1",
-        "@vscode/test-electron": "^2.3.9",
-        "eslint": "^8.54.0",
-        "ts-loader": "^9.5.1",
-        "typescript": "^5.3.2",
-        "webpack": "^5.89.0",
-        "webpack-cli": "^5.1.4"
+  "name": "openedge-abl-lsp",
+  "publisher": "RiversideSoftware",
+  "version": "1.26.0",
+  "description": "OpenEdge ABL support for VS Code",
+  "displayName": "OpenEdge ABL",
+  "author": "chriscamicas",
+  "license": "MIT",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vscode-abl/vscode-abl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vscode-abl/vscode-abl/issues"
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "grammar-version": "npm list abl-tmlanguage --depth=0 | head -2 | tail -1 | cut -c 5- > resources/grammar-version.txt"
+  },
+  "icon": "resources/images/progress_icon.png",
+  "engines": {
+    "vscode": "^1.76.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Debuggers",
+    "Formatters"
+  ],
+  "activationEvents": [
+    "workspaceContains:openedge-project.json"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configurationDefaults": {
+      "[abl]": {
+        "editor.semanticHighlighting.enabled": false,
+        "editor.wordSeparators": "`~!@#$%^&()=+[{}]\\|;:'\",.<>/?"
+      }
+    },
+    "terminal": {
+      "profiles": [
+        {
+          "title": "Proenv",
+          "id": "proenv.terminal-profile"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "abl",
+        "aliases": [
+          "OpenEdge ABL",
+          "abl",
+          "Progress",
+          "Progress 4GL"
+        ],
+        "extensions": [
+          ".w",
+          ".p",
+          ".i",
+          ".cls"
+        ],
+        "configuration": "./resources/language-configuration.json"
+      },
+      {
+        "id": "jsonc",
+        "filenames": [
+          "openedge-project.json"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "abl",
+        "scopeName": "source.abl",
+        "path": "./resources/abl.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "abl.getDlcDirectory",
+        "title": "ABL: Return OE dir",
+        "enablement": "false",
+        "description": "Return the OpenEdge installation directory for a project"
+      },
+      {
+        "command": "abl.debugListingLine",
+        "title": "ABL: Find debug listing line",
+        "description": "Find debug listing line"
+      },
+      {
+        "command": "abl.openInAB",
+        "title": "ABL: Open file in AppBuilder",
+        "description": "Open current file in AppBuilder"
+      },
+      {
+        "command": "abl.openInProcEd",
+        "title": "ABL: Open file in procedure editor",
+        "description": "Open current file in procedure editor"
+      },
+      {
+        "command": "abl.runProgres.currentFile",
+        "title": "ABL: Run with _progres",
+        "description": "Run current file in TTY session"
+      },
+      {
+        "command": "abl.runBatch.currentFile",
+        "title": "ABL: Run with _progres -b",
+        "description": "Run current file in batch session"
+      },
+      {
+        "command": "abl.runProwin.currentFile",
+        "title": "ABL: Run with prowin",
+        "description": "Run current file in GUI session"
+      },
+      {
+        "command": "abl.dataDictionary",
+        "title": "ABL: Open Data Dictionary",
+        "description": "Open the Data Dictionary external tool"
+      },
+      {
+        "command": "abl.restart.langserv",
+        "title": "ABL: Restart Language Server",
+        "description": "Restart ABL Language Server"
+      },
+      {
+        "command": "abl.changeBuildMode",
+        "title": "ABL: Change build mode",
+        "description": "Change ABL Build Mode"
+      },
+      {
+        "command": "abl.project.rebuild",
+        "title": "ABL: Rebuild Project",
+        "description": "Rebuild Project"
+      },
+      {
+        "command": "abl.setDefaultProject",
+        "title": "ABL: Set default project",
+        "description": "Set default project"
+      },
+      {
+        "command": "abl.project.switch.profile",
+        "title": "ABL: Switch project to profile",
+        "description": "Switch project profile"
+      },
+      {
+        "command": "abl.preprocess",
+        "title": "ABL: Preprocess current file",
+        "description": "Preprocess current file"
+      },
+      {
+        "command": "abl.dumpFileStatus",
+        "title": "ABL: Dump current file status",
+        "description": "Dump current file status"
+      },
+      {
+        "command": "abl.compileBuffer",
+        "title": "ABL: Syntax check active editor",
+        "description": "Syntax check active editor"
+      },
+      {
+        "command": "abl.generateListing",
+        "title": "ABL: Generate listing",
+        "description": "Generate listing of current file"
+      },
+      {
+        "command": "abl.generateDebugListing",
+        "title": "ABL: Generate debug listing",
+        "description": "Generate debug listing of current file"
+      },
+      {
+        "command": "abl.generateXref",
+        "title": "ABL: Generate XREF",
+        "description": "Generate XREF of current file"
+      },
+      {
+        "command": "abl.generateXmlXref",
+        "title": "ABL: Generate XML-XREF",
+        "description": "Generate XML-XREF of current file"
+      },
+      {
+        "command": "abl.generateXrefAndJumpToCurrentLine",
+        "title": "ABL: Generate XREF and jump to current source line",
+        "description": "Generate XREF of current file and jump to the current line in the XREF output"
+      },
+      {
+        "command": "abl.catalog",
+        "title": "ABL: Generate Assembly Catalog",
+        "description": "Generate Assembly Catalog"
+      },
+      {
+        "command": "abl.fixUpperCasing",
+        "title": "ABL: Convert to uppercase",
+        "description": "Convert keywords to uppercase"
+      },
+      {
+        "command": "abl.fixLowerCasing",
+        "title": "ABL: Convert to lowercase",
+        "description": "Convert keywords to lowercase"
+      },
+      {
+        "command": "abl.organizeUsings",
+        "title": "ABL: Organize Usings",
+        "description": "Organize USING statements"
+      },
+      {
+        "command": "abl.dumpLangServStatus",
+        "title": "ABL: Dump Language Server status",
+        "description": "Dump Language Server status"
+      },
+      {
+        "command": "oeDoc.switchTo122",
+        "shortTitle": "12.2",
+        "title": "Switch to 12.2 documentation",
+        "enablement": "view == openEdgeDocumentation"
+      },
+      {
+        "command": "oeDoc.switchTo128",
+        "shortTitle": "12.8",
+        "title": "Switch to 12.8 documentation",
+        "enablement": "view == openEdgeDocumentation"
+      },
+      {
+        "command": "classBrowser.refresh",
+        "title": "Refresh Class Browser",
+        "icon": "$(refresh)"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "abl"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "abl",
+        "languages": [
+          "abl"
+        ],
+        "label": "ABL",
+        "configurationSnippets": [
+          {
+            "label": "ABL: Attach to AVM",
+            "description": "Attach to AVM",
+            "body": {
+              "name": "${2:Attach to process}",
+              "type": "abl",
+              "request": "attach",
+              "hostname": "Host name or IP address of process to be debugged",
+              "mode": "legacy",
+              "port": 3099,
+              "localRoot": "^\"\\${workspaceFolder}\"",
+              "pause": true
+            }
+          },
+          {
+            "label": "ABL: Attach to PASOE",
+            "description": "Attach to PASOE session",
+            "body": {
+              "name": "${2:Attach to process}",
+              "type": "abl",
+              "request": "attach",
+              "mode": "pasoe",
+              "hostname": "Host name or IP address of PASOE instance",
+              "port": 8810,
+              "localRoot": "^\"\\${workspaceFolder}\"",
+              "appName": "pasoe1",
+              "password": ""
+            }
+          },
+          {
+            "label": "ABL: Debug program / Interactive GUI",
+            "description": "Debug the current file in interactive GUI mode",
+            "body": {
+              "name": "${2:Debug program / Interactive GUI}",
+              "type": "abl",
+              "request": "launch",
+              "program": "^\"${1:\\${file}}\"",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "graphicalMode": true
+            }
+          },
+          {
+            "label": "ABL: Debug program / Interactive TTY",
+            "description": "Debug the current file in interactive TTY mode",
+            "body": {
+              "name": "${2:Debug program / Interactive TTY}",
+              "type": "abl",
+              "request": "launch",
+              "program": "^\"${1:\\${file}}\"",
+              "cwd": "^\"\\${workspaceFolder}\"",
+              "graphicalMode": false
+            }
+          }
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop the program at the first line executed",
+                "default": false
+              },
+              "program": {
+                "type": "string",
+                "description": "The program to start.",
+                "default": "${file}"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "The working directory.",
+                "default": "${workspaceFolder}"
+              },
+              "graphicalMode": {
+                "type": "boolean",
+                "description": "Start session with _progres or prowin",
+                "default": "false"
+              }
+            }
+          },
+          "attach": {
+            "required": [
+              "mode"
+            ],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "description": "Attach to AVM or PASOE"
+              },
+              "port": {
+                "type": "integer",
+                "description": "The port that the debugger is listening on",
+                "default": 3099
+              },
+              "hostname": {
+                "type": "string",
+                "description": "The hostname the debugger is listening on",
+                "default": "127.0.0.1"
+              },
+              "pause": {
+                "type": "boolean",
+                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
+                "default": false
+              },
+              "localRoot": {
+                "type": "string",
+                "description": "The root directory for local source",
+                "default": "${workspaceFolder}"
+              },
+              "appName": {
+                "type": "string",
+                "description": "PASOE ABL Application Name",
+                "default": ""
+              },
+              "password": {
+                "type": "string",
+                "description": "PASOE debugger password",
+                "default": ""
+              }
+            }
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "ABL configuration",
+      "properties": {
+        "abl.buildMode": {
+          "type": "integer",
+          "default": 1,
+          "description": "Build mode",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "enumItemLabels": [
+            "Build everything",
+            "Classes only",
+            "Modified files only",
+            "No build"
+          ],
+          "enumDescriptions": [
+            "Scan all source code at startup, build if not up to date, and build when any source changed",
+            "Scan all source code at startup, build only classes if not up to date, and build when any source changed",
+            "Scan all source code at startup, don't rebuild anything, build only when any source changed",
+            "Scan all source code at startup, never build anything"
+          ]
+        },
+        "abl.outline.showIncludeFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled outline shows list of include files"
+        },
+        "abl.outline.showContentInIncludeFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled outline shows objects declared in include files"
+        },
+        "abl.completion.upperCase": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use uppercase keywords for code completion"
+        },
+        "abl.completion.useWildcardUsings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use wildcard format for USING statements (e.g., 'USING Progress.Lang.*' instead of individual class declarations)"
+        },
+        "abl.completion.includeFromClause": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add FROM ASSEMBLY or FROM PROPATH clauses to USING statements"
+        },
+        "abl.methodSignature.perspective": {
+          "type": "string",
+          "enum": [
+            "chronological",
+            "reverse"
+          ],
+          "default": "chronological",
+          "enumDescriptions": [
+            "Chronological perspective (input ↓, output ↑)",
+            "Reverse perspective (input ↑, output ↓)"
+          ],
+          "description": "Perspective for parameter flow arrows in method signatures"
+        },
+        "abl.useProcedureEditorKeyBindings": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, use the same shortcuts as the Progress Procedure Editor (F2, Shift+F2, ...)"
+        },
+        "abl.closeEditorAfterOpenExternal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Close the active editor after opening the file in AppBuilder or Procedure Editor. When true, saving the file in the external editor will not trigger compilation by the language server."
+        },
+        "abl.langServerDebug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable language server verbose logging"
+        },
+        "abl.defaultProject": {
+          "type": "string",
+          "description": "Default project in multi-project workspaces"
+        },
+        "abl.langServerTrace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable language server trace logging (in $TMP/vscode-language-server-trace.txt)"
+        },
+        "abl.langServerExtraJavaArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Extra arguments on the Language Server command line"
+        },
+        "abl.debugAdapterExtraJavaArgs": {
+          "type": "string",
+          "default": "",
+          "description": "Extra arguments on the Debug Adapter command line"
+        },
+        "abl.debugAdapterDebug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable debug adapter verbose logging (in $TMP/vscode-debug-adapter.txt)"
+        },
+        "abl.debugAdapterTrace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable debug adapter trace logging (in $TMP/vscode-debug-adapter-trace.txt)"
+        },
+        "abl.langServerJavaExecutable": {
+          "type": "string",
+          "default": "",
+          "description": "Language Server Java executable"
+        },
+        "abl.configuration.maxThreads": {
+          "type": "integer",
+          "default": -1,
+          "description": "Maximum number of AVM per OpenEdge project (-1 means no limit)"
+        },
+        "abl.configuration.hideAvmWindow": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
+        },
+        "abl.configuration.defaultRuntime": {
+          "type": "string",
+          "description": "Default OpenEdge Execution Environment name",
+          "enum": [
+            "9.1E",
+            "10.2B",
+            "11.5",
+            "11.6",
+            "11.7",
+            "12.2",
+            "12.4",
+            "12.5",
+            "12.6",
+            "12.7",
+            "12.8",
+            "13.0",
+            "ESAP"
+          ]
+        },
+        "abl.configuration.runtimes": {
+          "type": "array",
+          "description": "Map OpenEdge Execution Environments to local installation",
+          "items": {
+            "type": "object",
+            "default": {},
+            "required": [
+              "path",
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "9.1E",
+                  "10.2B",
+                  "11.5",
+                  "11.6",
+                  "11.7",
+                  "12.2",
+                  "12.4",
+                  "12.5",
+                  "12.6",
+                  "12.7",
+                  "12.8",
+                  "13.0",
+                  "ESAP"
+                ],
+                "description": "OpenEdge Execution Environment name. Must be unique."
+              },
+              "path": {
+                "type": "string",
+                "pattern": ".*(?<!\\/bin|\\/bin\\/|\\\\bin|\\\\bin\\\\)$",
+                "description": "OpenEdge home directory.\n On Windows, backslashes must be escaped, i.e.\n\"path\":\"C:\\\\Progress\\\\OpenEdge-12.2\"."
+              }
+            },
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "abl.runProgres.currentFile",
+          "when": "editorLangId == 'abl'"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "oeDoc.switchTo122",
+          "when": "view == openEdgeDocumentation",
+          "group": "navigation"
+        },
+        {
+          "command": "oeDoc.switchTo128",
+          "when": "view == openEdgeDocumentation",
+          "group": "navigation"
+        },
+        {
+          "command": "classBrowser.refresh",
+          "when": "view == classBrowser",
+          "group": "navigation"
+        }
+      ]
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "openedge-project.json",
+        "url": "./resources/openedge.schema.json"
+      }
+    ],
+    "keybindings": [
+      {
+        "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+        "command": "abl.runBatch.currentFile",
+        "key": "F2"
+      },
+      {
+        "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+        "command": "abl.openInAB",
+        "key": "shift+f8"
+      },
+      {
+        "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+        "command": "abl.debugListingLine",
+        "key": "alt+L"
+      },
+      {
+        "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+        "command": "abl.organizeUsings",
+        "key": "ctrl+shift+U"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "openedge-view",
+          "title": "OpenEdge Resources",
+          "icon": "resources/images/progress_logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "openedge-view": [
+        {
+          "id": "openEdgeDocumentation",
+          "name": "OpenEdge Documentation"
+        },
+        {
+          "id": "classBrowser",
+          "name": "Class Browser"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@vscode/debugadapter": "^1.65.0",
+    "@vscode/debugprotocol": "^1.65.0",
+    "@vscode/vsce": "^2.24.0",
+    "abl-tmlanguage": "^1.3.19",
+    "jsonminify": "^0.4.1",
+    "node-fetch": "2.7.0",
+    "openedge-abl-lsp": "file:",
+    "ovsx": "^0.10.5",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/node": "^18.x",
+    "@types/node-fetch": "^2.6.11",
+    "@types/vscode": "^1.76.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.54.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
 }

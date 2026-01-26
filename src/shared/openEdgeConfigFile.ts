@@ -67,10 +67,10 @@ export class ProfileConfig {
   extraParameters: string;
   gui: Boolean;
   dlc: string;
-  propath: string[]
+  propath: string[];
   propathMode: 'append' | 'overwrite' | 'prepend'; // Deprecated
-  startupProc: string // Deprecated
-  parameterFiles: string[] // Deprecated
+  startupProc: string; // Deprecated
+  parameterFiles: string[]; // Deprecated
   dbDictionary?: string[]; // Deprecated
   test?: TestConfig; // Deprecated
   dbConnections?: DatabaseConnection[];
@@ -81,39 +81,30 @@ export class ProfileConfig {
       this.oeversion = parent.oeversion;
       this.dlc = parent.dlc;
     }
-    if (!this.extraParameters)
-      this.extraParameters = parent.extraParameters;
-    if (!this.gui)
-      this.gui = parent.gui;
-    if (!this.propath)
-      this.propath = parent.propath;
-    if (!this.dbConnections)
-      this.dbConnections = parent.dbConnections;
-    if (!this.procedures)
-      this.procedures = parent.procedures;
+    if (!this.extraParameters) this.extraParameters = parent.extraParameters;
+    if (!this.gui) this.gui = parent.gui;
+    if (!this.propath) this.propath = parent.propath;
+    if (!this.dbConnections) this.dbConnections = parent.dbConnections;
+    if (!this.procedures) this.procedures = parent.procedures;
   }
 
   getTTYExecutable(): string {
     if (fs.existsSync(path.join(this.dlc, 'bin', '_progres.exe')))
       return path.join(this.dlc, 'bin', '_progres.exe');
-    else
-      return path.join(this.dlc, 'bin', '_progres')
+    else return path.join(this.dlc, 'bin', '_progres');
   }
 
   getExecutable(gui?: boolean): string {
     if (gui || this.gui) {
       if (fs.existsSync(path.join(this.dlc, 'bin', 'prowin.exe')))
         return path.join(this.dlc, 'bin', 'prowin.exe');
-      else
-        return path.join(this.dlc, 'bin', 'prowin32.exe')
+      else return path.join(this.dlc, 'bin', 'prowin32.exe');
     } else {
       if (fs.existsSync(path.join(this.dlc, 'bin', '_progres.exe')))
         return path.join(this.dlc, 'bin', '_progres.exe');
-      else
-        return path.join(this.dlc, 'bin', '_progres')
+      else return path.join(this.dlc, 'bin', '_progres');
     }
   }
-
 }
 
 export class OpenEdgeProjectConfig extends ProfileConfig {
@@ -126,7 +117,9 @@ export class OpenEdgeProjectConfig extends ProfileConfig {
 
 export function loadConfigFile(filename: string): OpenEdgeMainConfig {
   try {
-    return JSON.parse(jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })));
+    return JSON.parse(
+      jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })),
+    );
   } catch (caught) {
     return null;
   }

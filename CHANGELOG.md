@@ -1,3 +1,8 @@
+1.27.x
+======
+
+* 🎨 Use Prettier on entire codebase
+
 1.26.0 (January 20th, 2026)
 ===========================
 

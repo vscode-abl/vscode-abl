@@ -4,12 +4,18 @@ import { LanguageClient } from 'vscode-languageclient/node';
 type CategoryType = 'projectClasses' | 'propathClasses' | 'assemblies';
 
 export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowserItem> {
-
-  private _onDidChangeTreeData: vscode.EventEmitter<ClassBrowserItem | undefined | void> = new vscode.EventEmitter<ClassBrowserItem | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<ClassBrowserItem | undefined | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<
+    ClassBrowserItem | undefined | void
+  > = new vscode.EventEmitter<ClassBrowserItem | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<
+    ClassBrowserItem | undefined | void
+  > = this._onDidChangeTreeData.event;
   private dataCache: Map<string, SourceCodeTypeInfo[]> = new Map();
 
-  constructor(private client: LanguageClient, private projects: Array<any>) {}
+  constructor(
+    private client: LanguageClient,
+    private projects: Array<any>,
+  ) {}
 
   refresh(): void {
     // Clear all cached data
@@ -44,41 +50,54 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
   }
 
   private _getProjectNodes(): ClassBrowserItem[] {
-    return this.projects.map(project => {
-      const projectName = project.name || project.path;
-      const projectUri = project.uri?.toString() || project.path;
-      return new ClassBrowserItem(
-        projectName,
-        'project',
-        vscode.TreeItemCollapsibleState.Collapsed,
-        project,
-        `project:${projectUri}`
-      );
-    }).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+    return this.projects
+      .map((project) => {
+        const projectName = project.name || project.path;
+        const projectUri = project.uri?.toString() || project.path;
+        return new ClassBrowserItem(
+          projectName,
+          'project',
+          vscode.TreeItemCollapsibleState.Collapsed,
+          project,
+          `project:${projectUri}`,
+        );
+      })
+      .sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
   }
 
   private _getCategoryNodes(projectNode: ClassBrowserItem): ClassBrowserItem[] {
-    const projectUri = projectNode.data.uri?.toString() || projectNode.data.path;
-    const categories: { label: string; category: CategoryType; icon: string }[] = [
-      { label: 'Project Classes', category: 'projectClasses', icon: 'symbol-class' },
+    const projectUri =
+      projectNode.data.uri?.toString() || projectNode.data.path;
+    const categories: {
+      label: string;
+      category: CategoryType;
+      icon: string;
+    }[] = [
+      {
+        label: 'Project Classes',
+        category: 'projectClasses',
+        icon: 'symbol-class',
+      },
       { label: 'Propath Classes', category: 'propathClasses', icon: 'library' },
-      { label: 'Assemblies', category: 'assemblies', icon: 'package' }
+      { label: 'Assemblies', category: 'assemblies', icon: 'package' },
     ];
 
-    return categories.map(cat => {
+    return categories.map((cat) => {
       const node = new ClassBrowserItem(
         cat.label,
         'category',
         vscode.TreeItemCollapsibleState.Collapsed,
         { projectUri, category: cat.category },
-        `category:${projectUri}:${cat.category}`
+        `category:${projectUri}:${cat.category}`,
       );
       node.iconPath = new vscode.ThemeIcon(cat.icon);
       return node;
     });
   }
 
-  private async _getPackageNodes(categoryNode: ClassBrowserItem): Promise<ClassBrowserItem[]> {
+  private async _getPackageNodes(
+    categoryNode: ClassBrowserItem,
+  ): Promise<ClassBrowserItem[]> {
     try {
       const projectUri = categoryNode.data.projectUri as string;
       const category = categoryNode.data.category as CategoryType;
@@ -91,9 +110,9 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
       } else {
         // Call the appropriate language server method based on category
         const requestMethod = this._getRequestMethod(category);
-        result = await this.client.sendRequest(requestMethod, {
-          projectUri: projectUri
-        }) as SourceCodeTypeInfo[];
+        result = (await this.client.sendRequest(requestMethod, {
+          projectUri: projectUri,
+        })) as SourceCodeTypeInfo[];
 
         // Cache the result
         this.dataCache.set(cacheKey, result);
@@ -118,16 +137,20 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
           'package',
           vscode.TreeItemCollapsibleState.Collapsed,
           { packageName, classes, projectUri, category },
-          `package:${projectUri}:${category}:${packageName}`
+          `package:${projectUri}:${category}:${packageName}`,
         );
         packageNode.contextValue = 'package';
         packageNode.iconPath = new vscode.ThemeIcon('symbol-namespace');
         packageNodes.push(packageNode);
       }
 
-      return packageNodes.sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+      return packageNodes.sort((a, b) =>
+        a.label.toString().localeCompare(b.label.toString()),
+      );
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to get class information: ${error}`);
+      vscode.window.showErrorMessage(
+        `Failed to get class information: ${error}`,
+      );
       return [];
     }
   }
@@ -147,24 +170,31 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
     const classes = packageNode.data.classes as SourceCodeTypeInfo[];
     const projectUri = packageNode.data.projectUri as string;
     const category = packageNode.data.category as CategoryType;
-    return classes.map(classInfo => {
-      const className = this._getClassName(classInfo.typeName);
-      const classNode = new ClassBrowserItem(
-        className,
-        'class',
-        vscode.TreeItemCollapsibleState.Collapsed,
-        { ...classInfo, projectUri, category },
-        `class:${projectUri}:${category}:${classInfo.typeName}`
-      );
-      classNode.contextValue = 'class';
-      classNode.iconPath = this._getClassIcon(classInfo);
-      classNode.tooltip = this._buildClassTooltip(classInfo);
-      return classNode;
-    }).sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+    return classes
+      .map((classInfo) => {
+        const className = this._getClassName(classInfo.typeName);
+        const classNode = new ClassBrowserItem(
+          className,
+          'class',
+          vscode.TreeItemCollapsibleState.Collapsed,
+          { ...classInfo, projectUri, category },
+          `class:${projectUri}:${category}:${classInfo.typeName}`,
+        );
+        classNode.contextValue = 'class';
+        classNode.iconPath = this._getClassIcon(classInfo);
+        classNode.tooltip = this._buildClassTooltip(classInfo);
+        return classNode;
+      })
+      .sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
   }
 
-  private _getClassMemberNodes(classNode: ClassBrowserItem): ClassBrowserItem[] {
-    const classInfo = classNode.data as SourceCodeTypeInfo & { projectUri: string; category: CategoryType };
+  private _getClassMemberNodes(
+    classNode: ClassBrowserItem,
+  ): ClassBrowserItem[] {
+    const classInfo = classNode.data as SourceCodeTypeInfo & {
+      projectUri: string;
+      category: CategoryType;
+    };
     const members: ClassBrowserItem[] = [];
     const classId = `${classInfo.projectUri}:${classInfo.category}:${classInfo.typeName}`;
 
@@ -176,7 +206,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
           'property',
           vscode.TreeItemCollapsibleState.None,
           prop,
-          `property:${classId}:${prop.name}`
+          `property:${classId}:${prop.name}`,
         );
         propNode.contextValue = 'property';
         propNode.iconPath = new vscode.ThemeIcon('symbol-property');
@@ -194,7 +224,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
           'method',
           vscode.TreeItemCollapsibleState.None,
           method,
-          `method:${classId}:${method.name}:${i}`
+          `method:${classId}:${method.name}:${i}`,
         );
         methodNode.contextValue = 'method';
         methodNode.iconPath = this._getMethodIcon(method);
@@ -211,7 +241,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
           'event',
           vscode.TreeItemCollapsibleState.None,
           event,
-          `event:${classId}:${event.name}`
+          `event:${classId}:${event.name}`,
         );
         eventNode.contextValue = 'event';
         eventNode.iconPath = new vscode.ThemeIcon('symbol-event');
@@ -227,7 +257,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
           'variable',
           vscode.TreeItemCollapsibleState.None,
           variable,
-          `variable:${classId}:${variable.name}`
+          `variable:${classId}:${variable.name}`,
         );
         varNode.contextValue = 'variable';
         varNode.iconPath = new vscode.ThemeIcon('symbol-variable');
@@ -269,10 +299,12 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
   }
 
   private _buildMethodSignature(method: MethodInfo): string {
-    const params = method.parameters.map(p => {
-      const dataType = this._getDataTypeString(p.dataType);
-      return `${p.mode} ${p.name} AS ${dataType}`;
-    }).join(', ');
+    const params = method.parameters
+      .map((p) => {
+        const dataType = this._getDataTypeString(p.dataType);
+        return `${p.mode} ${p.name} AS ${dataType}`;
+      })
+      .join(', ');
 
     const returnType = this._getDataTypeString(method.returnType);
     const isStatic = method.isStatic ? 'STATIC ' : '';
@@ -283,7 +315,9 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
 
   private _buildMethodTooltip(method: MethodInfo): string {
     const returnType = this._getDataTypeString(method.returnType);
-    let tooltip = method.isConstructor ? 'CONSTRUCTOR' : `Returns: ${returnType}`;
+    let tooltip = method.isConstructor
+      ? 'CONSTRUCTOR'
+      : `Returns: ${returnType}`;
 
     if (method.isStatic) {
       tooltip = 'STATIC ' + tooltip;
@@ -346,7 +380,7 @@ export class ClassBrowserItem extends vscode.TreeItem {
     public readonly type: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly data: any,
-    id?: string
+    id?: string,
   ) {
     super(label, collapsibleState);
     this.id = id;
