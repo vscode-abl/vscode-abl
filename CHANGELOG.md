@@ -2,6 +2,8 @@
 ======
 
 * 🎨 Use Prettier on entire codebase
+* ⬆️ ABL-LS 1.24.0-SNAPSHOT
+* ⬆️ CABL 3.7.0-SNAPSHOT
 
 1.26.0 (January 20th, 2026)
 ===========================
