@@ -631,6 +631,10 @@
         {
           "id": "classBrowser",
           "name": "Class Browser"
+        },
+        {
+          "id": "ablOutline",
+          "name": "ABL Outline"
         }
       ]
     }

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Image frame -->
+  <rect x="1" y="2" width="14" height="12" fill="none" stroke="#567ad4" stroke-width="1"/>
+
+  <!-- Mountain/landscape -->
+  <path d="M 1 14 L 5 8 L 8 11 L 11 6 L 15 14 Z" fill="#9b59b6" opacity="0.3"/>
+  <path d="M 1 14 L 5 8 L 8 11 L 11 6 L 15 14" fill="none" stroke="#567ad4" stroke-width="0.8" stroke-linejoin="round"/>
+
+  <!-- Sun/moon circle -->
+  <circle cx="11.5" cy="5.5" r="1.5" fill="#9b59b6" opacity="0.4" stroke="#567ad4" stroke-width="0.6"/>
+</svg>

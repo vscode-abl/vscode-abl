@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Outer frame border -->
+  <rect x="1" y="1" width="14" height="14" fill="none" stroke="#567ad4" stroke-width="1.2"/>
+
+  <!-- Frame title bar -->
+  <rect x="1" y="1" width="14" height="3" fill="#9b59b6" opacity="0.2"/>
+  <line x1="1" y1="4" x2="15" y2="4" stroke="#567ad4" stroke-width="1"/>
+
+  <!-- Inner content area with grouped elements -->
+  <rect x="3" y="6" width="10" height="2" fill="none" stroke="#567ad4" stroke-width="0.6" rx="0.5"/>
+  <rect x="3" y="9" width="10" height="2" fill="none" stroke="#567ad4" stroke-width="0.6" rx="0.5"/>
+  <rect x="3" y="12" width="5" height="2" fill="none" stroke="#567ad4" stroke-width="0.6" rx="0.5"/>
+</svg>

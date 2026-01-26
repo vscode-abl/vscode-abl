@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Rectangle with handles at corners -->
+  <rect x="2" y="4" width="12" height="8" fill="none" stroke="#567ad4" stroke-width="1.2"/>
+
+  <!-- Corner handles -->
+  <rect x="1" y="3" width="2" height="2" fill="#9b59b6"/>
+  <rect x="13" y="3" width="2" height="2" fill="#9b59b6"/>
+  <rect x="1" y="11" width="2" height="2" fill="#9b59b6"/>
+  <rect x="13" y="11" width="2" height="2" fill="#9b59b6"/>
+
+  <!-- Fill pattern to distinguish from frame -->
+  <line x1="4" y1="6" x2="12" y2="6" stroke="#567ad4" stroke-width="0.5" opacity="0.3"/>
+  <line x1="4" y1="8" x2="12" y2="8" stroke="#567ad4" stroke-width="0.5" opacity="0.3"/>
+  <line x1="4" y1="10" x2="12" y2="10" stroke="#567ad4" stroke-width="0.5" opacity="0.3"/>
+</svg>

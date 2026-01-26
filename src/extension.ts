@@ -19,6 +19,7 @@ import {
   DocViewPanel,
 } from './OpenEdgeDocumentation';
 import { ClassBrowserProvider } from './ClassBrowser';
+import { AblOutlineProvider } from './ablOutline';
 import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
 import {
@@ -34,6 +35,7 @@ let client: LanguageClient;
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 const docNodeProvider = new DocumentationNodeProvider();
 let classBrowserProvider: ClassBrowserProvider;
+let ablOutlineProvider: AblOutlineProvider;
 let oeRuntimes: Array<any>;
 let langServDebug: boolean;
 let defaultProjectName: string;
@@ -1449,6 +1451,32 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   // Register Class Browser
   classBrowserProvider = new ClassBrowserProvider(client, projects);
   vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
+
+  // Register Custom Outline
+  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
+  vscode.window.registerTreeDataProvider(
+    'ablOutline',
+    ablOutlineProvider,
+  );
+
+  // Register command to navigate to symbol
+  ctx.subscriptions.push(
+    vscode.commands.registerCommand(
+      'ablOutline.goToSymbol',
+      (range: vscode.Range) => {
+        if (vscode.window.activeTextEditor) {
+          vscode.window.activeTextEditor.selection = new vscode.Selection(
+            range.start,
+            range.start,
+          );
+          vscode.window.activeTextEditor.revealRange(
+            range,
+            vscode.TextEditorRevealType.InCenter,
+          );
+        }
+      },
+    ),
+  );
 }
 
 function readOEConfigFile(uri: vscode.Uri) {
