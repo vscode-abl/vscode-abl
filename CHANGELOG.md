@@ -1,6 +1,8 @@
 1.27.x
 ======
 
+* ✨ ABL Code Outline view (work in progress)
+* ✨ Improved hover on builtin functions
 * 🎨 Use Prettier on entire codebase
 * ⬆️ ABL-LS 1.24.0-SNAPSHOT
 * ⬆️ CABL 3.7.0-SNAPSHOT
