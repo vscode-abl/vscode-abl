@@ -187,10 +187,10 @@ export class DocViewPanel {
 
   private _getHtmlForWebview(responseHtml: string) {
     return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<style>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <style>
           :root {
             --bg-primary: var(--vscode-editor-background, #1e1e1e);
             --bg-secondary: var(--vscode-sideBar-background, #252526);
@@ -424,30 +424,30 @@ export class DocViewPanel {
             background: var(--text-secondary);
           }
         </style>
-				<script>
-  				function interceptClickEvent(e) {
-					var href;
-					var target = e.target || e.srcElement;
-					if (target.tagName === 'A') {
-							href = target.getAttribute('href');
-							vscode.postMessage({ type: 'openLink', message: href });
-							e.preventDefault(); // doesn't work anymore :-()
-							target.href = "#";
-					}
-					return ;
-			}
-			// listen for link click events at the document level
-			if (document.addEventListener) {
-					document.addEventListener('click', interceptClickEvent);
-			} else if (document.attachEvent) {
-					document.attachEvent('onclick', interceptClickEvent);
-			}
-			const vscode = acquireVsCodeApi(); // acquireVsCodeApi can only be invoked once
+        <script>
+          function interceptClickEvent(e) {
+          var href;
+          var target = e.target || e.srcElement;
+          if (target.tagName === 'A') {
+              href = target.getAttribute('href');
+              vscode.postMessage({ type: 'openLink', message: href });
+              e.preventDefault(); // doesn't work anymore :-()
+              target.href = "#";
+          }
+          return ;
+      }
+      // listen for link click events at the document level
+      if (document.addEventListener) {
+          document.addEventListener('click', interceptClickEvent);
+      } else if (document.attachEvent) {
+          document.attachEvent('onclick', interceptClickEvent);
+      }
+      const vscode = acquireVsCodeApi(); // acquireVsCodeApi can only be invoked once
 
-			  </script>
-			</head>
-			<body>${responseHtml}</body>
-			</html>`;
+        </script>
+      </head>
+      <body>${responseHtml}</body>
+      </html>`;
   }
 }
 

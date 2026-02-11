@@ -1466,10 +1466,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   // Register Custom Outline
   ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
-  vscode.window.registerTreeDataProvider(
-    'ablOutline',
-    ablOutlineProvider,
-  );
+  vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
 
   // Register command to navigate to symbol
   ctx.subscriptions.push(
