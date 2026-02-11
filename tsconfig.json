@@ -3,8 +3,8 @@
     "module": "commonjs",
     "outDir": "out",
     "sourceMap": true,
-    "target": "es6",
-    "lib": ["es6"],
+    "target": "es2022",
+    "lib": ["es2022"],
     "plugins": [
       {
         "name": "typescript-tslint-plugin"
