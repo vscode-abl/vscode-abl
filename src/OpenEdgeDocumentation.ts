@@ -180,7 +180,7 @@ export class DocViewPanel {
       headers: { Accept: 'application/json' },
     })
       .then((response) => response.json())
-      .then((json) => {
+      .then((json: { html: string }) => {
         this._panel.webview.html = this._getHtmlForWebview(json.html);
       });
   }
