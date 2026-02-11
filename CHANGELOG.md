@@ -8,6 +8,11 @@
 * ⬆️ CABL 3.7.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.21
 
+1.26.2 (February 11th, 2026)
+============================
+
+* ✨ OpenEdge 13.0 documentation links
+
 1.26.0 (January 20th, 2026)
 ===========================
 

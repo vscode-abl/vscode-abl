@@ -98,7 +98,7 @@ pipeline {
           } else if ("main" == env.BRANCH_NAME) {
             withSecrets() {
               sh "npx @vscode/vsce publish --packagePath *.vsix"
-              sh "npx ovsx publish *.vsix"
+              sh "npx ovsx publish --packagePath *.vsix"
             }
           } else {
             sh "echo Artifacts not published!"

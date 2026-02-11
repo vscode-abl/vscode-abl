@@ -306,11 +306,19 @@ function openDocumentationEntry(uri: string): void {
 function switchDocTo122(): void {
   docNodeProvider.updateMode(2);
   docNodeProvider.refresh();
+  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 2);
 }
 
 function switchDocTo128(): void {
   docNodeProvider.updateMode(3);
   docNodeProvider.refresh();
+  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 3);
+}
+
+function switchDocTo130(): void {
+  docNodeProvider.updateMode(4);
+  docNodeProvider.refresh();
+  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 4);
 }
 
 function refreshClassBrowser(): void {
@@ -1321,6 +1329,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128),
   );
   ctx.subscriptions.push(
+    vscode.commands.registerCommand('oeDoc.switchTo130', switchDocTo130),
+  );
+  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'classBrowser.refresh',
       refreshClassBrowser,
@@ -1446,6 +1457,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     'openEdgeDocumentation',
     docNodeProvider,
   );
+  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 3);
   docNodeProvider.fetchData();
 
   // Register Class Browser
