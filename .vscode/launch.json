@@ -21,7 +21,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "run_env/sample-oe-projects/project1"
+        "${workspaceFolder}/run_env/sample-oe-projects/project1"
       ],
       "sourceMaps": true,
       "preLaunchTask": "build"
@@ -33,7 +33,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "run_env/sample-oe-projects/project2"
+        "${workspaceFolder}/run_env/sample-oe-projects/project2"
       ],
       "sourceMaps": true,
       "preLaunchTask": "build"
