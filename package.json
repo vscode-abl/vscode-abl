@@ -672,7 +672,7 @@
     "eslint": "^8.54.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.2",
-    "webpack": "^5.89.0",
+    "webpack": "^5.105.1",
     "webpack-cli": "^5.1.4"
   }
 }
