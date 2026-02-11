@@ -1319,157 +1319,69 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ),
   );
 
-  ctx.subscriptions.push(
+  const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('oeDoc.switchTo130', switchDocTo130),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'classBrowser.refresh',
       refreshClassBrowser,
     ),
-  );
-
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.getRelativePath', getRelativePath),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.getDlcDirectory', getDlcDir),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.getPropath', getPropath),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.getSourceDirs', getSourceDirs),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.getBuildDirs', getBuildDirs),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.setDefaultProject', setDefaultProject),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.dumpLangServStatus',
       dumpLangServStatus,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.restart.langserv', restartLangServer),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.compileBuffer', compileBuffer),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.debugListingLine', debugListingLine),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.preprocess', preprocessFile),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.dumpFileStatus', dumpFileStatus),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.generateListing', generateListing),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.generateDebugListing',
       generateDebugListing,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.generateXref', generateXref),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.generateXmlXref', generateXmlXref),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.generateXrefAndJumpToCurrentLine',
       generateXrefAndJumpToCurrentLine,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.catalog', generateCatalog),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.organizeUsings', organizeUsings),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.project.switch.profile',
       switchProfileCmd,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.project.rebuild', rebuildProject),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.dataDictionary',
       openDataDictionaryCmd,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.openInAB', openInAppbuilder),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.openInProcEd', openInProcedureEditor),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.runProgres.currentFile',
       runCurrentFile,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.runBatch.currentFile',
       runCurrentFileBatch,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'abl.runProwin.currentFile',
       runCurrentFileProwin,
     ),
-  );
-  ctx.subscriptions.push(
     vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd),
-  );
-
-  vscode.window.registerTreeDataProvider(
-    'openEdgeDocumentation',
-    docNodeProvider,
-  );
-  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 3);
-  docNodeProvider.fetchData();
-
-  // Register Class Browser
-  classBrowserProvider = new ClassBrowserProvider(client, projects);
-  vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
-
-  // Register Custom Outline
-  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
-  vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
-
-  // Register command to navigate to symbol
-  ctx.subscriptions.push(
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
       (range: vscode.Range) => {
@@ -1485,7 +1397,23 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
       },
     ),
+  ];
+  ctx.subscriptions.push(...commands);
+
+  vscode.window.registerTreeDataProvider(
+    'openEdgeDocumentation',
+    docNodeProvider,
   );
+  vscode.commands.executeCommand('setContext', 'oeDoc.mode', 3);
+  docNodeProvider.fetchData();
+
+  // Register Class Browser
+  classBrowserProvider = new ClassBrowserProvider(client, projects);
+  vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
+
+  // Register Custom Outline
+  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
+  vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
 }
 
 function readOEConfigFile(uri: vscode.Uri) {
