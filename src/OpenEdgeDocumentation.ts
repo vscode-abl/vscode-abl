@@ -6,25 +6,38 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
   private _onDidChangeTreeData: vscode.EventEmitter<DocumentationEntry | undefined | void> = new vscode.EventEmitter<DocumentationEntry | undefined | void>();
   readonly onDidChangeTreeData: vscode.Event<DocumentationEntry | undefined | void> = this._onDidChangeTreeData.event;
 
-  // Version currently displayed -- 1 => 11.7 (not available anymore), 2 => 12.2, 3 => 12.8
+  // Version currently displayed -- 1 => 11.7 (not available anymore), 2 => 12.2, 3 => 12.8, 4 => 13.0
   private mode: number = 3;
   private docData122: JsonDocEntry[] = [];
   private docData128: JsonDocEntry[] = [];
+  private docData130: JsonDocEntry[] = [];
 
   // Refresh sections from OE website
   fetchData() {
-    const prefix = 'https://progress-be-prod.zoominsoftware.io/api/bundle/';
+    const prefix = 'https://docs-be.progress.com/api/bundle/';
+    // Version 12.2
     fetch(prefix + 'openedge-abl-reference-122/toc?language=enus', { method: 'GET', headers: { 'Accept': 'application/json' } }).then((response) =>
       response.text()
     ).then((text) => {
       this.docData122 = JSON.parse(text) as JsonDocEntry[];
       if (this.mode == 2) this._onDidChangeTreeData.fire();
     });
+    // Version 12.8
+    fetch(prefix + 'openedge-abl-reference-122/toc?language=enus', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        this.docData128 = JSON.parse(text) as JsonDocEntry[];
+        if (this.mode == 3) this._onDidChangeTreeData.fire();
+      });
+    // Version 13.0
     fetch(prefix + 'abl-reference/toc?language=enus', { method: 'GET', headers: { 'Accept': 'application/json' } }).then((response) =>
       response.text()
     ).then((text) => {
-      this.docData128 = JSON.parse(text) as JsonDocEntry[];
-      if (this.mode == 3) this._onDidChangeTreeData.fire();
+      this.docData130 = JSON.parse(text) as JsonDocEntry[];
+      if (this.mode == 4) this._onDidChangeTreeData.fire();
     });
   }
 
@@ -49,7 +62,7 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
   }
 
   private _getRootChildren(): DocumentationEntry[] {
-    const docRoot = this.mode == 2 ? this.docData122 : this.docData128;
+    const docRoot = this.mode == 2 ? this.docData122 : (this.mode == 3 ? this.docData128 : this.docData130);
     return docRoot.map(it => new DocumentationEntry(it, { command: 'abl.openDocEntry', title: '', arguments: [it.url] }));
   }
 

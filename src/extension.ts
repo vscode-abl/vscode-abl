@@ -206,6 +206,11 @@ function switchDocTo128(): void {
   docNodeProvider.refresh();
 }
 
+function switchDocTo130(): void {
+  docNodeProvider.updateMode(4);
+  docNodeProvider.refresh();
+}
+
 function refreshClassBrowser(): void {
   if (classBrowserProvider) {
     classBrowserProvider.refresh();
@@ -930,6 +935,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122));
     ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128));
+    ctx.subscriptions.push(vscode.commands.registerCommand('oeDoc.switchTo130', switchDocTo130));
+
     ctx.subscriptions.push(vscode.commands.registerCommand('classBrowser.refresh', refreshClassBrowser));
 
     ctx.subscriptions.push(vscode.commands.registerCommand('abl.getRelativePath', getRelativePath));

@@ -231,6 +231,12 @@
                 "enablement": "view == openEdgeDocumentation"
             },
             {
+                "command": "oeDoc.switchTo130",
+                "shortTitle": "13.0",
+                "title": "Switch to 13.0 documentation",
+                "enablement": "view == openEdgeDocumentation"
+            },
+            {
                 "command": "classBrowser.refresh",
                 "title": "Refresh Class Browser",
                 "icon": "$(refresh)"
@@ -575,6 +581,11 @@
                 },
                 {
                     "command": "oeDoc.switchTo128",
+                    "when": "view == openEdgeDocumentation",
+                    "group": "navigation"
+                },
+                {
+                    "command": "oeDoc.switchTo130",
                     "when": "view == openEdgeDocumentation",
                     "group": "navigation"
                 },
