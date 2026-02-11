@@ -23,7 +23,7 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
       if (this.mode == 2) this._onDidChangeTreeData.fire();
     });
     // Version 12.8
-    fetch(prefix + 'openedge-abl-reference-122/toc?language=enus', {
+    fetch(prefix + 'openedge-abl-reference-128/toc?language=enus', {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })
