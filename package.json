@@ -222,19 +222,19 @@
                 "command": "oeDoc.switchTo122",
                 "shortTitle": "12.2",
                 "title": "Switch to 12.2 documentation",
-                "enablement": "view == openEdgeDocumentation"
+                "enablement": "view == openEdgeDocumentation && oeDoc.mode != 2"
             },
             {
                 "command": "oeDoc.switchTo128",
                 "shortTitle": "12.8",
                 "title": "Switch to 12.8 documentation",
-                "enablement": "view == openEdgeDocumentation"
+                "enablement": "view == openEdgeDocumentation && oeDoc.mode != 3"
             },
             {
                 "command": "oeDoc.switchTo130",
                 "shortTitle": "13.0",
                 "title": "Switch to 13.0 documentation",
-                "enablement": "view == openEdgeDocumentation"
+                "enablement": "view == openEdgeDocumentation && oeDoc.mode != 4"
             },
             {
                 "command": "classBrowser.refresh",
