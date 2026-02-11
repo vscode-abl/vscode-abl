@@ -94,6 +94,7 @@ pipeline {
           if ("develop" == env.BRANCH_NAME) {
             withSecrets() {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
+              sh "npx ovsx publish --pre-release --packagePath *.vsix"
             }
           } else if ("main" == env.BRANCH_NAME) {
             withSecrets() {
