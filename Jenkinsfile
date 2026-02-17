@@ -23,8 +23,8 @@ pipeline {
           withEnv(["MVN_HOME=${tool name: 'Maven 3', type: 'maven'}", "JAVA_HOME=${tool name: 'JDK17', type: 'jdk'}"]) {
             sh "$MVN_HOME/bin/mvn -U -B -ntp dependency:get -Dartifact=eu.rssw.proparse:abl-lsp-bootstrap:${ablsVersion} -Dtransitive=false && cp $HOME/.m2/repository/eu/rssw/proparse/abl-lsp-bootstrap/${ablsVersion}/abl-lsp-bootstrap-${ablsVersion}.jar resources/abl-lsda.jar"
             // Curl -L in order to follow redirects
-            sh "curl -s -L -o resources/jre-windows.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_windows_hotspot_21.0.9_10.zip"
-            sh "curl -s -L -o resources/jre-linux.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_linux_hotspot_21.0.9_10.tar.gz"
+            sh "curl -s -L -o resources/jre-windows.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jre_x64_windows_hotspot_21.0.10_7.zip"
+            sh "curl -s -L -o resources/jre-linux.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jre_x64_linux_hotspot_21.0.10_7.tar.gz"
           }
         }
       }
@@ -43,15 +43,15 @@ pipeline {
           sh 'node --version && npm install webpack && npm run lint && cp node_modules/abl-tmlanguage/abl.tmLanguage.json resources/abl.tmLanguage.json && npm run grammar-version'
           if ("develop" == env.BRANCH_NAME) {
             sh 'npx @vscode/vsce package --pre-release'
-            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
+            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.10+7-jre jre'
             sh 'npx @vscode/vsce package --pre-release --target win32-x64'
-            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
+            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.10+7-jre jre'
             sh 'npx @vscode/vsce package --pre-release --target linux-x64'
           } else {
             sh 'npx @vscode/vsce package'
-            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.9+10-jre jre'
+            sh 'unzip -q resources/jre-windows.zip && mv jdk-21.0.10+7-jre jre'
             sh 'npx @vscode/vsce package --target win32-x64'
-            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.9+10-jre jre'
+            sh 'rm -rf jre/ && tar xfz resources/jre-linux.tar.gz && mv jdk-21.0.10+7-jre jre'
             sh 'npx @vscode/vsce package --target linux-x64'
           }
           archiveArtifacts artifacts: '*.vsix'
