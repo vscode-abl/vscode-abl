@@ -1,12 +1,14 @@
 1.27.x
 ======
 
+* ✨ Outline, definition, completion and hover on files that are not part of a source directory
 * ✨ ABL Code Outline view (work in progress)
 * ✨ Improved hover on builtin functions
 * 🎨 Use Prettier on entire codebase
 * ⬆️ ABL-LS 1.24.0-SNAPSHOT
 * ⬆️ CABL 3.7.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.3.21
+* ⬆️ TextMate Grammar 1.3.23
+* ⬆️ Java 21.0.10+7
 * 🚀 Deploy pre-releases to Open VSX
 
 1.26.2 (February 11th, 2026)
