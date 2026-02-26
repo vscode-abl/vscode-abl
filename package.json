@@ -495,6 +495,11 @@
                     "default": "",
                     "description": "Language Server Java executable"
                 },
+                "abl.showCommandsInContextMenu": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Shows commands in the context menu"
+                },
                 "abl.configuration.maxThreads": {
                     "type": "integer",
                     "default": -1,
@@ -594,8 +599,63 @@
                     "when": "view == classBrowser",
                     "group": "navigation"
                 }
+            ],
+            "editor/context": [
+                {
+                    "submenu": "abl.submenu",
+                    "when": "editorTextFocus && resourceLangId == abl",
+                    "group": "ABL"
+                }
+            ],
+            "abl.submenu": [
+                {
+                    "command": "abl.compileBuffer",
+                    "group": "ABL",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.preprocess",
+                    "group": "ABL",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.generateListing",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.generateDebugListing",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.restart.langserv",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.changeBuildMode",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.project.rebuild",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                },
+                {
+                    "command": "abl.project.switch.profile",
+                    "group": "ABL@1",
+                    "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+                }
             ]
         },
+        "submenus": [
+            {
+                "id": "abl.submenu",
+                "label": "ABL"
+            }
+        ],
         "jsonValidation": [
             {
                 "fileMatch": "openedge-project.json",
