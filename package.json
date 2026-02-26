@@ -495,6 +495,16 @@
           "default": "",
           "description": "Language Server Java executable"
         },
+        "abl.showCommandsInContextMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Shows commands in the Editor Context menu"
+        },
+        "abl.showProjectCommandsInContextMenu": {
+          "type": "boolean",
+          "default": false,
+          "description": "Shows project management commands in the Editor Context menu"
+        },
         "abl.configuration.maxThreads": {
           "type": "integer",
           "default": -1,
@@ -594,8 +604,72 @@
           "when": "view == classBrowser",
           "group": "navigation"
         }
+      ],
+      "editor/context": [
+        {
+          "submenu": "abl.submenu",
+          "when": "editorTextFocus && resourceLangId == abl"
+        }
+      ],
+      "abl.submenu": [
+        {
+          "command": "abl.compileBuffer",
+          "group": "01_file@01",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.preprocess",
+          "group": "01_file@02",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateListing",
+          "group": "01_file@03",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateDebugListing",
+          "group": "01_file@04",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXref",
+          "group": "01_file@05",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXmlXref",
+          "group": "01_file@06",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.changeBuildMode",
+          "group": "02_project@01",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.project.rebuild",
+          "group": "02_project@02",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.project.switch.profile",
+          "group": "02_project@03",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.restart.langserv",
+          "group": "03_langserv@01",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
+        }
       ]
     },
+    "submenus": [
+      {
+        "id": "abl.submenu",
+        "label": "ABL"
+      }
+    ],
     "jsonValidation": [
       {
         "fileMatch": "openedge-project.json",
