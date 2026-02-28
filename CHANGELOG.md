@@ -8,8 +8,9 @@
 * 🎨 Use Prettier on entire codebase
 * ⬆️ ABL-LS 1.24.0-SNAPSHOT
 * ⬆️ CABL 3.7.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.3.24
+* ⬆️ TextMate Grammar 1.3.25
 * ⬆️ Java 21.0.10+7
+* ⬆️ PCTTools 1.0.5
 * 🚀 Deploy pre-releases to Open VSX
 
 1.26.2 (February 11th, 2026)
