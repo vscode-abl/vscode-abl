@@ -734,6 +734,7 @@
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
     "ovsx": "^0.10.9",
+    "username": "^7.0.0",
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {

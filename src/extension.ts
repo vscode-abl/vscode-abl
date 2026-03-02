@@ -29,7 +29,8 @@ import {
   OpenEdgeProjectConfig,
   ProfileConfig,
 } from './shared/openEdgeConfigFile';
-import { machineId, machineIdSync } from 'node-machine-id';
+import { machineIdSync } from 'node-machine-id';
+import { usernameSync } from 'username';
 
 let client: LanguageClient;
 
@@ -257,7 +258,9 @@ function createLanguageClient(): LanguageClient {
     outputChannel: lsOutputChannel,
     initializationOptions: {
       abl: vscode.workspace.getConfiguration('abl'),
-      remoteName: vscode.env.remoteName
+      remoteName: vscode.env.remoteName,
+      machineId: machineIdSync(true),
+      user: usernameSync()
     },
     documentSelector: [
       { scheme: 'file', language: 'abl' },
