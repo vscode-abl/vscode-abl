@@ -1,6 +1,7 @@
 1.27.x
 ======
 
+* ✨ Context menu in text editor
 * ✨ Outline, definition, completion and hover on files that are not part of a source directory
 * ✨ ABL Code Outline view (work in progress)
 * ✨ Improved hover on builtin functions
