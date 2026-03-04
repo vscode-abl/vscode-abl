@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://riverside-software.fr/openedge-project.json",
   "definitions": {},
   "id": "openedge.json",
@@ -41,10 +41,21 @@
       ],
       "type": "string"
     },
+    "noExtensionBehavior": {
+      "id": "/properties/noExtensionBehavior",
+      "description": "How files without extension are handled. 'main' means the file is considered a main file, 'include' means it's considered an include file, and '' (empty string) means the file is ignored",
+      "enum": ["", "main", "include"],
+      "type": "string"
+    },
     "charset": {
       "id": "/properties/charset",
       "description": "Charset used by the language server to read source code. Not used by VSCode session.",
       "type": "string"
+    },
+    "mainFileExtensions": {
+      "id": "/properties/mainFileExtensions",
+      "description": "List of extensions of OpenEdge main files",
+      "items": "string"
     },
     "includeFileExtensions": {
       "id": "/properties/includeFileExtensions",
