@@ -219,19 +219,19 @@
         "description": "Dump Language Server status"
       },
       {
-        "command": "oeDoc.switchTo122",
+        "command": "abl.switchDocTo122",
         "shortTitle": "12.2",
         "title": "Switch to 12.2 documentation",
         "enablement": "view == openEdgeDocumentation && oeDoc.mode != 2"
       },
       {
-        "command": "oeDoc.switchTo128",
+        "command": "abl.switchDocTo128",
         "shortTitle": "12.8",
         "title": "Switch to 12.8 documentation",
         "enablement": "view == openEdgeDocumentation && oeDoc.mode != 3"
       },
       {
-        "command": "oeDoc.switchTo130",
+        "command": "abl.switchDocTo130",
         "shortTitle": "13.0",
         "title": "Switch to 13.0 documentation",
         "enablement": "view == openEdgeDocumentation && oeDoc.mode != 4"
@@ -585,17 +585,17 @@
       ],
       "view/title": [
         {
-          "command": "oeDoc.switchTo122",
+          "command": "abl.switchDocTo122",
           "when": "view == openEdgeDocumentation",
           "group": "navigation"
         },
         {
-          "command": "oeDoc.switchTo128",
+          "command": "abl.switchDocTo128",
           "when": "view == openEdgeDocumentation",
           "group": "navigation"
         },
         {
-          "command": "oeDoc.switchTo130",
+          "command": "abl.switchDocTo130",
           "when": "view == openEdgeDocumentation",
           "group": "navigation"
         },

@@ -272,6 +272,20 @@ function createLanguageClient(): LanguageClient {
         '**/openedge-project.properties',
       ),
     },
+    middleware: {
+      provideHover: async (document, position, token, next) => {
+        const hover = await next(document, position, token);
+        if (hover) {
+          hover.contents = hover.contents.map((content) => {
+            if (content instanceof vscode.MarkdownString) {
+              content.isTrusted = { enabledCommands: ['abl.openDocEntry'] };
+            }
+            return content;
+          });
+        }
+        return hover;
+      },
+    },
   };
 
   const tmp = new LanguageClient(
@@ -1329,9 +1343,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
-    vscode.commands.registerCommand('oeDoc.switchTo122', switchDocTo122),
-    vscode.commands.registerCommand('oeDoc.switchTo128', switchDocTo128),
-    vscode.commands.registerCommand('oeDoc.switchTo130', switchDocTo130),
+    vscode.commands.registerCommand('abl.switchDocTo122', switchDocTo122),
+    vscode.commands.registerCommand('abl.switchDocTo128', switchDocTo128),
+    vscode.commands.registerCommand('abl.switchDocTo130', switchDocTo130),
     vscode.commands.registerCommand(
       'classBrowser.refresh',
       refreshClassBrowser,
