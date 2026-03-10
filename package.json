@@ -505,6 +505,11 @@
           "default": false,
           "description": "Shows project management commands in the Editor Context menu"
         },
+        "abl.licenseKey": {
+          "type": "string",
+          "default": "",
+          "description": "License key"
+        },
         "abl.configuration.maxThreads": {
           "type": "integer",
           "default": -1,
