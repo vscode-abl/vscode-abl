@@ -734,7 +734,6 @@
     "@vscode/debugprotocol": "^1.68.0",
     "@vscode/vsce": "^3.7.1",
     "abl-tmlanguage": "^1.3.25",
-    "jsonminify": "^0.4.2",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",

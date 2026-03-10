@@ -1,7 +1,8 @@
-import * as jsonminify from 'jsonminify';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import * as vscode from 'vscode';
+import * as jsonc from 'jsonc-parser';
+import { outputChannel } from '../ablStatus';
 
 export interface TestConfig {
   files?: string[];
@@ -116,11 +117,20 @@ export class OpenEdgeProjectConfig extends ProfileConfig {
 }
 
 export function loadConfigFile(filename: string): OpenEdgeMainConfig {
-  try {
-    return JSON.parse(
-      jsonminify(fs.readFileSync(filename, { encoding: 'utf8' })),
-    );
-  } catch (caught) {
+  const raw = fs.readFileSync(filename, 'utf-8');
+  const errors: jsonc.ParseError[] = [];
+  const out = jsonc.parse(raw, errors);
+
+  if (errors.length > 0) {
+    vscode.window.showErrorMessage("Errors detected while reading OpenEdge configuration file", 'Open File')
+      .then(action => {
+        if (action === 'Open File') {
+          vscode.window.showTextDocument(vscode.Uri.file(filename));
+          vscode.commands.executeCommand('workbench.panel.markers.view.focus');
+        }
+      });
     return null;
   }
+
+  return out;
 }
