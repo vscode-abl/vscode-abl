@@ -423,6 +423,11 @@
           "default": false,
           "description": "Use uppercase keywords for code completion"
         },
+        "abl.completion.showOptionalParentheses": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show optional parentheses (`AVAILABLE(record)` vs `AVAILABLE record`)"
+        },
         "abl.completion.useWildcardUsings": {
           "type": "boolean",
           "default": true,
