@@ -6,12 +6,12 @@
 * ✨ Outline, definition, completion and hover on files that are not part of a source directory
 * ✨ ABL Code Outline view (work in progress)
 * ✨ Improved hover on builtin functions
-* ✨ Code completion: better text handling of keywords
+* ✨ Code completion: better text handling of keywords, optional parentheses on record functions
 * ✨ Pre- and post-compilation hooks
 * ✨ Add `mainFileExtensions` and `noExtensionBehavior` attributes
 * 🎨 Use Prettier on entire codebase
 * ⬆️ ABL-LS 1.24.0-SNAPSHOT
-* ⬆️ CABL 3.7.0-SNAPSHOT
+* ⬆️ CABL 3.7.1
 * ⬆️ TextMate Grammar 1.3.25
 * ⬆️ Java 21.0.10+7
 * ⬆️ PCTTools 1.0.5
