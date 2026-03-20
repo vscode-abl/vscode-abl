@@ -2,6 +2,7 @@
 ======
 
 * 🐛 Invalid Json configuration do not crash the language server anymore
+* ✨ Online documentation link on statement hover
 * ✨ Context menu in text editor
 * ✨ Outline, definition, completion and hover on files that are not part of a source directory
 * ✨ ABL Code Outline view (work in progress)
