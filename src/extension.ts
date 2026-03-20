@@ -279,6 +279,7 @@ function createLanguageClient(): LanguageClient {
           hover.contents = hover.contents.map((content) => {
             if (content instanceof vscode.MarkdownString) {
               content.isTrusted = { enabledCommands: ['abl.openDocEntry'] };
+              content.supportThemeIcons = true;
             }
             return content;
           });

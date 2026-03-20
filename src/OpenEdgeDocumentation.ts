@@ -117,8 +117,8 @@ export class DocViewPanel {
     // If we already have a panel, show it.
     if (DocViewPanel.currentPanel) {
       DocViewPanel.currentPanel._pageUri = page;
-      DocViewPanel.currentPanel._panel.reveal(column);
       DocViewPanel.currentPanel._update();
+      DocViewPanel.currentPanel._panel.reveal(DocViewPanel.currentPanel._panel.viewColumn);
       return;
     }
 
