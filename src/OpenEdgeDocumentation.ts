@@ -2,9 +2,12 @@ import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 
 export class DocumentationNodeProvider implements vscode.TreeDataProvider<DocumentationEntry> {
-
-  private _onDidChangeTreeData: vscode.EventEmitter<DocumentationEntry | undefined | void> = new vscode.EventEmitter<DocumentationEntry | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<DocumentationEntry | undefined | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<
+    DocumentationEntry | undefined | void
+  > = new vscode.EventEmitter<DocumentationEntry | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<
+    DocumentationEntry | undefined | void
+  > = this._onDidChangeTreeData.event;
 
   // Version currently displayed -- 1 => 11.7 (not available anymore), 2 => 12.2, 3 => 12.8, 4 => 13.0
   private mode: number = 3;
@@ -16,12 +19,15 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
   fetchData() {
     const prefix = 'https://docs-be.progress.com/api/bundle/';
     // Version 12.2
-    fetch(prefix + 'openedge-abl-reference-122/toc?language=enus', { method: 'GET', headers: { 'Accept': 'application/json' } }).then((response) =>
-      response.text()
-    ).then((text) => {
-      this.docData122 = JSON.parse(text) as JsonDocEntry[];
-      if (this.mode == 2) this._onDidChangeTreeData.fire();
-    });
+    fetch(prefix + 'openedge-abl-reference-122/toc?language=enus', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        this.docData122 = JSON.parse(text) as JsonDocEntry[];
+        if (this.mode == 2) this._onDidChangeTreeData.fire();
+      });
     // Version 12.8
     fetch(prefix + 'openedge-abl-reference-128/toc?language=enus', {
       method: 'GET',
@@ -33,12 +39,15 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
         if (this.mode == 3) this._onDidChangeTreeData.fire();
       });
     // Version 13.0
-    fetch(prefix + 'abl-reference/toc?language=enus', { method: 'GET', headers: { 'Accept': 'application/json' } }).then((response) =>
-      response.text()
-    ).then((text) => {
-      this.docData130 = JSON.parse(text) as JsonDocEntry[];
-      if (this.mode == 4) this._onDidChangeTreeData.fire();
-    });
+    fetch(prefix + 'abl-reference/toc?language=enus', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+      .then((response) => response.text())
+      .then((text) => {
+        this.docData130 = JSON.parse(text) as JsonDocEntry[];
+        if (this.mode == 4) this._onDidChangeTreeData.fire();
+      });
   }
 
   refresh(): void {
@@ -62,18 +71,36 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
   }
 
   private _getRootChildren(): DocumentationEntry[] {
-    const docRoot = this.mode == 2 ? this.docData122 : (this.mode == 3 ? this.docData128 : this.docData130);
-    return docRoot.map(it => new DocumentationEntry(it, { command: 'abl.openDocEntry', title: '', arguments: [it.url] }));
+    const docRoot =
+      this.mode == 2
+        ? this.docData122
+        : this.mode == 3
+          ? this.docData128
+          : this.docData130;
+    return docRoot.map(
+      (it) =>
+        new DocumentationEntry(it, {
+          command: 'abl.openDocEntry',
+          title: '',
+          arguments: [it.url],
+        }),
+    );
   }
 
   private _getChildren(element: DocumentationEntry): DocumentationEntry[] {
     if (element.docEntry.childEntries) {
-      return element.docEntry.childEntries.map(it => new DocumentationEntry(it, { command: 'abl.openDocEntry', title: '', arguments: [it.url] }));
+      return element.docEntry.childEntries.map(
+        (it) =>
+          new DocumentationEntry(it, {
+            command: 'abl.openDocEntry',
+            title: '',
+            arguments: [it.url],
+          }),
+      );
     } else {
       return [];
     }
   }
-
 }
 
 export class DocViewPanel {
@@ -90,15 +117,17 @@ export class DocViewPanel {
     // If we already have a panel, show it.
     if (DocViewPanel.currentPanel) {
       DocViewPanel.currentPanel._pageUri = page;
-      DocViewPanel.currentPanel._panel.reveal(column);
-      DocViewPanel.currentPanel._update()
+      DocViewPanel.currentPanel._update();
+      DocViewPanel.currentPanel._panel.reveal(DocViewPanel.currentPanel._panel.viewColumn);
       return;
     }
 
     // Otherwise, create a new panel.
-    const panel = vscode.window.createWebviewPanel('OEDOC', 'OpenEdge Documentation',
+    const panel = vscode.window.createWebviewPanel(
+      'OEDOC',
+      'OpenEdge Documentation',
       column || vscode.ViewColumn.One,
-      { enableScripts: true, enableFindWidget: true }
+      { enableScripts: true, enableFindWidget: true },
     );
 
     DocViewPanel.currentPanel = new DocViewPanel(panel, page);
@@ -115,46 +144,53 @@ export class DocViewPanel {
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
     this._panel.webview.onDidReceiveMessage(
-      message => {
+      (message) => {
         switch (message.type) {
           case 'openLink':
-            DocViewPanel.createOrShow(message.message.indexOf('#') > 0 ? message.message.substring(0, message.message.indexOf('#')) : message.message);
+            DocViewPanel.createOrShow(
+              message.message.indexOf('#') > 0
+                ? message.message.substring(0, message.message.indexOf('#'))
+                : message.message,
+            );
             return;
         }
       },
       null,
-      this._disposables
+      this._disposables,
     );
   }
 
   public dispose() {
-		DocViewPanel.currentPanel = undefined;
+    DocViewPanel.currentPanel = undefined;
 
-		// Clean up our resources
-		this._panel.dispose();
+    // Clean up our resources
+    this._panel.dispose();
 
-		while (this._disposables.length) {
-			const x = this._disposables.pop();
-			if (x) {
-				x.dispose();
-			}
-		}
-	}
+    while (this._disposables.length) {
+      const x = this._disposables.pop();
+      if (x) {
+        x.dispose();
+      }
+    }
+  }
 
   private _update() {
-    fetch(this._pageUri, { method: 'GET', headers: { 'Accept': 'application/json' } })
+    fetch(this._pageUri, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
       .then((response) => response.json())
-      .then((json) => {
-        this._panel.webview.html = this._getHtmlForWebview(json.html)
+      .then((json: { html: string }) => {
+        this._panel.webview.html = this._getHtmlForWebview(json.html);
       });
   }
 
   private _getHtmlForWebview(responseHtml: string) {
     return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<style>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <style>
           :root {
             --bg-primary: var(--vscode-editor-background, #1e1e1e);
             --bg-secondary: var(--vscode-sideBar-background, #252526);
@@ -388,36 +424,44 @@ export class DocViewPanel {
             background: var(--text-secondary);
           }
         </style>
-				<script>
-  				function interceptClickEvent(e) {
-					var href;
-					var target = e.target || e.srcElement;
-					if (target.tagName === 'A') {
-							href = target.getAttribute('href');
-							vscode.postMessage({ type: 'openLink', message: href });
-							e.preventDefault(); // doesn't work anymore :-()
-							target.href = "#";
-					}
-					return ;
-			}
-			// listen for link click events at the document level
-			if (document.addEventListener) {
-					document.addEventListener('click', interceptClickEvent);
-			} else if (document.attachEvent) {
-					document.attachEvent('onclick', interceptClickEvent);
-			}
-			const vscode = acquireVsCodeApi(); // acquireVsCodeApi can only be invoked once
+        <script>
+          function interceptClickEvent(e) {
+          var href;
+          var target = e.target || e.srcElement;
+          if (target.tagName === 'A') {
+              href = target.getAttribute('href');
+              vscode.postMessage({ type: 'openLink', message: href });
+              e.preventDefault(); // doesn't work anymore :-()
+              target.href = "#";
+          }
+          return ;
+      }
+      // listen for link click events at the document level
+      if (document.addEventListener) {
+          document.addEventListener('click', interceptClickEvent);
+      } else if (document.attachEvent) {
+          document.attachEvent('onclick', interceptClickEvent);
+      }
+      const vscode = acquireVsCodeApi(); // acquireVsCodeApi can only be invoked once
 
-			  </script>
-			</head>
-			<body>${responseHtml}</body>
-			</html>`;
+        </script>
+      </head>
+      <body>${responseHtml}</body>
+      </html>`;
   }
 }
 
 export class DocumentationEntry extends vscode.TreeItem {
-  constructor(public readonly docEntry: JsonDocEntry, public readonly command?: vscode.Command) {
-    super(docEntry.title, docEntry.childEntries && docEntry.childEntries.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
+  constructor(
+    public readonly docEntry: JsonDocEntry,
+    public readonly command?: vscode.Command,
+  ) {
+    super(
+      docEntry.title,
+      docEntry.childEntries && docEntry.childEntries.length > 0
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : vscode.TreeItemCollapsibleState.None,
+    );
   }
   contextValue = 'documentation';
 }

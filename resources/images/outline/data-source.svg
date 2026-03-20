@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Database cylinder (top) -->
+  <ellipse cx="8" cy="4" rx="5.5" ry="2" fill="none" stroke="#567ad4" stroke-width="1"/>
+  <ellipse cx="8" cy="4" rx="5.5" ry="2" fill="#9b59b6" opacity="0.2"/>
+
+  <!-- Database cylinder (sides) -->
+  <line x1="2.5" y1="4" x2="2.5" y2="8" stroke="#567ad4" stroke-width="1"/>
+  <line x1="13.5" y1="4" x2="13.5" y2="8" stroke="#567ad4" stroke-width="1"/>
+
+  <!-- Database cylinder (bottom) -->
+  <path d="M 2.5 8 Q 8 10.5, 13.5 8" fill="none" stroke="#567ad4" stroke-width="1"/>
+  <path d="M 2.5 8 Q 8 10.5, 13.5 8 L 13.5 8.2 Q 8 10.7, 2.5 8.2 Z" fill="#9b59b6" opacity="0.15"/>
+
+  <!-- Arrow pointing down/out -->
+  <line x1="8" y1="9.5" x2="8" y2="12.5" stroke="#567ad4" stroke-width="1.2"/>
+  <polygon points="8,12.5 6.5,11 9.5,11" fill="#9b59b6"/>
+
+  <!-- Small data rows at bottom (representing output) -->
+  <rect x="4" y="13.5" width="8" height="1.5" fill="none" stroke="#567ad4" stroke-width="0.8" rx="0.5"/>
+  <line x1="6.5" y1="13.5" x2="6.5" y2="15" stroke="#567ad4" stroke-width="0.5" opacity="0.5"/>
+  <line x1="9.5" y1="13.5" x2="9.5" y2="15" stroke="#567ad4" stroke-width="0.5" opacity="0.5"/>
+</svg>

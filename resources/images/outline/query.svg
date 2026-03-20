@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Database cylinder (small, at top) -->
+  <ellipse cx="4" cy="3" rx="3" ry="1.5" fill="none" stroke="#567ad4" stroke-width="0.8"/>
+  <line x1="1" y1="3" x2="1" y2="5" stroke="#567ad4" stroke-width="0.8"/>
+  <line x1="7" y1="3" x2="7" y2="5" stroke="#567ad4" stroke-width="0.8"/>
+  <path d="M 1 5 Q 4 6.5, 7 5" fill="none" stroke="#567ad4" stroke-width="0.8"/>
+
+  <!-- Arrow down -->
+  <line x1="4" y1="6" x2="4" y2="8" stroke="#567ad4" stroke-width="0.8"/>
+  <polygon points="4,8 3,7 5,7" fill="#9b59b6"/>
+
+  <!-- Query/filter icon (funnel) -->
+  <path d="M 2 9 L 6 9 L 5 11 L 3 11 Z" fill="none" stroke="#567ad4" stroke-width="0.8"/>
+  <line x1="4" y1="11" x2="4" y2="12.5" stroke="#567ad4" stroke-width="0.8"/>
+
+  <!-- Resulting data table -->
+  <rect x="8" y="8" width="7" height="7" fill="none" stroke="#567ad4" stroke-width="1"/>
+  <line x1="8" y1="10" x2="15" y2="10" stroke="#567ad4" stroke-width="1"/>
+  <line x1="11" y1="8" x2="11" y2="15" stroke="#567ad4" stroke-width="0.5" opacity="0.5"/>
+  <line x1="8" y1="12.5" x2="15" y2="12.5" stroke="#567ad4" stroke-width="0.5" opacity="0.4"/>
+</svg>

@@ -53,9 +53,15 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
     // "windowSystem": "MS-WINDOWS",
     // "processArchitecture": 32
   },
+  // Extra extensions for main files ; modifying these files trigger a compilation, xref analysis, rcode update, ...
+  // Attribute is optional. The standard .p, .w, and .cls are always included by default
+  "mainFileExtensions": [ ".t", ".x" ],
+  // Use MAIN or INCLUDE to add files without extension to the project. These files are not added by default.
+  "noExtensionBehavior": "",
   // Only required if your project use extensions other than ".i" for include files.
   // If not specified, modifying files with such extension will not trigger a compilation
-  "includeFileExtensions": [ ".i", ".f" ],
+  // .i is always included in the list
+  "includeFileExtensions": [ ".f" ],
   "buildPath": [
     // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
     // Source directories must be subdirectories of the project root directory. Relative paths are highly recommended.
@@ -127,6 +133,39 @@ On top of the default profile configured in `openedge-project.json`, additional 
 V11 Profile inherits from the default profile, so graphicalMode will be set to true. OpenEdge version and DB connections are specified in the profile.
 V12.2 GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
 When opening a project, VSCode will check for `.vscode/profile.json`. If this file is present, then this profile will be loaded. Otherwise, the default profile will be used. It is recommended to add this file to the SCM ignore list.
+
+## Pre- and post-compilation hooks
+
+The language server's compilation pipeline supports pre- and post-compilation hooks via `PUBLISH`/`SUBSCRIBE` events. Declare a persistent procedure in the project configuration:
+```json
+"procedures": [ { "name": "src/dev/hooks.p", "mode": "persistent" } ]
+```
+
+Procedure template:
+```abl
+subscribe to 'preCompileHook' anywhere.
+subscribe to 'postCompileHook' anywhere.
+
+procedure preCompileHook:
+  define input  parameter ipSrcFile as character no-undo.
+  define input  parameter ipRCode   as character no-undo.
+  define input  parameter ipXref    as character no-undo.
+  define output parameter opCancel  as integer   no-undo.
+
+  // Messages written in .builder/clientlog
+  log-manager:write-message("Pre-compilation hook").
+  opCancel = 0. // Don't cancel compilation
+  // Return 1 to log a warning, and 2 to log an error
+end.
+
+procedure postCompileHook:
+  define input  parameter ipSrcFile as character no-undo.
+  define input  parameter ipRCode   as character no-undo.
+  define input  parameter ipXref    as character no-undo.
+
+end procedure.
+
+```
 
 ## Debugger
 
