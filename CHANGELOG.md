@@ -1,5 +1,5 @@
-1.27.x
-======
+1.28.0 (March 20th, 2026)
+=========================
 
 * 🐛 Invalid Json configuration do not crash the language server anymore
 * ✨ Online documentation link on statement hover
@@ -11,7 +11,7 @@
 * ✨ Pre- and post-compilation hooks
 * ✨ Add `mainFileExtensions` and `noExtensionBehavior` attributes
 * 🎨 Use Prettier on entire codebase
-* ⬆️ ABL-LS 1.24.0-SNAPSHOT
+* ⬆️ ABL-LS 1.24.0
 * ⬆️ CABL 3.7.1
 * ⬆️ TextMate Grammar 1.3.25
 * ⬆️ Java 21.0.10+7
