@@ -377,12 +377,13 @@ if (ablExtension?.isActive) {
 }
 ```
 
-### `runGUI(projectPath: string, procedure: string)` and `runTTY(projectPath: string, procedure: string)`
+### `runGUI(projectPath: string, procedure: string)` and `runTTY(projectPath: string, procedure: string, batchMode?: boolean)`
 **Description:** Execute procedure with `prowin -p` .
 
 **Input Parameters:**
 - `projectPath` (string): the filesystem path of the project
 - `procedure` (string): procedure to be executed
+- `batchMode` (optional boolean): run with or without `-b`
 
 **Output:** None
 

@@ -164,7 +164,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       }
       runGUI(procedure, cfg);
     },
-    runTTY(projectPath: string, procedure: string) {
+    runTTY(projectPath: string, procedure: string, batchMode?: boolean) {
       const cfg = getProject(projectPath);
       if (!cfg) {
         vscode.window.showInformationMessage(
@@ -172,7 +172,10 @@ export function activate(ctx: vscode.ExtensionContext) {
         );
         return;
       }
-      runTTY(procedure, cfg);
+      if (batchMode)
+        runBatch(procedure, cfg);
+      else
+        runTTY(procedure, cfg);
     },
   };
 }
