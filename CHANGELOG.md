@@ -1,6 +1,7 @@
 1.29.x
 ======
 
+* 🐛 Fix debugger in `launch` mode
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
 
 
