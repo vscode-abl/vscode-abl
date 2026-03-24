@@ -293,7 +293,8 @@
               "request": "launch",
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
-              "graphicalMode": true
+              "graphicalMode": true,
+              "pause": false
             }
           },
           {
@@ -305,7 +306,8 @@
               "request": "launch",
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
-              "graphicalMode": false
+              "graphicalMode": false,
+              "pause": false
             }
           }
         ],
@@ -334,6 +336,11 @@
                 "type": "boolean",
                 "description": "Start session with _progres or prowin",
                 "default": "false"
+              },
+              "pause": {
+                "type": "boolean",
+                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
+                "default": false
               }
             }
           },
