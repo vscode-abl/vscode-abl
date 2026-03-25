@@ -346,12 +346,16 @@
           },
           "attach": {
             "required": [
-              "mode"
+              "localRoot", "mode", "port", "hostname"
             ],
             "properties": {
               "mode": {
                 "type": "string",
-                "description": "Attach to AVM or PASOE"
+                "description": "Attach to AVM or PASOE",
+                "enum": [
+                  "legacy",
+                  "pasoe"
+                ]
               },
               "port": {
                 "type": "integer",
