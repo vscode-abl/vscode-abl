@@ -3,6 +3,7 @@
 
 * 🐛 Fix debugger in `launch` mode
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
+* ⬆️ TextMate Grammar 1.3.26
 
 
 1.28.0 (March 20th, 2026)
