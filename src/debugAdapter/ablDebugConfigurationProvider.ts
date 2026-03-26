@@ -42,7 +42,7 @@ export class AblDebugConfigurationProvider
       );
       debugConfiguration['dlc'] = cfg.dlc;
       debugConfiguration['oeversion'] = cfg.oeversion;
-      debugConfiguration['refProjects'] = this.getRefProjects(folderPath);
+      debugConfiguration['projects'] = this.getProjects(folderPath);
     }
 
     return debugConfiguration;
@@ -57,7 +57,7 @@ export class AblDebugConfigurationProvider
     );
   }
 
-  public getRefProjects(path: string): Array<string> {
+  public getProjects(path: string): Array<string> {
     const srchPath = process.platform === 'win32' ? path.toLowerCase() : path;
     return this.projects.filter((project) => process.platform === 'win32'
         ? !srchPath.startsWith(project.rootDir.toLowerCase())

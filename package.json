@@ -266,7 +266,8 @@
               "mode": "legacy",
               "port": 3099,
               "localRoot": "^\"\\${workspaceFolder}\"",
-              "pause": true
+              "pause": true,
+              "refProjects": [ ]
             }
           },
           {
@@ -281,7 +282,8 @@
               "port": 8810,
               "localRoot": "^\"\\${workspaceFolder}\"",
               "appName": "pasoe1",
-              "password": ""
+              "password": "",
+              "refProjects": [ ]
             }
           },
           {
@@ -294,7 +296,8 @@
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
               "graphicalMode": true,
-              "pause": false
+              "pause": false,
+              "refProjects": [ ]
             }
           },
           {
@@ -307,7 +310,8 @@
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
               "graphicalMode": false,
-              "pause": false
+              "pause": false,
+              "refProjects": [ ]
             }
           }
         ],
@@ -341,6 +345,14 @@
                 "type": "boolean",
                 "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
                 "default": false
+              },
+              "refProjects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of referenced project names",
+                "default": [ ]
               }
             }
           },
@@ -386,6 +398,14 @@
                 "type": "string",
                 "description": "PASOE debugger password",
                 "default": ""
+              },              
+              "refProjects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of referenced project names",
+                "default": [ ]
               }
             }
           }
