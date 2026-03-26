@@ -533,54 +533,10 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
 function compileBuffer() {
   if (vscode.window.activeTextEditor == undefined) return;
 
-  if (projects.length == 1) {
-    compileBufferInProject(
-      projects[0],
-      vscode.window.activeTextEditor.document.uri.toString(),
-      vscode.window.activeTextEditor.document.getText(),
-    );
-  } else {
-    const defPrj = getProjectByName(defaultProjectName);
-    if (defPrj) {
-      compileBufferInProject(
-        defPrj,
-        vscode.window.activeTextEditor.document.uri.toString(),
-        vscode.window.activeTextEditor.document.getText(),
-      );
-    } else {
-      const list = projects.map((project) => ({
-        label: project.name,
-        description: project.rootDir,
-      }));
-      list.sort((a, b) => a.label.localeCompare(b.label));
-
-      const quickPick = vscode.window.createQuickPick();
-      quickPick.canSelectMany = false;
-      quickPick.title = 'Choose project to compile buffer:';
-      quickPick.items = list;
-      quickPick.onDidChangeSelection((args) => {
-        quickPick.hide();
-        compileBufferInProject(
-          getProjectByName(args[0].label),
-          vscode.window.activeTextEditor.document.uri.toString(),
-          vscode.window.activeTextEditor.document.getText(),
-        );
-      });
-      quickPick.show();
-    }
-  }
-}
-
-function compileBufferInProject(
-  project: OpenEdgeProjectConfig,
-  bufferUri: string,
-  buffer: string,
-) {
   client
     .sendRequest<any>('proparse/compileBuffer', {
-      projectUri: project.uri.toString(),
-      bufferUri: bufferUri,
-      buffer: buffer,
+      bufferUri: vscode.window.activeTextEditor.document.uri.toString(),
+      buffer: vscode.window.activeTextEditor.document.getText()
     })
     .then((result) => {
       if (result.success === false) {
