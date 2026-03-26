@@ -1,7 +1,7 @@
 1.29.x
 ======
 
-* ✨ Support for multiple projects in the debugger
+* ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
 * 🐛 Fix debugger in `launch` mode
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.26

@@ -193,7 +193,8 @@ You first need to create the launch configuration in your `.vscode/launch.json` 
       "mode": "legacy",
       "port": 3099,
       "pause": true,
-      "localRoot": "${workspaceFolder}"
+      "localRoot": "${workspaceFolder}",
+      "refProjects": [ "ProjectName#1", "ProjectName#2" ]
     }
   ]
 }
