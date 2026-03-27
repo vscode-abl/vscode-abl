@@ -304,10 +304,10 @@ if (ablExtension?.isActive) {
 ```
 
 ### `compile(uri: string)`
-**Description:** Retrieve detailed information about an ABL project.
+**Description:** Compile an ABL source file.
 
 **Input Parameters:**
-- `uri` (string): The URI of the project
+- `uri` (string): The URI of the file to compile
 
 **Output:** Returns a promise that resolves to an object containing compilation status (as a boolean)
 
