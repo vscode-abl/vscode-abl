@@ -2,7 +2,12 @@
 ======
 
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
+* ✨ Compile buffer action does not ask for project anymore
+* ✨ Add commentStyle attribute to project configuration file
+* 🐛 Fix signatures of functions without parentheses
 * 🐛 Fix debugger in `launch` mode
+* 🐛 Definition on inherited temp-table fields (#390)
+* 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.3.26
 
