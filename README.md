@@ -63,13 +63,15 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   // .i is always included in the list
   "includeFileExtensions": [ ".f" ],
   "buildPath": [
-    // Entries can have type 'source' or 'propath'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
+    // Entries can have type 'source', 'propath', or 'speedscript'. Path attribute is mandatory. Build attribute is optional (defaults to 'path'). Xref attribute is optional (defaults to 'build/.pct' or '.builder/srcX')
     // Source directories must be subdirectories of the project root directory. Relative paths are highly recommended.
     { "type": "source", "path": "src/procedures" },
     { "type": "source", "path": "src/classes" },
     // Include and exclude patterns are case-insensitive on Windows, and case-sensitive on any other operating system
     { "type": "source", "path": "src/dev", "includes": "foo/**,bar/**", "excludes": "foo/something/**" },
-    { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl", "documentation": "openedge.json" }
+    { "type": "propath", "path": "${DLC}/tty/netlib/OpenEdge.net.pl", "documentation": "openedge.json" },
+    // Speedscript entries require a 'gen' attribute pointing to the output directory of e4gl-gen.r (relative to root directory)
+    { "type": "speedscript", "path": "src/speedscript", "gen": "build/speedscript" }
   ],
   "dependencies": [
     // Enable this section only if you have a working Nexus repository
@@ -133,6 +135,10 @@ On top of the default profile configured in `openedge-project.json`, additional 
 V11 Profile inherits from the default profile, so graphicalMode will be set to true. OpenEdge version and DB connections are specified in the profile.
 V12.2 GUI Profile doesn't inherit from the default profile, so it won't have any DB connection.
 When opening a project, VSCode will check for `.vscode/profile.json`. If this file is present, then this profile will be loaded. Otherwise, the default profile will be used. It is recommended to add this file to the SCM ignore list.
+
+## Speedscript Support
+
+The extension supports [Speedscript](https://docs.progress.com/bundle/openedge-web-speed-developer/page/The-SpeedScript-programming-language.html) (WebSpeed) source files via a dedicated `speedscript` build path type. Add a `speedscript` entry to `buildPath` in `openedge-project.json` and set the `gen` attribute to the output directory of `e4gl-gen.r` (relative to the project root). The extension will monitor those files and handle compilation accordingly.
 
 ## Pre- and post-compilation hooks
 

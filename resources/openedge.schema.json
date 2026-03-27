@@ -153,7 +153,8 @@
             "description": "Entry type",
             "enum": [
               "source",
-              "propath"
+              "propath",
+              "speedscript"
             ],
             "type": "string"
           },
@@ -189,9 +190,15 @@
             "description": "JSON documentation of classes in this propath entry (use https://wiki.rssw.eu/pct/JsonDocumentation.md PCT task)",
             "type": "string"
           },
+          "gen": {
+            "description": "Only for speedscript entries. Output directory of e4gl-gen.r (relative to root directory)",
+            "type": "string"
+          },
           "deployment": {
             "description": "List of directories where to copy rcode (optional)",
-            "items": "string"
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
