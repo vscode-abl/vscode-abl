@@ -4,6 +4,7 @@
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
 * ✨ Compile buffer action does not ask for project anymore
 * ✨ Add commentStyle attribute to project configuration file
+* ✨ SpeedScript support
 * 🐛 Fix signatures of functions without parentheses
 * 🐛 Fix debugger in `launch` mode
 * 🐛 Definition on inherited temp-table fields (#390)
