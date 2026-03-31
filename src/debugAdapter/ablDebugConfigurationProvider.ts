@@ -1,6 +1,8 @@
 import { OpenEdgeProjectConfig } from '../shared/openEdgeConfigFile';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { machineIdSync } from 'node-machine-id';
+import { usernameSync } from 'username';
 
 export class AblDebugConfigurationProvider
   implements vscode.DebugConfigurationProvider
@@ -43,6 +45,10 @@ export class AblDebugConfigurationProvider
       debugConfiguration['dlc'] = cfg.dlc;
       debugConfiguration['oeversion'] = cfg.oeversion;
       debugConfiguration['projects'] = this.getProjects(folderPath);
+      debugConfiguration['license'] = vscode.workspace.getConfiguration('abl').get('licenseKey', "");;
+      debugConfiguration['remoteName'] = vscode.env.remoteName;
+      debugConfiguration['machineId'] = machineIdSync(true);
+      debugConfiguration['userId'] = usernameSync();
     }
 
     return debugConfiguration;
