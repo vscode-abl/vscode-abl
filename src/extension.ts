@@ -40,6 +40,7 @@ let classBrowserProvider: ClassBrowserProvider;
 let ablOutlineProvider: AblOutlineProvider;
 let oeRuntimes: Array<any>;
 let langServDebug: boolean;
+let machineId = '';
 let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
@@ -95,6 +96,12 @@ export class AblDebugAdapterDescriptorFactory
 }
 
 export function activate(ctx: vscode.ExtensionContext) {
+  try {
+    machineId = machineIdSync(true);
+  } catch {
+    outputChannel.warn('Could not retrieve machine ID');
+  }
+
   readGlobalOpenEdgeRuntimes();
   readWorkspaceOEConfigFiles();
 
@@ -262,7 +269,7 @@ function createLanguageClient(): LanguageClient {
     initializationOptions: {
       abl: vscode.workspace.getConfiguration('abl'),
       remoteName: vscode.env.remoteName,
-      machineId: machineIdSync(true),
+      machineId: machineId,
       user: usernameSync()
     },
     documentSelector: [
