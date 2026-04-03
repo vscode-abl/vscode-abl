@@ -2,9 +2,13 @@
 ======
 
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
+* ✨ Improved source code search in the debugger
+* ✨ Resume execution per thread in PASOE debugger
 * ✨ Compile buffer action does not ask for project anymore
 * ✨ Add commentStyle attribute to project configuration file
 * ✨ SpeedScript support
+* ✨ Improved code completion after NEW keyword
+* 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
 * 🐛 Fix debugger in `launch` mode
 * 🐛 Definition on inherited temp-table fields (#390)
