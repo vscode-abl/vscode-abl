@@ -1,3 +1,8 @@
+1.28.1 (April 3rd, 2026)
+========================
+
+* 🐛 Fix language server startup issue when group policies prevent reading registry
+
 1.28.0 (March 20th, 2026)
 =========================
 
