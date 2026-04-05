@@ -29,6 +29,7 @@ export function executeGenCatalog(project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: false,
     output: [],
+    procedures: project.procedures,
     procedure: 'NetAssemblyCatalog.p',
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));

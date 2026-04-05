@@ -39,6 +39,7 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: true,
     output: [],
+    procedures: project.procedures,
     procedure: filename,
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
@@ -79,6 +80,7 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: true,
     output: [],
+    procedures: project.procedures,
     procedure: filename,
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
