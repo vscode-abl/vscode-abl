@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
 import * as crypto from 'crypto';
+import * as vscode from 'vscode';
 import { ProfileConfig, OpenEdgeProjectConfig } from './openEdgeConfigFile';
 import { tmpdir } from 'os';
 import { outputChannel } from '../ablStatus';
@@ -22,6 +23,10 @@ function checkBuilderDirectoryExists(rootDir: string) {
 export function runGUI(filename: string, project: OpenEdgeProjectConfig) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
+  if (!currProfile) {
+    vscode.window.showErrorMessage('No active profile found.');
+    return;
+  }
   const env = process.env;
   env.DLC = currProfile.dlc;
 

@@ -23,6 +23,10 @@ function checkBuilderDirectoryExists(rootDir: string) {
 export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
+  if (!currProfile) {
+    vscode.window.showErrorMessage('No active profile found.');
+    return;
+  }
   const terminal = vscode.window.createTerminal({
     name: 'TTY execution',
     env: { DLC: currProfile.dlc },
@@ -64,6 +68,10 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
 export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
+  if (!currProfile) {
+    vscode.window.showErrorMessage('No active profile found.');
+    return;
+  }
 
   const env = process.env;
   env.DLC = currProfile.dlc;
