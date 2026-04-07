@@ -1310,6 +1310,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
+    vscode.commands.registerCommand('abl.docBack', () => DocViewPanel.goBack()),
+    vscode.commands.registerCommand('abl.docForward', () => DocViewPanel.goForward()),
     vscode.commands.registerCommand('abl.switchDocTo122', switchDocTo122),
     vscode.commands.registerCommand('abl.switchDocTo128', switchDocTo128),
     vscode.commands.registerCommand('abl.switchDocTo130', switchDocTo130),

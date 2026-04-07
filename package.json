@@ -219,6 +219,18 @@
         "description": "Dump Language Server status"
       },
       {
+        "command": "abl.docBack",
+        "title": "Go Back",
+        "icon": "$(arrow-left)",
+        "enablement": "oeDoc.canGoBack"
+      },
+      {
+        "command": "abl.docForward",
+        "title": "Go Forward",
+        "icon": "$(arrow-right)",
+        "enablement": "oeDoc.canGoForward"
+      },
+      {
         "command": "abl.switchDocTo122",
         "shortTitle": "12.2",
         "title": "Switch to 12.2 documentation",
@@ -644,6 +656,18 @@
           "command": "classBrowser.refresh",
           "when": "view == classBrowser",
           "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "abl.docBack",
+          "when": "activeWebviewPanelId == 'OEDOC'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "abl.docForward",
+          "when": "activeWebviewPanelId == 'OEDOC'",
+          "group": "navigation@2"
         }
       ],
       "editor/context": [
