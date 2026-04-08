@@ -8,9 +8,11 @@
 * ✨ Add commentStyle attribute to project configuration file
 * ✨ SpeedScript support
 * ✨ Improved code completion after NEW keyword
+* ✨ Navigation (back and forwards) in documentation view
+* 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
-* 🐛 Fix debugger in `launch` mode
+* 🐛 Fix debugger in `launch` mode + synchronization issue (mostly on Linux)
 * 🐛 Definition on inherited temp-table fields (#390)
 * 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
