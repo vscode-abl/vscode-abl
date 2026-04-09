@@ -295,6 +295,7 @@
               "localRoot": "^\"\\${workspaceFolder}\"",
               "appName": "pasoe1",
               "password": "",
+              "ssl": false,
               "refProjects": [ ]
             }
           },
@@ -410,7 +411,12 @@
                 "type": "string",
                 "description": "PASOE debugger password",
                 "default": ""
-              },              
+              },
+              "ssl": {
+                "type": "boolean",
+                "description": "Use SSL for the debugger connection",
+                "default": false
+              },
               "refProjects": {
                 "type": "array",
                 "items": {
