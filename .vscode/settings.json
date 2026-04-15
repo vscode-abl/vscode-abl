@@ -17,5 +17,9 @@
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
   "eslint.lintTask.enable": true,
-  "eslint.enable": true
+  "eslint.enable": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "https-sonar-riverside-software-fr",
+    "projectKey": "vscode-abl"
+  }
 }
