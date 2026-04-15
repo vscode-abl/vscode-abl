@@ -564,6 +564,36 @@
           "default": "",
           "description": "License key"
         },
+        "abl.formatter.keepIfThenInOneLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep 'IF ... THEN' in one line"
+        },
+        "abl.formatter.keepThenInNewLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep 'THEN' in new line"
+        },
+        "abl.formatter.keepElseIfInOneLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep 'ELSE IF' in one line"
+        },
+        "abl.formatter.keepElseAndIfInSeparateLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep ELSE and IF statements in separate line"
+        },
+        "abl.formatter.keepSimpleIfThenStatementInSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep simple 'IF ... THEN' statement in same line"
+        },
+        "abl.formatter.keepSimpleElseStatementInSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep simple 'ELSE' statement in same line"
+        },
         "abl.configuration.maxThreads": {
           "type": "integer",
           "default": -1,
