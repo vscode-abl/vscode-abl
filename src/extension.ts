@@ -263,11 +263,18 @@ function createLanguageClient(): LanguageClient {
   };
   const serverOptions: ServerOptions = serverExec;
 
+  const ablEditorConfig = vscode.workspace.getConfiguration('editor', { languageId: 'abl' });
+  // StructuredClone doesn't work with vscode workspace configuration objects, so we need to create a deep copy of the relevant configuration part
+  const ablConfig = JSON.parse(JSON.stringify(vscode.workspace.getConfiguration('abl')));
+  ablConfig.formatter ??= {};
+  ablConfig.formatter.tabSize = ablEditorConfig.get<number>('tabSize', 4);
+  ablConfig.formatter.insertSpaces = ablEditorConfig.get<boolean>('insertSpaces');
+  
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     outputChannel: lsOutputChannel,
     initializationOptions: {
-      abl: vscode.workspace.getConfiguration('abl'),
+      abl: ablConfig,
       remoteName: vscode.env.remoteName,
       machineId: machineId,
       user: usernameSync()
