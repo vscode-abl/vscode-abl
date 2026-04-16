@@ -9,6 +9,7 @@
 * ✨ SpeedScript support
 * ✨ Improved code completion after NEW keyword
 * ✨ Navigation (back and forwards) in documentation view
+* ✨ SSL communication to PASOE debugger (not supported yet by PASOE)
 * 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
