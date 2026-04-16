@@ -268,7 +268,7 @@ function createLanguageClient(): LanguageClient {
   const ablConfig = JSON.parse(JSON.stringify(vscode.workspace.getConfiguration('abl')));
   ablConfig.formatter ??= {};
   ablConfig.formatter.tabSize = ablEditorConfig.get<number>('tabSize', 4);
-  ablConfig.formatter.insertSpaces = ablEditorConfig.get<boolean>('insertSpaces');
+  ablConfig.formatter.insertSpaces = ablEditorConfig.get<boolean>('useTabStops');
   
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
