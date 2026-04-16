@@ -604,6 +604,11 @@
           "default": false,
           "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
         },
+        "abl.configuration.deleteRCodeOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "Delete r-code if syntax errors are found during build"
+        },
         "abl.configuration.defaultRuntime": {
           "type": "string",
           "description": "Default OpenEdge Execution Environment name",
