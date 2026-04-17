@@ -1,3 +1,8 @@
+1.28.2 (April 17th, 2026)
+=========================
+
+* 🐛 Fix language server crash when database schema contains unsupported keywords
+
 1.28.1 (April 3rd, 2026)
 ========================
 
