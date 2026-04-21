@@ -172,6 +172,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     async status() {
       return await client.sendRequest('proparse/status');
     },
+    async stopLanguageServer() {
+      return await stopLangServer();
+    },
     async restartLanguageServer() {
       return await restartLangServer();
     },
@@ -512,6 +515,12 @@ function setDefaultProject(): void {
 
 function dumpLangServStatus(): void {
   client.sendNotification('proparse/dumpStatus', {});
+}
+
+function stopLangServer(): Promise<void> {
+  outputChannel.info('Received request to stop ABL Language Server');
+  return client
+    .stop(5000);
 }
 
 function restartLangServer(): Promise<void> {
@@ -1350,6 +1359,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       'abl.dumpLangServStatus',
       dumpLangServStatus,
     ),
+    vscode.commands.registerCommand('abl.stop.langserv', stopLangServer),
     vscode.commands.registerCommand('abl.restart.langserv', restartLangServer),
     vscode.commands.registerCommand('abl.compileBuffer', compileBuffer),
     vscode.commands.registerCommand('abl.debugListingLine', debugListingLine),

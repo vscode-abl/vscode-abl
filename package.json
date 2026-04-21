@@ -129,6 +129,11 @@
         "description": "Open the Data Dictionary external tool"
       },
       {
+        "command": "abl.stop.langserv",
+        "title": "ABL: Stop Language Server",
+        "description": "Stop ABL Language Server"
+      },
+      {
         "command": "abl.restart.langserv",
         "title": "ABL: Restart Language Server",
         "description": "Restart ABL Language Server"
