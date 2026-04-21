@@ -2,8 +2,6 @@
 name: Bug report
 about: Create a report to help us improve the extension 
 title: ''
-labels: ''
-assignees: ''
 
 ---
 
@@ -15,6 +13,7 @@ Tell us how to reproduce this issue.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
+ℹ️ Screenshots are nice, but please also include the text version. 
 
 **Environment**
 - VS Code version:
