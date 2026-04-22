@@ -1,6 +1,7 @@
 1.29.x
 ======
 
+* ✨ Code formatter (full document and range) based on PDSOE code
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
 * ✨ Improved source code search in the debugger
 * ✨ Resume execution per thread in PASOE debugger
