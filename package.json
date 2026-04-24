@@ -414,12 +414,12 @@
               },
               "password": {
                 "type": "string",
-                "description": "PASOE debugger password",
+                "description": "PASOE debugger password (if you know how to define password on the server side)",
                 "default": ""
               },
               "ssl": {
                 "type": "boolean",
-                "description": "Use SSL for the debugger connection",
+                "description": "Use SSL for the debugger connection (not supported on the server side)",
                 "default": false
               },
               "refProjects": {
