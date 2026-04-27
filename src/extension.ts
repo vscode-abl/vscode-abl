@@ -1306,6 +1306,10 @@ function generateProenvStartWindows(path: string) {
   fs.writeFileSync(path, scriptContent);
 }
 
+function compileFromExplorer(uri: vscode.Uri) {
+  client.sendRequest('proparse/buildResource', { uri: uri.toString(), forceBuild: false });
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTerminalProfileProvider('proenv.terminal-profile', {
     provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
@@ -1401,6 +1405,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       runCurrentFileProwin,
     ),
     vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd),
+    vscode.commands.registerCommand('abl.explorer.compile', compileFromExplorer),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
       (range: vscode.Range) => {
@@ -1479,6 +1484,7 @@ function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
+      vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
       outputChannel.info(`Now starting ABL language server...`);
       client.start();
     } else {

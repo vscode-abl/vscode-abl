@@ -257,6 +257,11 @@
         "command": "classBrowser.refresh",
         "title": "Refresh Class Browser",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "abl.explorer.compile",
+        "title": "Compile",
+        "description": "Compile file or directory"
       }
     ],
     "breakpoints": [
@@ -716,6 +721,20 @@
           "group": "navigation@2"
         }
       ],
+      "explorer/context": [
+        {
+          "submenu": "abl.explorerSubmenu",
+          "when": "abl.isABLProject",
+          "group": "abl"
+        }
+      ],
+      "abl.explorerSubmenu": [
+        {
+          "command": "abl.explorer.compile",
+          "group": "01_compile@01",
+          "when": "abl.isABLProject"
+        }
+      ],
       "editor/context": [
         {
           "submenu": "abl.submenu",
@@ -778,6 +797,10 @@
     "submenus": [
       {
         "id": "abl.submenu",
+        "label": "ABL"
+      },
+      {
+        "id": "abl.explorerSubmenu",
         "label": "ABL"
       }
     ],
