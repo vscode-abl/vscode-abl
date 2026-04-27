@@ -1499,7 +1499,7 @@ function parseOpenEdgeProjectConfig(
 ): OpenEdgeProjectConfig {
   const prjConfig = new OpenEdgeProjectConfig();
   prjConfig.uri = vscode.Uri.parse(path.dirname(uri.path));
-  prjConfig.name = config.name;
+  prjConfig.name = config.artifactId ?? config.name ?? '';
   prjConfig.version = config.version;
   prjConfig.defaultProfileDisplayName = config.defaultProfileDisplayName;
   prjConfig.rootDir =

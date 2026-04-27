@@ -40,7 +40,9 @@ export interface DatabaseConnection {
 
 export interface OpenEdgeMainConfig extends OpenEdgeConfig {
   // JSON mapping of openedge-project.json
-  name: string;
+  groupId?: string;
+  artifactId?: string;
+  name?: string;
   version: string;
   defaultProfileDisplayName?: string;
   profiles?: OEProfile[];

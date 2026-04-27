@@ -5,14 +5,27 @@
   "id": "openedge.json",
   "type": "object",
   "required": [
-    "name",
     "version",
     "charset"
   ],
+  "anyOf": [
+    { "required": ["artifactId"] },
+    { "required": ["name"] }
+  ],
   "properties": {
+    "groupId": {
+      "id": "/properties/groupId",
+      "description": "Project group ID",
+      "type": "string"
+    },
+    "artifactId": {
+      "id": "/properties/artifactId",
+      "description": "Project artifact ID",
+      "type": "string"
+    },
     "name": {
       "id": "/properties/name",
-      "description": "Project name",
+      "description": "Project name (deprecated, use 'artifactId' instead)",
       "type": "string"
     },
     "version": {
