@@ -214,6 +214,11 @@
         "description": "Convert keywords to lowercase"
       },
       {
+        "command": "abl.expandKeywords",
+        "title": "ABL: Expand Keywords",
+        "description": "Expand keywords"
+      },
+      {
         "command": "abl.organizeUsings",
         "title": "ABL: Organize Usings",
         "description": "Organize USING statements"
