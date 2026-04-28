@@ -283,7 +283,7 @@ function createLanguageClient(): LanguageClient {
   // StructuredClone doesn't work with vscode workspace configuration objects, so we need to create a deep copy of the relevant configuration part
   const ablConfig = JSON.parse(JSON.stringify(vscode.workspace.getConfiguration('abl')));
   ablConfig.formatter ??= {};
-  
+
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     outputChannel: lsOutputChannel,
@@ -875,6 +875,20 @@ function fixLowerCasing() {
   });
 }
 
+function expandKeywords() {
+  if (vscode.window.activeTextEditor == undefined) return;
+  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  if (!cfg) {
+    vscode.window.showInformationMessage(
+      "Current buffer doesn't belong to any OpenEdge project",
+    );
+    return;
+  }
+  client.sendRequest('proparse/expandKeywords', {
+    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+  });
+}
+
 function organizeUsings() {
   if (vscode.window.activeTextEditor == undefined) return;
   const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
@@ -1380,6 +1394,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand('abl.catalog', generateCatalog),
     vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing),
     vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing),
+    vscode.commands.registerCommand('abl.expandKeywords', expandKeywords),
     vscode.commands.registerCommand('abl.organizeUsings', organizeUsings),
     vscode.commands.registerCommand(
       'abl.project.switch.profile',
