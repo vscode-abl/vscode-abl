@@ -1,7 +1,7 @@
 1.29.x
 ======
 
-* ✨ Code formatter (full document and range) based on PDSOE code
+* ✨ Code formatter (full document and range) based on PDSOE code + trimFinalSpaces, insertFinalNewLine and trimFinalNewLines
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
 * ✨ Improved source code search in the debugger
 * ✨ Resume execution per thread in PASOE debugger
@@ -12,6 +12,7 @@
 * ✨ Improved code completion after NEW keyword
 * ✨ Navigation (back and forwards) in documentation view
 * ✨ SSL communication to PASOE debugger (not supported yet by PASOE)
+* ✨ Transitive Maven dependencies
 * 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
