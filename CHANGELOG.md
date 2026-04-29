@@ -20,7 +20,7 @@
 * 🐛 Definition on inherited temp-table fields (#390)
 * 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.3.29
+* ⬆️ TextMate Grammar 1.3.30
 
 1.28.2 (April 17th, 2026)
 =========================
