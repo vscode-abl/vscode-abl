@@ -1,0 +1,5 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Static: S letter with underline -->
+  <text x="8" y="11" font-family="Arial, sans-serif" font-size="10" font-weight="400" fill="#424242" text-anchor="middle">S</text>
+  <line x1="3" y1="14" x2="13" y2="14" stroke="#424242" stroke-width="1"/>
+</svg>

@@ -1438,8 +1438,16 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand('abl.explorer.compile', compileFromExplorer),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
-      (range: vscode.Range) => {
-        if (vscode.window.activeTextEditor) {
+      async (range: vscode.Range, uri?: string) => {
+        if (uri) {
+          // Open the document at the specified URI
+          const document = await vscode.workspace.openTextDocument(
+            vscode.Uri.parse(uri),
+          );
+          const editor = await vscode.window.showTextDocument(document);
+          editor.selection = new vscode.Selection(range.start, range.start);
+          editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+        } else if (vscode.window.activeTextEditor) {
           vscode.window.activeTextEditor.selection = new vscode.Selection(
             range.start,
             range.start,
@@ -1466,7 +1474,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 
   // Register Custom Outline
-  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
+  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath, ctx.globalStorageUri.fsPath);
   vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
 }
 

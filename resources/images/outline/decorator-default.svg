@@ -1,0 +1,4 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Default: triangle outline pointing up -->
+  <path d="M8 2L14 14H2Z" fill="none" stroke="#424242" stroke-width="1.2"/>
+</svg>
