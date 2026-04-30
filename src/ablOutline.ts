@@ -296,6 +296,26 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
             'query.svg',
           ),
         );
+      case 40: // Procedure
+        return vscode.Uri.file(
+          path.join(
+            this.extensionPath,
+            'resources',
+            'images',
+            'outline',
+            'procedure.svg',
+          ),
+        );
+      case 41: // FunctionPrototype
+        return vscode.Uri.file(
+          path.join(
+            this.extensionPath,
+            'resources',
+            'images',
+            'outline',
+            'function-prototype.svg',
+          ),
+        );
       default:
         return new vscode.ThemeIcon('symbol-misc');
     }
@@ -383,6 +403,10 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
         return 'Stream';
       case 39:
         return 'Query';
+      case 40:
+        return 'Procedure';
+      case 41:
+        return 'FunctionPrototype';
       default:
         return 'Symbol';
     }
