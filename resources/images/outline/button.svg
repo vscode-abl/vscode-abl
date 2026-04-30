@@ -1,11 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-  <!-- Button outer shape with rounded corners -->
-  <rect x="2" y="5" width="12" height="6" rx="1.5" ry="1.5" fill="none" stroke="#567ad4" stroke-width="1"/>
-
-  <!-- Button inner highlight/shadow for 3D effect -->
-  <rect x="2.5" y="5.5" width="11" height="2" rx="1" ry="1" fill="#9b59b6" opacity="0.2"/>
-
-  <!-- Button label lines (representing text) -->
-  <line x1="5" y1="8" x2="11" y2="8" stroke="#567ad4" stroke-width="1" stroke-linecap="round"/>
-  <line x1="6" y1="9.5" x2="10" y2="9.5" stroke="#567ad4" stroke-width="0.8" stroke-linecap="round" opacity="0.7"/>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <!-- Button shape with rounded corners -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a1 1 0 00-1 1v4a1 1 0 001 1h10a1 1 0 001-1V6a1 1 0 00-1-1H3zm0 1h10v4H3V6z"/>
+  <!-- Button text lines -->
+  <path d="M5 8h6v1H5V8z"/>
 </svg>
