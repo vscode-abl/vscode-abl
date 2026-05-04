@@ -1,5 +1,5 @@
-import { ChildProcess, spawn, SpawnOptions } from 'child_process';
-import { Readable } from 'stream';
+import { ChildProcess, spawn, SpawnOptions } from 'node:child_process';
+import { Readable } from 'node:stream';
 import { OutputChannel } from 'vscode';
 
 export interface Success {

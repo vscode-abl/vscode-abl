@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as cp from 'child_process';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import * as fs from 'node:fs';
+import * as cp from 'node:child_process';
+import * as path from 'node:path';
+import * as crypto from 'node:crypto';
 import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
-import { tmpdir } from 'os';
+import { tmpdir } from 'node:os';
 
 export function openDataDictionary(project: OpenEdgeProjectConfig) {
   const env = process.env;
