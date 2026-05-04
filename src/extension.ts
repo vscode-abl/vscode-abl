@@ -86,6 +86,13 @@ export class AblDebugAdapterDescriptorFactory
         : debugAdapterOptionsFromSettings;
 
     const langServExecutable = getJavaExecutable();
+    if (!fs.existsSync(langServExecutable)) {
+      const msg = `Java executable not found: ${langServExecutable}`
+      outputChannel.error(
+        `ABL Debug Adapter - ${msg}`
+      );
+      throw new Error(`Unable to start debug adapter, ${msg}`);
+    }
     outputChannel.info(
       `ABL Debug Adapter - Command line: ${langServExecutable} ${execOptions2.join(' ')}`,
     );
@@ -226,19 +233,24 @@ export function getProjectByName(name: string): OpenEdgeProjectConfig {
 }
 
 function getJavaExecutable(): string {
-  const userJavaExec = vscode.workspace
+  const extension = process.platform === 'win32' ? '.exe' : '';
+  let userJavaExec = vscode.workspace
     .getConfiguration('abl')
     .get('langServerJavaExecutable') as string;
-  const extension = process.platform === 'win32' ? '.exe' : '';
+  if (userJavaExec && !fs.existsSync(userJavaExec) && fs.existsSync(userJavaExec + extension)) {
+    userJavaExec += extension;
+  }
+
   const bundledJavaExec = fs.existsSync(path.join(__dirname, '../jre'))
     ? path.join(__dirname, '../jre/bin/java' + extension)
     : undefined;
 
-  return userJavaExec
-    ? userJavaExec
-    : bundledJavaExec
-      ? bundledJavaExec
-      : 'java';
+  if (userJavaExec) 
+    return userJavaExec
+  else if (bundledJavaExec)
+    return bundledJavaExec
+  else
+    return 'java'
 }
 
 function createLanguageClient(): LanguageClient {
