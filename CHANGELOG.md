@@ -9,10 +9,11 @@
 * ✨ Delete r-code on error property (#525)
 * ✨ Add commentStyle attribute to project configuration file
 * ✨ SpeedScript support
-* ✨ Improved code completion after NEW keyword
+* ✨ Improved code completion after NEW keyword and after widget name prefix (#213)
 * ✨ Navigation (back and forwards) in documentation view
 * ✨ SSL communication to PASOE debugger (not supported yet by PASOE)
 * ✨ Transitive Maven dependencies
+* ✨ Expand keywords action (#503)
 * 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
