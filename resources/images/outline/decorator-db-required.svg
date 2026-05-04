@@ -1,0 +1,6 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- DB Required: database cylinder outline -->
+  <ellipse cx="8" cy="4" rx="5" ry="2" fill="none" stroke="#424242" stroke-width="1"/>
+  <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4" stroke="#424242" stroke-width="1" fill="none"/>
+  <ellipse cx="8" cy="12" rx="5" ry="2" fill="none" stroke="#424242" stroke-width="1"/>
+</svg>
