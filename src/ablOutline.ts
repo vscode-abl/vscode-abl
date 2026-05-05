@@ -316,6 +316,16 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
             'function-prototype.svg',
           ),
         );
+      case 42: // Trigger
+        return vscode.Uri.file(
+          path.join(
+            this.extensionPath,
+            'resources',
+            'images',
+            'outline',
+            'trigger.svg',
+          ),
+        );
       default:
         return new vscode.ThemeIcon('symbol-misc');
     }
@@ -407,6 +417,8 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
         return 'Procedure';
       case 41:
         return 'FunctionPrototype';
+      case 42:
+        return 'Trigger';
       default:
         return 'Symbol';
     }

@@ -1,0 +1,6 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <!-- Circle outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zM2 8c0-3.314 2.686-6 6-6s6 2.686 6 6-2.686 6-6 6-6-2.686-6-6z"/>
+  <!-- "tr" text -->
+  <text x="8" y="11" font-family="sans-serif" font-size="7" font-weight="500" text-anchor="middle">tr</text>
+</svg>
