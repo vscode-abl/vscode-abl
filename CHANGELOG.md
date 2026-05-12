@@ -14,6 +14,7 @@
 * ✨ SSL communication to PASOE debugger (not supported yet by PASOE)
 * ✨ Transitive Maven dependencies
 * ✨ Expand keywords action (#503)
+* ✨ Right-click in explorer view to compile files and directories (#533)
 * 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
@@ -22,7 +23,7 @@
 * 🐛 Definition on inherited temp-table fields (#390)
 * 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.3.30
+* ⬆️ TextMate Grammar 1.4.0
 
 1.28.2 (April 17th, 2026)
 =========================
