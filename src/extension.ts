@@ -1332,8 +1332,11 @@ function generateProenvStartWindows(path: string) {
   fs.writeFileSync(path, scriptContent);
 }
 
-function compileFromExplorer(uri: vscode.Uri) {
-  client.sendRequest('proparse/buildResource', { uri: uri.toString(), forceBuild: false });
+function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
+  const targets = uris && uris.length > 0 ? uris : [uri];
+  for (const uri of targets) {
+    client.sendRequest('proparse/buildResource', { uri: uri.toString(), forceBuild: false });
+  }
 }
 
 function registerCommands(ctx: vscode.ExtensionContext) {
