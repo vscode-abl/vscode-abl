@@ -2,7 +2,6 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import * as jsonc from 'jsonc-parser';
-import { outputChannel } from '../ablStatus';
 
 export interface TestConfig {
   files?: string[];

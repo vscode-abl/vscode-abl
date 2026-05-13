@@ -18,7 +18,7 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     this.extensionPath = extensionPath;
     // Listen to active editor changes
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor && editor.document.languageId === 'abl') {
+      if (editor?.document.languageId === 'abl') {
         this.currentDocumentUri = editor.document.uri.toString();
         this.refresh();
       }
@@ -33,10 +33,7 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     });
 
     // Set initial document if there's an active editor
-    if (
-      vscode.window.activeTextEditor &&
-      vscode.window.activeTextEditor.document.languageId === 'abl'
-    ) {
+    if (vscode.window.activeTextEditor?.document.languageId === 'abl') {
       this.currentDocumentUri =
         vscode.window.activeTextEditor.document.uri.toString();
     }

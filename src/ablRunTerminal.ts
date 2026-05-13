@@ -61,7 +61,7 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
                 "-T", path.join(project.rootDir, ".builder", "tmp")
             ])
             .join(" ");
-  terminal.sendText(cmd.replace(/\\/g, '/'), true);
+  terminal.sendText(cmd.replaceAll('\\', '/'), true);
   terminal.show();
 }
 

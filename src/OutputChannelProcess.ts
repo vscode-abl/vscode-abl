@@ -36,9 +36,7 @@ export async function create(
   spawnOptions: SpawnOptions | undefined,
   outputChannel: OutputChannel,
 ): Promise<Success | Error> {
-  if (spawnOptions === undefined) {
-    spawnOptions = {};
-  }
+  spawnOptions ??= {};
   spawnOptions.stdio = 'pipe';
   const spawnedProcess = spawn(spawnCommand, spawnArgs, spawnOptions);
   outputChannel.show();
@@ -50,10 +48,6 @@ export async function create(
   });
   if (spawnedProcess.pid)
     outputChannel.appendLine('AVM session stopped - PID ' + spawnedProcess.pid);
-  if (result.success && result.code === 0) {
-    // outputChannel.hide();
-    // outputChannel.dispose();
-  }
 
   return result;
 }
