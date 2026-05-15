@@ -22,6 +22,7 @@
 * 🐛 Fix breakpoint removal (#492)
 * 🐛 Definition on inherited temp-table fields (#390)
 * 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
+* ⬆️ Java 21.0.11+10
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.0
 
