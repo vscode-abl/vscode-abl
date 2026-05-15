@@ -1,9 +1,12 @@
 .vscode/**/*
 .npm/**/*
+.github/**/*
+.sonarlint/**/*
 .gitignore
 .eslintignore
 src/**/*
 out/**/*
+eslint.config.js
 node_modules
 run_env
 test
@@ -13,5 +16,6 @@ docs
 docker
 Jenkinsfile
 azure-pipelines.yml
+sonar-project.properties
 resources/jre-windows.zip
 resources/jre-linux.tar.gz
