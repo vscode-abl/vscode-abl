@@ -87,10 +87,8 @@ export class AblDebugAdapterDescriptorFactory
 
     const langServExecutable = getJavaExecutable();
     if (!fs.existsSync(langServExecutable)) {
-      const msg = `Java executable not found: ${langServExecutable}`
-      outputChannel.error(
-        `ABL Debug Adapter - ${msg}`
-      );
+      const msg = `Java executable not found: ${langServExecutable}`;
+      outputChannel.error(`ABL Debug Adapter - ${msg}`);
       throw new Error(`Unable to start debug adapter, ${msg}`);
     }
     outputChannel.info(
@@ -203,10 +201,8 @@ export function activate(ctx: vscode.ExtensionContext) {
         );
         return;
       }
-      if (batchMode)
-        runBatch(procedure, cfg);
-      else
-        runTTY(procedure, cfg);
+      if (batchMode) runBatch(procedure, cfg);
+      else runTTY(procedure, cfg);
     },
   };
 }
@@ -237,7 +233,11 @@ function getJavaExecutable(): string {
   let userJavaExec = vscode.workspace
     .getConfiguration('abl')
     .get('langServerJavaExecutable') as string;
-  if (userJavaExec && !fs.existsSync(userJavaExec) && fs.existsSync(userJavaExec + extension)) {
+  if (
+    userJavaExec &&
+    !fs.existsSync(userJavaExec) &&
+    fs.existsSync(userJavaExec + extension)
+  ) {
     userJavaExec += extension;
   }
 
@@ -245,12 +245,9 @@ function getJavaExecutable(): string {
     ? path.join(__dirname, '../jre/bin/java' + extension)
     : undefined;
 
-  if (userJavaExec) 
-    return userJavaExec
-  else if (bundledJavaExec)
-    return bundledJavaExec
-  else
-    return 'java'
+  if (userJavaExec) return userJavaExec;
+  else if (bundledJavaExec) return bundledJavaExec;
+  else return 'java';
 }
 
 function createLanguageClient(): LanguageClient {
@@ -293,7 +290,9 @@ function createLanguageClient(): LanguageClient {
   const serverOptions: ServerOptions = serverExec;
 
   // StructuredClone doesn't work with vscode workspace configuration objects, so we need to create a deep copy of the relevant configuration part
-  const ablConfig = JSON.parse(JSON.stringify(vscode.workspace.getConfiguration('abl')));
+  const ablConfig = JSON.parse(
+    JSON.stringify(vscode.workspace.getConfiguration('abl')),
+  );
   ablConfig.formatter ??= {};
 
   // Options to control the language client
@@ -303,7 +302,7 @@ function createLanguageClient(): LanguageClient {
       abl: ablConfig,
       remoteName: vscode.env.remoteName,
       machineId: machineId,
-      user: usernameSync()
+      user: usernameSync(),
     },
     documentSelector: [
       { scheme: 'file', language: 'abl' },
@@ -528,8 +527,7 @@ function dumpLangServStatus(): void {
 
 function stopLangServer(): Promise<void> {
   outputChannel.info('Received request to stop ABL Language Server');
-  return client
-    .stop(5000);
+  return client.stop(5000);
 }
 
 function restartLangServer(): Promise<void> {
@@ -582,7 +580,7 @@ function compileBuffer() {
   client
     .sendRequest<any>('proparse/compileBuffer', {
       bufferUri: vscode.window.activeTextEditor.document.uri.toString(),
-      buffer: vscode.window.activeTextEditor.document.getText()
+      buffer: vscode.window.activeTextEditor.document.getText(),
     })
     .then((result) => {
       if (result.success === false) {
@@ -1359,7 +1357,10 @@ function generateProenvStartWindows(path: string) {
 function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
   const targets = uris && uris.length > 0 ? uris : [uri];
   for (const uri of targets) {
-    client.sendRequest('proparse/buildResource', { uri: uri.toString(), forceBuild: false });
+    client.sendRequest('proparse/buildResource', {
+      uri: uri.toString(),
+      forceBuild: false,
+    });
   }
 }
 
@@ -1395,7 +1396,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
     vscode.commands.registerCommand('abl.docBack', () => DocViewPanel.goBack()),
-    vscode.commands.registerCommand('abl.docForward', () => DocViewPanel.goForward()),
+    vscode.commands.registerCommand('abl.docForward', () =>
+      DocViewPanel.goForward(),
+    ),
     vscode.commands.registerCommand('abl.switchDocTo122', switchDocTo122),
     vscode.commands.registerCommand('abl.switchDocTo128', switchDocTo128),
     vscode.commands.registerCommand('abl.switchDocTo130', switchDocTo130),
@@ -1459,7 +1462,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       runCurrentFileProwin,
     ),
     vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd),
-    vscode.commands.registerCommand('abl.explorer.compile', compileFromExplorer),
+    vscode.commands.registerCommand(
+      'abl.explorer.compile',
+      compileFromExplorer,
+    ),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
       async (range: vscode.Range, uri?: string) => {
@@ -1498,7 +1504,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 
   // Register Custom Outline
-  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath, ctx.globalStorageUri.fsPath);
+  ablOutlineProvider = new AblOutlineProvider(
+    client,
+    ctx.extensionPath,
+    ctx.globalStorageUri.fsPath,
+  );
   vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
 }
 
