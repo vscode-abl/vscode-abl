@@ -645,14 +645,18 @@ function preprocessFile() {
     .sendRequest('proparse/preprocess', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during preprocess: ' + anyValue.message,
+          'Error during preprocess: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... PREPROCESS didn't succeed, preprocessed file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -671,14 +675,18 @@ function generateListing() {
     .sendRequest('proparse/listing', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during listing generation: ' + anyValue.message,
+          'Error during listing generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... LISTING didn't succeed, listing file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -697,14 +705,18 @@ function generateDebugListing() {
     .sendRequest('proparse/debugListing', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during debug listing generation: ' + anyValue.message,
+          'Error during debuglisting generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... DEBUG-LISTING didn't succeed, debug listing file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -722,14 +734,18 @@ function generateXref() {
     .sendRequest('proparse/xref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during XREF generation: ' + anyValue.message,
+          'Error during XREF generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XREF didn't succeed, xref file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -752,13 +768,17 @@ function generateXrefAndJumpToCurrentLine() {
     .sendRequest('proparse/xref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
+    .then((anyValue: any) => {
       if (anyValue.fileName === '') {
         vscode.window.showErrorMessage(
           'Error during XREF generation: ' + anyValue.message,
         );
       } else {
+        if (!anyValue.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XREF didn't succeed, xref file is probably invalid: " +
+              anyValue.message,
+          );
         vscode.window
           .showTextDocument(vscode.Uri.file(anyValue.fileName))
           .then(async (editor) => {
@@ -844,14 +864,18 @@ function generateXmlXref() {
     .sendRequest('proparse/xmlXref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during XML XREF generation: ' + anyValue.message,
+          'Error during XML XREF generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XML XREF didn't succeed, xml xref file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
