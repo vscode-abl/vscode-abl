@@ -330,6 +330,15 @@ function createLanguageClient(): LanguageClient {
         }
         return hover;
       },
+      provideInlayHints: async (document, range, token, next) => {
+        const inlayHintsEnabled = vscode.workspace
+          .getConfiguration('abl')
+          .get('inlayHints.enabled', true);
+        if (!inlayHintsEnabled) {
+          return [];
+        }
+        return next(document, range, token);
+      },
     },
   };
 
