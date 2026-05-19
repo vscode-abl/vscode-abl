@@ -532,20 +532,26 @@ function stopLangServer(): Promise<void> {
 
 function restartLangServer(): Promise<void> {
   outputChannel.info('Received request to restart ABL Language Server');
-  return client
-    .stop(5000)
-    .then(() => {
-      outputChannel.info('ABL Language Server stopped');
-      client = createLanguageClient();
-      outputChannel.info('Starting new ABL Language Server');
-      return client.start();
-    })
-    .catch((caught) => {
-      outputChannel.info(
-        "ABL Language Server didn't stop correctly: " + caught,
-      );
-      throw caught;
-    });
+  const fn = () => {
+    client = createLanguageClient();
+    outputChannel.info('Starting new ABL Language Server');
+    return client.start();
+  };
+
+  if (client.isRunning()) {
+    return client
+      .stop(5000)
+      .then(() => outputChannel.info('ABL Language Server stopped'))
+      .then(fn)
+      .catch((error_) => {
+        outputChannel.info(
+          "ABL Language Server didn't stop correctly: " + error_,
+        );
+        throw error_;
+      });
+  } else {
+    return fn();
+  }
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
