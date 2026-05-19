@@ -579,6 +579,21 @@
           "default": "",
           "description": "License key"
         },
+        "abl.inlayHints.externalProcedureHints": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable/disable inlay hints for parameter of external procedures\n```abl\nRUN foo/bar/proc.p(/* custName: */ x1, /* shippingId: */ x2, /* offset: */ 10).\n```"
+        },
+        "abl.inlayHints.constantsOnly": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Restrict inlay hints to parameters with constant values\n```abl\nobjRef1:method01(Customer.custNum, /* shippingType: */ 1).\n```"
+        },
+        "abl.inlayHints.shortVariableLength": {
+          "type": "integer",
+          "default": 2,
+          "description": "Show inlay hints for parameters using short variable names (e.g., c1, c2, ...)"
+        },
         "abl.formatter.keepIfThenInOneLine": {
           "type": "boolean",
           "default": true,

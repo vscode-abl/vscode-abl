@@ -287,6 +287,7 @@ function createLanguageClient(): LanguageClient {
     JSON.stringify(vscode.workspace.getConfiguration('abl')),
   );
   ablConfig.formatter ??= {};
+  ablConfig.inlayHints ??= {};
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
