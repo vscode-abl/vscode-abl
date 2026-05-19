@@ -45,6 +45,10 @@ let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 
+interface ProjectQuickPickItem extends vscode.QuickPickItem {
+  project: OpenEdgeProjectConfig;
+}
+
 export class AblDebugAdapterDescriptorFactory
   implements vscode.DebugAdapterDescriptorFactory
 {
@@ -504,19 +508,20 @@ function setDefaultProject(): void {
   const list = projects.map((project) => ({
     label: project.name,
     description: project.rootDir,
+    project: project,
   }));
   list.sort((a, b) => a.label.localeCompare(b.label));
   const quickPick = vscode.window.createQuickPick();
   quickPick.canSelectMany = false;
   quickPick.title = 'Choose default project:';
   quickPick.items = list;
-  quickPick.onDidChangeSelection((args) => {
+  quickPick.onDidAccept(() => {
     quickPick.hide();
     vscode.workspace
       .getConfiguration('abl')
       .update(
         'defaultProject',
-        args[0].label,
+        quickPick.selectedItems[0].label,
         vscode.ConfigurationTarget.Workspace,
       );
   });
@@ -957,16 +962,17 @@ function generateCatalog() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Generate assembly catalog - Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      executeGenCatalog(getProjectByName(args[0].label));
+      executeGenCatalog(quickPick.selectedItems[0].project);
       vscode.window.showInformationMessage(
         'Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.',
       );
@@ -982,16 +988,17 @@ function switchProfileCmd() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      switchProfile(getProjectByName(args[0].label));
+      switchProfile(quickPick.selectedItems[0].project);
     });
     quickPick.show();
   }
@@ -1006,17 +1013,18 @@ function rebuildProject() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Rebuild project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
       client.sendRequest('proparse/rebuildProject', {
-        projectUri: getProjectByName(args[0].label).uri.toString(),
+        projectUri: quickPick.selectedItems[0].project.uri.toString(),
       });
     });
     quickPick.show();
@@ -1030,16 +1038,17 @@ function openDataDictionaryCmd() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Open Data Dictionary - Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      openDataDictionary(getProjectByName(args[0].label));
+      openDataDictionary(quickPick.selectedItems[0].project);
     });
     quickPick.show();
   }
@@ -1060,6 +1069,12 @@ function openInAppbuilder() {
     return;
   }
   const cfg2 = cfg.profiles.get(cfg.activeProfile);
+  if (!cfg2) {
+    vscode.window.showInformationMessage(
+      "Current buffer's project doesn't have an active profile",
+    );
+    return;
+  }
   openInAB(
     vscode.window.activeTextEditor.document.uri.fsPath,
     cfg.rootDir,
@@ -1089,6 +1104,12 @@ function openInProcedureEditor() {
     return;
   }
   const cfg2 = cfg.profiles.get(cfg.activeProfile);
+  if (!cfg2) {
+    vscode.window.showInformationMessage(
+      "Current buffer's project doesn't have an active profile",
+    );
+    return;
+  }
   openInProcEditor(
     vscode.window.activeTextEditor.document.uri.fsPath,
     cfg.rootDir,
@@ -1161,15 +1182,11 @@ function buildModeName(val: number) {
   else if (val == 4) return 'No build';
 }
 
-function buildModeValue(str: string) {
-  if (str == 'Build everything') return 1;
-  else if (str == 'Classes only') return 2;
-  else if (str == 'Modified files only') return 3;
-  else if (str == 'No build') return 4;
-}
-
 function changeBuildModeCmd() {
-  const quickPick = vscode.window.createQuickPick();
+  interface BuildModeQuickPick extends vscode.QuickPickItem {
+    value: number;
+  }
+  const quickPick = vscode.window.createQuickPick<BuildModeQuickPick>();
   quickPick.canSelectMany = false;
   quickPick.title = 'Choose build mode:';
   quickPick.items = [
@@ -1177,34 +1194,37 @@ function changeBuildModeCmd() {
       label: 'Build everything',
       description:
         'Scan all source code at startup, build if not up to date, and build when any source changed',
+      value: 1,
     },
     {
       label: 'Classes only',
       description:
         'Scan all source code at startup, build only classes if not up to date, and build when any source changed',
+      value: 2,
     },
     {
       label: 'Modified files only',
       description:
         "Scan all source code at startup, don't rebuild anything, build only when any source changed",
+      value: 3,
     },
     {
       label: 'No build',
       description: 'Scan all source code at startup, never build anything',
+      value: 4,
     },
   ];
-  quickPick.onDidChangeSelection((item) => {
+  quickPick.onDidAccept(() => {
     quickPick.hide();
-    buildMode = buildModeValue(item[0].label);
     vscode.workspace
       .getConfiguration('abl')
       .update(
         'buildMode',
-        buildModeValue(item[0].label),
+        quickPick.selectedItems[0].value,
         vscode.ConfigurationTarget.Workspace,
       );
     vscode.window.showInformationMessage(
-      'ABL build mode changed to ' + item[0].label,
+      'ABL build mode changed to ' + quickPick.selectedItems[0].label,
     );
   });
   quickPick.show();
