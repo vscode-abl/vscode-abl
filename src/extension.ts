@@ -48,7 +48,7 @@ let buildMode = 1;
 export class AblDebugAdapterDescriptorFactory
   implements vscode.DebugAdapterDescriptorFactory
 {
-  public constructor(private env?: any) {}
+  public constructor(private readonly env?: any) {}
 
   async createDebugAdapterDescriptor(
     _session: vscode.DebugSession,
@@ -214,7 +214,7 @@ export function deactivate(): Thenable<void> | undefined {
   return client.stop();
 }
 
-export function getProject(path: string): OpenEdgeProjectConfig {
+export function getProject(path: string): OpenEdgeProjectConfig | undefined {
   const srchPath =
     process.platform === 'win32' ? path.toLowerCase() + '\\' : path + '/';
   return projects.find((project) =>
@@ -224,7 +224,9 @@ export function getProject(path: string): OpenEdgeProjectConfig {
   );
 }
 
-export function getProjectByName(name: string): OpenEdgeProjectConfig {
+export function getProjectByName(
+  name: string,
+): OpenEdgeProjectConfig | undefined {
   return projects.find((project) => project.name === name);
 }
 
@@ -396,7 +398,7 @@ function refreshClassBrowser(): void {
 // I didn't find any specification for the order of the parameters, so the first entry in reverse order which matches a directory
 // is returned, or 'undefined' if none is found
 function getDirectoryFromArgs(params: any[]): string {
-  const copy = [].concat(params).reverse();
+  const copy = [params].flat().reverse();
   const projectDir = copy.find(
     (it) => fs.existsSync(it) && fs.statSync(it).isDirectory(),
   );
@@ -432,7 +434,7 @@ async function getPropath(params: any[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.propath && result.propath != '') {
+  if (result?.propath && result.propath != '') {
     if (process.platform === 'win32') return result.propath;
     else return result.propath.replace(',', ':');
   } else {
@@ -450,7 +452,7 @@ async function getSourceDirs(params: string[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.buildDirs && result.sourceDirs != '') {
+  if (result?.buildDirs && result.sourceDirs != '') {
     return result.sourceDirs;
   } else {
     return '';
@@ -467,7 +469,7 @@ async function getBuildDirs(params: string[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.buildDirs && result.buildDirs != '') {
+  if (result?.buildDirs && result.buildDirs != '') {
     return result.buildDirs;
   } else {
     return '';
@@ -483,7 +485,7 @@ async function getRelativePath(): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/fileInfo', {
     fileUri: vscode.window.activeTextEditor.document.uri.toString(),
   })) as FileInfo;
-  if (result && result.relativePath && result.relativePath != '') {
+  if (result?.relativePath && result.relativePath != '') {
     return result.relativePath;
   } else {
     // Fall back to full path if file does not belong to any project
@@ -613,10 +615,11 @@ function debugListingLine() {
       prompt: 'Go To Source Line',
     })
     .then((input) => {
-      client.sendNotification('proparse/showDebugListingLine', {
-        fileUri: vscode.window.activeTextEditor.document.uri.toString(),
-        lineNumber: Number.parseInt(input),
-      });
+      if (input && vscode.window.activeTextEditor)
+        client.sendNotification('proparse/showDebugListingLine', {
+          fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+          lineNumber: Number.parseInt(input),
+        });
     });
 }
 
@@ -1043,10 +1046,7 @@ function openDataDictionaryCmd() {
 }
 
 function openInAppbuilder() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Open in AppBuilder: no OpenEdge procedure selected',
     );
@@ -1075,10 +1075,7 @@ function openInAppbuilder() {
 }
 
 function openInProcedureEditor() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Open in procedure editor: no OpenEdge procedure selected',
     );
@@ -1107,10 +1104,7 @@ function openInProcedureEditor() {
 }
 
 function runCurrentFile() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
@@ -1127,10 +1121,7 @@ function runCurrentFile() {
 }
 
 function runCurrentFileBatch() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
@@ -1147,10 +1138,7 @@ function runCurrentFileBatch() {
 }
 
 function runCurrentFileProwin() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
