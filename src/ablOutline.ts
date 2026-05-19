@@ -54,9 +54,6 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     fs.mkdirSync(this.iconCacheDir, { recursive: true });
     // Listen to active editor changes
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      outputChannel.appendLine(
-        'onDidChangeActiveTextEditor: ' + editor?.document.uri.toString(),
-      );
       if (editor?.document.languageId === 'abl') {
         this.currentDocumentUri = editor.document.uri.toString();
         this.refresh();
@@ -69,9 +66,6 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
         event.document === vscode.window.activeTextEditor?.document &&
         vscode.window.activeTextEditor?.document.languageId === 'abl'
       ) {
-        outputChannel.appendLine(
-          'Document changed: ' + event.document.uri.toString(),
-        );
         this.currentDocumentUri = event.document.uri.toString();
         this.refresh();
       }
