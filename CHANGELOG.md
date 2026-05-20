@@ -15,6 +15,7 @@
 * ✨ Transitive Maven dependencies
 * ✨ Expand keywords action (#503)
 * ✨ Right-click in explorer view to compile files and directories (#533)
+* ✨ ABL Outline View improvements
 * 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
 * 🐛 Code completion on extents (issue #515)
 * 🐛 Fix signatures of functions without parentheses
@@ -22,6 +23,7 @@
 * 🐛 Fix breakpoint removal (#492)
 * 🐛 Definition on inherited temp-table fields (#390)
 * 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
+* ⬆️ CABL 3.8.0-SNAPSHOT
 * ⬆️ Java 21.0.11+10
 * ⬆️ ABL-LS 1.25.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.0
