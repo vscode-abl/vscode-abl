@@ -866,12 +866,12 @@
   "dependencies": {
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
-    "@vscode/vsce": "^3.7.1",
+    "@vscode/vsce": "^3.9.1",
     "abl-tmlanguage": "^1.4.0",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
-    "ovsx": "^0.10.9",
+    "ovsx": "^0.10.12",
     "username": "^7.0.0",
     "vscode-languageclient": "^9.0.1"
   },
