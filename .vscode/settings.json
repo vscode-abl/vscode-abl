@@ -15,7 +15,6 @@
     "out": true
   },
   "eslint.format.enable": true,
-  "eslint.alwaysShowStatus": true,
   "eslint.lintTask.enable": true,
   "eslint.enable": true,
   "sonarlint.connectedMode.project": {
