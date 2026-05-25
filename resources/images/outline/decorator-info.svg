@@ -1,0 +1,6 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Info: circle outline with i -->
+  <circle cx="8" cy="8" r="6" fill="none" stroke="#424242" stroke-width="1.2"/>
+  <circle cx="8" cy="5" r="1" fill="#424242"/>
+  <line x1="8" y1="7" x2="8" y2="12" stroke="#424242" stroke-width="1.2"/>
+</svg>

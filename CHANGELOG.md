@@ -1,3 +1,33 @@
+1.29.x
+======
+
+* ✨ Code formatter (full document and range) based on PDSOE code + trimFinalSpaces, insertFinalNewLine and trimFinalNewLines
+* ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
+* ✨ Improved source code search in the debugger
+* ✨ Resume execution per thread in PASOE debugger
+* ✨ Compile buffer action does not ask for project anymore
+* ✨ Delete r-code on error property (#525)
+* ✨ Add commentStyle attribute to project configuration file
+* ✨ SpeedScript support
+* ✨ Improved code completion after NEW keyword and after widget name prefix (#213)
+* ✨ Navigation (back and forwards) in documentation view
+* ✨ SSL communication to PASOE debugger (not supported yet by PASOE)
+* ✨ Transitive Maven dependencies
+* ✨ Expand keywords action (#503)
+* ✨ Right-click in explorer view to compile files and directories (#533)
+* ✨ ABL Outline View improvements
+* 🐛 Add missing `procedures` section when running procedure in TTY or batch (issue #521)
+* 🐛 Code completion on extents (issue #515)
+* 🐛 Fix signatures of functions without parentheses
+* 🐛 Fix debugger in `launch` mode + synchronization issue (mostly on Linux)
+* 🐛 Fix breakpoint removal (#492)
+* 🐛 Definition on inherited temp-table fields (#390)
+* 🔧 Add `noOpEvent` and `quitEvent` entrypoints in `thread.p`
+* ⬆️ CABL 3.8.0
+* ⬆️ Java 21.0.11+10
+* ⬆️ ABL-LS 1.25.0
+* ⬆️ TextMate Grammar 1.4.0
+
 1.28.2 (April 17th, 2026)
 =========================
 

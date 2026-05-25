@@ -1,7 +1,7 @@
 {
   "name": "openedge-abl-lsp",
   "publisher": "RiversideSoftware",
-  "version": "1.28.2",
+  "version": "1.29.20",
   "description": "OpenEdge ABL support for VS Code",
   "displayName": "OpenEdge ABL",
   "author": "chriscamicas",
@@ -129,6 +129,11 @@
         "description": "Open the Data Dictionary external tool"
       },
       {
+        "command": "abl.stop.langserv",
+        "title": "ABL: Stop Language Server",
+        "description": "Stop ABL Language Server"
+      },
+      {
         "command": "abl.restart.langserv",
         "title": "ABL: Restart Language Server",
         "description": "Restart ABL Language Server"
@@ -209,6 +214,11 @@
         "description": "Convert keywords to lowercase"
       },
       {
+        "command": "abl.expandKeywords",
+        "title": "ABL: Expand Keywords",
+        "description": "Expand keywords"
+      },
+      {
         "command": "abl.organizeUsings",
         "title": "ABL: Organize Usings",
         "description": "Organize USING statements"
@@ -217,6 +227,18 @@
         "command": "abl.dumpLangServStatus",
         "title": "ABL: Dump Language Server status",
         "description": "Dump Language Server status"
+      },
+      {
+        "command": "abl.docBack",
+        "title": "Go Back",
+        "icon": "$(arrow-left)",
+        "enablement": "oeDoc.canGoBack"
+      },
+      {
+        "command": "abl.docForward",
+        "title": "Go Forward",
+        "icon": "$(arrow-right)",
+        "enablement": "oeDoc.canGoForward"
       },
       {
         "command": "abl.switchDocTo122",
@@ -240,6 +262,11 @@
         "command": "classBrowser.refresh",
         "title": "Refresh Class Browser",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "abl.explorer.compile",
+        "title": "Compile",
+        "description": "Compile file or directory"
       }
     ],
     "breakpoints": [
@@ -266,7 +293,8 @@
               "mode": "legacy",
               "port": 3099,
               "localRoot": "^\"\\${workspaceFolder}\"",
-              "pause": true
+              "pause": true,
+              "refProjects": [ ]
             }
           },
           {
@@ -281,7 +309,9 @@
               "port": 8810,
               "localRoot": "^\"\\${workspaceFolder}\"",
               "appName": "pasoe1",
-              "password": ""
+              "password": "",
+              "ssl": false,
+              "refProjects": [ ]
             }
           },
           {
@@ -293,7 +323,9 @@
               "request": "launch",
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
-              "graphicalMode": true
+              "graphicalMode": true,
+              "pause": false,
+              "refProjects": [ ]
             }
           },
           {
@@ -305,7 +337,9 @@
               "request": "launch",
               "program": "^\"${1:\\${file}}\"",
               "cwd": "^\"\\${workspaceFolder}\"",
-              "graphicalMode": false
+              "graphicalMode": false,
+              "pause": false,
+              "refProjects": [ ]
             }
           }
         ],
@@ -334,17 +368,34 @@
                 "type": "boolean",
                 "description": "Start session with _progres or prowin",
                 "default": "false"
+              },
+              "pause": {
+                "type": "boolean",
+                "description": "Send 'pause' command as soon as the debugger is attached to the session (legacy mode only)",
+                "default": false
+              },
+              "refProjects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of referenced project names",
+                "default": [ ]
               }
             }
           },
           "attach": {
             "required": [
-              "mode"
+              "localRoot", "mode", "port", "hostname"
             ],
             "properties": {
               "mode": {
                 "type": "string",
-                "description": "Attach to AVM or PASOE"
+                "description": "Attach to AVM or PASOE",
+                "enum": [
+                  "legacy",
+                  "pasoe"
+                ]
               },
               "port": {
                 "type": "integer",
@@ -373,8 +424,21 @@
               },
               "password": {
                 "type": "string",
-                "description": "PASOE debugger password",
+                "description": "PASOE debugger password (if you know how to define password on the server side)",
                 "default": ""
+              },
+              "ssl": {
+                "type": "boolean",
+                "description": "Use SSL for the debugger connection (not supported on the server side)",
+                "default": false
+              },
+              "refProjects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of referenced project names",
+                "default": [ ]
               }
             }
           }
@@ -515,6 +579,36 @@
           "default": "",
           "description": "License key"
         },
+        "abl.formatter.keepIfThenInOneLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep 'IF ... THEN' in one line"
+        },
+        "abl.formatter.keepThenInNewLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep 'THEN' in new line"
+        },
+        "abl.formatter.keepElseIfInOneLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep 'ELSE IF' in one line"
+        },
+        "abl.formatter.keepElseAndIfInSeparateLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep ELSE and IF statements in separate line"
+        },
+        "abl.formatter.keepSimpleIfThenStatementInSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep simple 'IF ... THEN' statement in same line"
+        },
+        "abl.formatter.keepSimpleElseStatementInSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep simple 'ELSE' statement in same line"
+        },
         "abl.configuration.maxThreads": {
           "type": "integer",
           "default": -1,
@@ -524,6 +618,11 @@
           "type": "boolean",
           "default": false,
           "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)"
+        },
+        "abl.configuration.deleteRCodeOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "Delete r-code if syntax errors are found during build"
         },
         "abl.configuration.defaultRuntime": {
           "type": "string",
@@ -615,6 +714,32 @@
           "group": "navigation"
         }
       ],
+      "editor/title": [
+        {
+          "command": "abl.docBack",
+          "when": "activeWebviewPanelId == 'OEDOC'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "abl.docForward",
+          "when": "activeWebviewPanelId == 'OEDOC'",
+          "group": "navigation@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "submenu": "abl.explorerSubmenu",
+          "when": "abl.isABLProject",
+          "group": "abl"
+        }
+      ],
+      "abl.explorerSubmenu": [
+        {
+          "command": "abl.explorer.compile",
+          "group": "01_compile@01",
+          "when": "abl.isABLProject"
+        }
+      ],
       "editor/context": [
         {
           "submenu": "abl.submenu",
@@ -678,6 +803,10 @@
       {
         "id": "abl.submenu",
         "label": "ABL"
+      },
+      {
+        "id": "abl.explorerSubmenu",
+        "label": "ABL"
       }
     ],
     "jsonValidation": [
@@ -737,12 +866,12 @@
   "dependencies": {
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
-    "@vscode/vsce": "^3.7.1",
-    "abl-tmlanguage": "^1.3.25",
+    "@vscode/vsce": "^3.9.1",
+    "abl-tmlanguage": "^1.4.0",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
-    "ovsx": "^0.10.9",
+    "ovsx": "^0.10.12",
     "username": "^7.0.0",
     "vscode-languageclient": "^9.0.1"
   },

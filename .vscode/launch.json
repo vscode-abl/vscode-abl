@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Extension - Workspace",
+      "name": "Test Workspace",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -15,7 +15,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - Sample project 1",
+      "name": "Sample project 1",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -27,7 +27,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - Sample project 2",
+      "name": "Sample project 2",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -39,7 +39,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - SonarTestProject - 12.8",
+      "name": "SonarTestProject 12.8",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -51,7 +51,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - SonarTestProject - 13.0",
+      "name": "SonarTestProject 13.0",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -63,7 +63,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - PCT",
+      "name": "PCT",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -75,7 +75,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - Workspace PCT/SOE",
+      "name": "Workspace PCT/SOE",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -87,7 +87,7 @@
       "preLaunchTask": "build"
     },
     {
-      "name": "Extension - SCL",
+      "name": "SCL",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",

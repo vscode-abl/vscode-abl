@@ -1,6 +1,8 @@
 import { OpenEdgeProjectConfig } from '../shared/openEdgeConfigFile';
 import * as vscode from 'vscode';
-import * as path from 'path';
+import * as path from 'node:path';
+import { machineIdSync } from 'node-machine-id';
+import { usernameSync } from 'username';
 
 export class AblDebugConfigurationProvider
   implements vscode.DebugConfigurationProvider
@@ -42,6 +44,11 @@ export class AblDebugConfigurationProvider
       );
       debugConfiguration['dlc'] = cfg.dlc;
       debugConfiguration['oeversion'] = cfg.oeversion;
+      debugConfiguration['projects'] = this.getProjects(folderPath);
+      debugConfiguration['license'] = vscode.workspace.getConfiguration('abl').get('licenseKey', "");;
+      debugConfiguration['remoteName'] = vscode.env.remoteName;
+      debugConfiguration['machineId'] = machineIdSync(true);
+      debugConfiguration['userId'] = usernameSync();
     }
 
     return debugConfiguration;
@@ -54,5 +61,13 @@ export class AblDebugConfigurationProvider
         ? srchPath.startsWith(project.rootDir.toLowerCase())
         : srchPath.startsWith(project.rootDir),
     );
+  }
+
+  public getProjects(path: string): Array<string> {
+    const srchPath = process.platform === 'win32' ? path.toLowerCase() : path;
+    return this.projects.filter((project) => process.platform === 'win32'
+        ? !srchPath.startsWith(project.rootDir.toLowerCase())
+        : !srchPath.startsWith(project.rootDir))
+        .map((project) => project.rootDir);
   }
 }

@@ -106,7 +106,8 @@ export class DocumentationNodeProvider implements vscode.TreeDataProvider<Docume
 export class DocViewPanel {
   public static currentPanel: DocViewPanel | undefined;
   private readonly _panel: vscode.WebviewPanel;
-  private _pageUri: string;
+  private _history: string[] = [];
+  private _historyIndex: number = -1;
   private _disposables: vscode.Disposable[] = [];
 
   public static createOrShow(page: string) {
@@ -116,8 +117,7 @@ export class DocViewPanel {
 
     // If we already have a panel, show it.
     if (DocViewPanel.currentPanel) {
-      DocViewPanel.currentPanel._pageUri = page;
-      DocViewPanel.currentPanel._update();
+      DocViewPanel.currentPanel._navigateTo(page, true);
       DocViewPanel.currentPanel._panel.reveal(DocViewPanel.currentPanel._panel.viewColumn);
       return;
     }
@@ -133,11 +133,49 @@ export class DocViewPanel {
     DocViewPanel.currentPanel = new DocViewPanel(panel, page);
   }
 
+  public static goBack() {
+    DocViewPanel.currentPanel?._goBack();
+  }
+
+  public static goForward() {
+    DocViewPanel.currentPanel?._goForward();
+  }
+
+  private _goBack() {
+    if (this._historyIndex > 0) {
+      this._historyIndex--;
+      this._updateContext();
+      this._update();
+    }
+  }
+
+  private _goForward() {
+    if (this._historyIndex < this._history.length - 1) {
+      this._historyIndex++;
+      this._updateContext();
+      this._update();
+    }
+  }
+
+  private _navigateTo(page: string, addToHistory: boolean) {
+    if (addToHistory) {
+      this._history = this._history.slice(0, this._historyIndex + 1);
+      this._history.push(page);
+      this._historyIndex = this._history.length - 1;
+    }
+    this._updateContext();
+    this._update();
+  }
+
+  private _updateContext() {
+    vscode.commands.executeCommand('setContext', 'oeDoc.canGoBack', this._historyIndex > 0);
+    vscode.commands.executeCommand('setContext', 'oeDoc.canGoForward', this._historyIndex < this._history.length - 1);
+  }
+
   private constructor(panel: vscode.WebviewPanel, pageUri: string) {
     this._panel = panel;
-    this._pageUri = pageUri;
     // Set the webview's initial html content
-    this._update();
+    this._navigateTo(pageUri, true);
 
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programmatically
@@ -175,7 +213,7 @@ export class DocViewPanel {
   }
 
   private _update() {
-    fetch(this._pageUri, {
+    fetch(this._history[this._historyIndex], {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })

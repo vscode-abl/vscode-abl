@@ -45,10 +45,14 @@ let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 
+interface ProjectQuickPickItem extends vscode.QuickPickItem {
+  project: OpenEdgeProjectConfig;
+}
+
 export class AblDebugAdapterDescriptorFactory
   implements vscode.DebugAdapterDescriptorFactory
 {
-  public constructor(private env?: any) {}
+  public constructor(private readonly env?: any) {}
 
   async createDebugAdapterDescriptor(
     _session: vscode.DebugSession,
@@ -86,6 +90,11 @@ export class AblDebugAdapterDescriptorFactory
         : debugAdapterOptionsFromSettings;
 
     const langServExecutable = getJavaExecutable();
+    if (!fs.existsSync(langServExecutable)) {
+      const msg = `Java executable not found: ${langServExecutable}`;
+      outputChannel.error(`ABL Debug Adapter - ${msg}`);
+      throw new Error(`Unable to start debug adapter, ${msg}`);
+    }
     outputChannel.info(
       `ABL Debug Adapter - Command line: ${langServExecutable} ${execOptions2.join(' ')}`,
     );
@@ -172,6 +181,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     async status() {
       return await client.sendRequest('proparse/status');
     },
+    async stopLanguageServer() {
+      return await stopLangServer();
+    },
     async restartLanguageServer() {
       return await restartLangServer();
     },
@@ -185,7 +197,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       }
       runGUI(procedure, cfg);
     },
-    runTTY(projectPath: string, procedure: string) {
+    runTTY(projectPath: string, procedure: string, batchMode?: boolean) {
       const cfg = getProject(projectPath);
       if (!cfg) {
         vscode.window.showInformationMessage(
@@ -193,7 +205,8 @@ export function activate(ctx: vscode.ExtensionContext) {
         );
         return;
       }
-      runTTY(procedure, cfg);
+      if (batchMode) runBatch(procedure, cfg);
+      else runTTY(procedure, cfg);
     },
   };
 }
@@ -205,7 +218,7 @@ export function deactivate(): Thenable<void> | undefined {
   return client.stop();
 }
 
-export function getProject(path: string): OpenEdgeProjectConfig {
+export function getProject(path: string): OpenEdgeProjectConfig | undefined {
   const srchPath =
     process.platform === 'win32' ? path.toLowerCase() + '\\' : path + '/';
   return projects.find((project) =>
@@ -215,24 +228,32 @@ export function getProject(path: string): OpenEdgeProjectConfig {
   );
 }
 
-export function getProjectByName(name: string): OpenEdgeProjectConfig {
+export function getProjectByName(
+  name: string,
+): OpenEdgeProjectConfig | undefined {
   return projects.find((project) => project.name === name);
 }
 
 function getJavaExecutable(): string {
-  const userJavaExec = vscode.workspace
+  const extension = process.platform === 'win32' ? '.exe' : '';
+  let userJavaExec = vscode.workspace
     .getConfiguration('abl')
     .get('langServerJavaExecutable') as string;
-  const extension = process.platform === 'win32' ? '.exe' : '';
+  if (
+    userJavaExec &&
+    !fs.existsSync(userJavaExec) &&
+    fs.existsSync(userJavaExec + extension)
+  ) {
+    userJavaExec += extension;
+  }
+
   const bundledJavaExec = fs.existsSync(path.join(__dirname, '../jre'))
     ? path.join(__dirname, '../jre/bin/java' + extension)
     : undefined;
 
-  return userJavaExec
-    ? userJavaExec
-    : bundledJavaExec
-      ? bundledJavaExec
-      : 'java';
+  if (userJavaExec) return userJavaExec;
+  else if (bundledJavaExec) return bundledJavaExec;
+  else return 'java';
 }
 
 function createLanguageClient(): LanguageClient {
@@ -274,14 +295,20 @@ function createLanguageClient(): LanguageClient {
   };
   const serverOptions: ServerOptions = serverExec;
 
+  // StructuredClone doesn't work with vscode workspace configuration objects, so we need to create a deep copy of the relevant configuration part
+  const ablConfig = JSON.parse(
+    JSON.stringify(vscode.workspace.getConfiguration('abl')),
+  );
+  ablConfig.formatter ??= {};
+
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     outputChannel: lsOutputChannel,
     initializationOptions: {
-      abl: vscode.workspace.getConfiguration('abl'),
+      abl: ablConfig,
       remoteName: vscode.env.remoteName,
       machineId: machineId,
-      user: usernameSync()
+      user: usernameSync(),
     },
     documentSelector: [
       { scheme: 'file', language: 'abl' },
@@ -375,7 +402,7 @@ function refreshClassBrowser(): void {
 // I didn't find any specification for the order of the parameters, so the first entry in reverse order which matches a directory
 // is returned, or 'undefined' if none is found
 function getDirectoryFromArgs(params: any[]): string {
-  const copy = [].concat(params).reverse();
+  const copy = [params].flat().reverse();
   const projectDir = copy.find(
     (it) => fs.existsSync(it) && fs.statSync(it).isDirectory(),
   );
@@ -411,7 +438,7 @@ async function getPropath(params: any[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.propath && result.propath != '') {
+  if (result?.propath && result.propath != '') {
     if (process.platform === 'win32') return result.propath;
     else return result.propath.replace(',', ':');
   } else {
@@ -429,7 +456,7 @@ async function getSourceDirs(params: string[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.buildDirs && result.sourceDirs != '') {
+  if (result?.buildDirs && result.sourceDirs != '') {
     return result.sourceDirs;
   } else {
     return '';
@@ -446,7 +473,7 @@ async function getBuildDirs(params: string[]): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/projectInfo', {
     projectUri: vscode.Uri.file(projectDir).toString(),
   })) as ProjectInfo;
-  if (result && result.buildDirs && result.buildDirs != '') {
+  if (result?.buildDirs && result.buildDirs != '') {
     return result.buildDirs;
   } else {
     return '';
@@ -462,7 +489,7 @@ async function getRelativePath(): Promise<string | undefined> {
   const result = (await client.sendRequest('proparse/fileInfo', {
     fileUri: vscode.window.activeTextEditor.document.uri.toString(),
   })) as FileInfo;
-  if (result && result.relativePath && result.relativePath != '') {
+  if (result?.relativePath && result.relativePath != '') {
     return result.relativePath;
   } else {
     // Fall back to full path if file does not belong to any project
@@ -481,19 +508,20 @@ function setDefaultProject(): void {
   const list = projects.map((project) => ({
     label: project.name,
     description: project.rootDir,
+    project: project,
   }));
   list.sort((a, b) => a.label.localeCompare(b.label));
   const quickPick = vscode.window.createQuickPick();
   quickPick.canSelectMany = false;
   quickPick.title = 'Choose default project:';
   quickPick.items = list;
-  quickPick.onDidChangeSelection((args) => {
+  quickPick.onDidAccept(() => {
     quickPick.hide();
     vscode.workspace
       .getConfiguration('abl')
       .update(
         'defaultProject',
-        args[0].label,
+        quickPick.selectedItems[0].label,
         vscode.ConfigurationTarget.Workspace,
       );
   });
@@ -504,22 +532,33 @@ function dumpLangServStatus(): void {
   client.sendNotification('proparse/dumpStatus', {});
 }
 
+function stopLangServer(): Promise<void> {
+  outputChannel.info('Received request to stop ABL Language Server');
+  return client.stop(5000);
+}
+
 function restartLangServer(): Promise<void> {
   outputChannel.info('Received request to restart ABL Language Server');
-  return client
-    .stop(5000)
-    .then(() => {
-      outputChannel.info('ABL Language Server stopped');
-      client = createLanguageClient();
-      outputChannel.info('Starting new ABL Language Server');
-      return client.start();
-    })
-    .catch((caught) => {
-      outputChannel.info(
-        "ABL Language Server didn't stop correctly: " + caught,
-      );
-      throw caught;
-    });
+  const fn = () => {
+    client = createLanguageClient();
+    outputChannel.info('Starting new ABL Language Server');
+    return client.start();
+  };
+
+  if (client.isRunning()) {
+    return client
+      .stop(5000)
+      .then(() => outputChannel.info('ABL Language Server stopped'))
+      .then(fn)
+      .catch((error_) => {
+        outputChannel.info(
+          "ABL Language Server didn't stop correctly: " + error_,
+        );
+        throw error_;
+      });
+  } else {
+    return fn();
+  }
 }
 
 function switchProfile(project: OpenEdgeProjectConfig): void {
@@ -551,54 +590,10 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
 function compileBuffer() {
   if (vscode.window.activeTextEditor == undefined) return;
 
-  if (projects.length == 1) {
-    compileBufferInProject(
-      projects[0],
-      vscode.window.activeTextEditor.document.uri.toString(),
-      vscode.window.activeTextEditor.document.getText(),
-    );
-  } else {
-    const defPrj = getProjectByName(defaultProjectName);
-    if (defPrj) {
-      compileBufferInProject(
-        defPrj,
-        vscode.window.activeTextEditor.document.uri.toString(),
-        vscode.window.activeTextEditor.document.getText(),
-      );
-    } else {
-      const list = projects.map((project) => ({
-        label: project.name,
-        description: project.rootDir,
-      }));
-      list.sort((a, b) => a.label.localeCompare(b.label));
-
-      const quickPick = vscode.window.createQuickPick();
-      quickPick.canSelectMany = false;
-      quickPick.title = 'Choose project to compile buffer:';
-      quickPick.items = list;
-      quickPick.onDidChangeSelection((args) => {
-        quickPick.hide();
-        compileBufferInProject(
-          getProjectByName(args[0].label),
-          vscode.window.activeTextEditor.document.uri.toString(),
-          vscode.window.activeTextEditor.document.getText(),
-        );
-      });
-      quickPick.show();
-    }
-  }
-}
-
-function compileBufferInProject(
-  project: OpenEdgeProjectConfig,
-  bufferUri: string,
-  buffer: string,
-) {
   client
     .sendRequest<any>('proparse/compileBuffer', {
-      projectUri: project.uri.toString(),
-      bufferUri: bufferUri,
-      buffer: buffer,
+      bufferUri: vscode.window.activeTextEditor.document.uri.toString(),
+      buffer: vscode.window.activeTextEditor.document.getText(),
     })
     .then((result) => {
       if (result.success === false) {
@@ -625,10 +620,11 @@ function debugListingLine() {
       prompt: 'Go To Source Line',
     })
     .then((input) => {
-      client.sendNotification('proparse/showDebugListingLine', {
-        fileUri: vscode.window.activeTextEditor.document.uri.toString(),
-        lineNumber: Number.parseInt(input),
-      });
+      if (input && vscode.window.activeTextEditor)
+        client.sendNotification('proparse/showDebugListingLine', {
+          fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+          lineNumber: Number.parseInt(input),
+        });
     });
 }
 
@@ -661,14 +657,18 @@ function preprocessFile() {
     .sendRequest('proparse/preprocess', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during preprocess: ' + anyValue.message,
+          'Error during preprocess: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... PREPROCESS didn't succeed, preprocessed file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -687,14 +687,18 @@ function generateListing() {
     .sendRequest('proparse/listing', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during listing generation: ' + anyValue.message,
+          'Error during listing generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... LISTING didn't succeed, listing file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -713,14 +717,18 @@ function generateDebugListing() {
     .sendRequest('proparse/debugListing', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during debug listing generation: ' + anyValue.message,
+          'Error during debuglisting generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... DEBUG-LISTING didn't succeed, debug listing file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -738,14 +746,18 @@ function generateXref() {
     .sendRequest('proparse/xref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during XREF generation: ' + anyValue.message,
+          'Error during XREF generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XREF didn't succeed, xref file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -768,13 +780,17 @@ function generateXrefAndJumpToCurrentLine() {
     .sendRequest('proparse/xref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
+    .then((anyValue: any) => {
       if (anyValue.fileName === '') {
         vscode.window.showErrorMessage(
           'Error during XREF generation: ' + anyValue.message,
         );
       } else {
+        if (!anyValue.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XREF didn't succeed, xref file is probably invalid: " +
+              anyValue.message,
+          );
         vscode.window
           .showTextDocument(vscode.Uri.file(anyValue.fileName))
           .then(async (editor) => {
@@ -860,14 +876,18 @@ function generateXmlXref() {
     .sendRequest('proparse/xmlXref', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     })
-    .then((result) => {
-      const anyValue = result as any;
-      if (anyValue.fileName === '') {
+    .then((result: any) => {
+      if (result.fileName === '')
         vscode.window.showErrorMessage(
-          'Error during XML XREF generation: ' + anyValue.message,
+          'Error during XML XREF generation: ' + result.message,
         );
-      } else {
-        vscode.window.showTextDocument(vscode.Uri.file(anyValue.fileName));
+      else {
+        vscode.window.showTextDocument(vscode.Uri.file(result.fileName));
+        if (!result.success)
+          vscode.window.showWarningMessage(
+            "COMPILE ... XML XREF didn't succeed, xml xref file is probably invalid: " +
+              result.message,
+          );
       }
     });
 }
@@ -903,6 +923,20 @@ function fixLowerCasing() {
   });
 }
 
+function expandKeywords() {
+  if (vscode.window.activeTextEditor == undefined) return;
+  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  if (!cfg) {
+    vscode.window.showInformationMessage(
+      "Current buffer doesn't belong to any OpenEdge project",
+    );
+    return;
+  }
+  client.sendRequest('proparse/expandKeywords', {
+    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+  });
+}
+
 function organizeUsings() {
   if (vscode.window.activeTextEditor == undefined) return;
   const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
@@ -928,16 +962,17 @@ function generateCatalog() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Generate assembly catalog - Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      executeGenCatalog(getProjectByName(args[0].label));
+      executeGenCatalog(quickPick.selectedItems[0].project);
       vscode.window.showInformationMessage(
         'Assembly catalog generation started. This operation can take several minutes. Check .builder/catalog.json and .builder/assemblyCatalog.log.',
       );
@@ -953,16 +988,17 @@ function switchProfileCmd() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      switchProfile(getProjectByName(args[0].label));
+      switchProfile(quickPick.selectedItems[0].project);
     });
     quickPick.show();
   }
@@ -977,17 +1013,18 @@ function rebuildProject() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Rebuild project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
       client.sendRequest('proparse/rebuildProject', {
-        projectUri: getProjectByName(args[0].label).uri.toString(),
+        projectUri: quickPick.selectedItems[0].project.uri.toString(),
       });
     });
     quickPick.show();
@@ -1001,26 +1038,24 @@ function openDataDictionaryCmd() {
     const list = projects.map((project) => ({
       label: project.name,
       description: project.rootDir,
+      project: project,
     }));
     list.sort((a, b) => a.label.localeCompare(b.label));
 
-    const quickPick = vscode.window.createQuickPick();
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
     quickPick.canSelectMany = false;
     quickPick.title = 'Open Data Dictionary - Select project:';
     quickPick.items = list;
-    quickPick.onDidChangeSelection((args) => {
+    quickPick.onDidAccept(() => {
       quickPick.hide();
-      openDataDictionary(getProjectByName(args[0].label));
+      openDataDictionary(quickPick.selectedItems[0].project);
     });
     quickPick.show();
   }
 }
 
 function openInAppbuilder() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Open in AppBuilder: no OpenEdge procedure selected',
     );
@@ -1034,6 +1069,12 @@ function openInAppbuilder() {
     return;
   }
   const cfg2 = cfg.profiles.get(cfg.activeProfile);
+  if (!cfg2) {
+    vscode.window.showInformationMessage(
+      "Current buffer's project doesn't have an active profile",
+    );
+    return;
+  }
   openInAB(
     vscode.window.activeTextEditor.document.uri.fsPath,
     cfg.rootDir,
@@ -1049,10 +1090,7 @@ function openInAppbuilder() {
 }
 
 function openInProcedureEditor() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Open in procedure editor: no OpenEdge procedure selected',
     );
@@ -1066,6 +1104,12 @@ function openInProcedureEditor() {
     return;
   }
   const cfg2 = cfg.profiles.get(cfg.activeProfile);
+  if (!cfg2) {
+    vscode.window.showInformationMessage(
+      "Current buffer's project doesn't have an active profile",
+    );
+    return;
+  }
   openInProcEditor(
     vscode.window.activeTextEditor.document.uri.fsPath,
     cfg.rootDir,
@@ -1081,10 +1125,7 @@ function openInProcedureEditor() {
 }
 
 function runCurrentFile() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
@@ -1101,10 +1142,7 @@ function runCurrentFile() {
 }
 
 function runCurrentFileBatch() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
@@ -1121,10 +1159,7 @@ function runCurrentFileBatch() {
 }
 
 function runCurrentFileProwin() {
-  if (
-    vscode.window.activeTextEditor == undefined ||
-    vscode.window.activeTextEditor.document.languageId !== 'abl'
-  ) {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
@@ -1147,15 +1182,11 @@ function buildModeName(val: number) {
   else if (val == 4) return 'No build';
 }
 
-function buildModeValue(str: string) {
-  if (str == 'Build everything') return 1;
-  else if (str == 'Classes only') return 2;
-  else if (str == 'Modified files only') return 3;
-  else if (str == 'No build') return 4;
-}
-
 function changeBuildModeCmd() {
-  const quickPick = vscode.window.createQuickPick();
+  interface BuildModeQuickPick extends vscode.QuickPickItem {
+    value: number;
+  }
+  const quickPick = vscode.window.createQuickPick<BuildModeQuickPick>();
   quickPick.canSelectMany = false;
   quickPick.title = 'Choose build mode:';
   quickPick.items = [
@@ -1163,34 +1194,37 @@ function changeBuildModeCmd() {
       label: 'Build everything',
       description:
         'Scan all source code at startup, build if not up to date, and build when any source changed',
+      value: 1,
     },
     {
       label: 'Classes only',
       description:
         'Scan all source code at startup, build only classes if not up to date, and build when any source changed',
+      value: 2,
     },
     {
       label: 'Modified files only',
       description:
         "Scan all source code at startup, don't rebuild anything, build only when any source changed",
+      value: 3,
     },
     {
       label: 'No build',
       description: 'Scan all source code at startup, never build anything',
+      value: 4,
     },
   ];
-  quickPick.onDidChangeSelection((item) => {
+  quickPick.onDidAccept(() => {
     quickPick.hide();
-    buildMode = buildModeValue(item[0].label);
     vscode.workspace
       .getConfiguration('abl')
       .update(
         'buildMode',
-        buildModeValue(item[0].label),
+        quickPick.selectedItems[0].value,
         vscode.ConfigurationTarget.Workspace,
       );
     vscode.window.showInformationMessage(
-      'ABL build mode changed to ' + item[0].label,
+      'ABL build mode changed to ' + quickPick.selectedItems[0].label,
     );
   });
   quickPick.show();
@@ -1334,6 +1368,16 @@ function generateProenvStartWindows(path: string) {
   fs.writeFileSync(path, scriptContent);
 }
 
+function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
+  const targets = uris && uris.length > 0 ? uris : [uri];
+  for (const uri of targets) {
+    client.sendRequest('proparse/buildResource', {
+      uri: uri.toString(),
+      forceBuild: false,
+    });
+  }
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTerminalProfileProvider('proenv.terminal-profile', {
     provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
@@ -1365,6 +1409,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
+    vscode.commands.registerCommand('abl.docBack', () => DocViewPanel.goBack()),
+    vscode.commands.registerCommand('abl.docForward', () =>
+      DocViewPanel.goForward(),
+    ),
     vscode.commands.registerCommand('abl.switchDocTo122', switchDocTo122),
     vscode.commands.registerCommand('abl.switchDocTo128', switchDocTo128),
     vscode.commands.registerCommand('abl.switchDocTo130', switchDocTo130),
@@ -1382,6 +1430,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       'abl.dumpLangServStatus',
       dumpLangServStatus,
     ),
+    vscode.commands.registerCommand('abl.stop.langserv', stopLangServer),
     vscode.commands.registerCommand('abl.restart.langserv', restartLangServer),
     vscode.commands.registerCommand('abl.compileBuffer', compileBuffer),
     vscode.commands.registerCommand('abl.debugListingLine', debugListingLine),
@@ -1401,6 +1450,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand('abl.catalog', generateCatalog),
     vscode.commands.registerCommand('abl.fixUpperCasing', fixUpperCasing),
     vscode.commands.registerCommand('abl.fixLowerCasing', fixLowerCasing),
+    vscode.commands.registerCommand('abl.expandKeywords', expandKeywords),
     vscode.commands.registerCommand('abl.organizeUsings', organizeUsings),
     vscode.commands.registerCommand(
       'abl.project.switch.profile',
@@ -1427,9 +1477,21 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd),
     vscode.commands.registerCommand(
+      'abl.explorer.compile',
+      compileFromExplorer,
+    ),
+    vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
-      (range: vscode.Range) => {
-        if (vscode.window.activeTextEditor) {
+      async (range: vscode.Range, uri?: string) => {
+        if (uri) {
+          // Open the document at the specified URI
+          const document = await vscode.workspace.openTextDocument(
+            vscode.Uri.parse(uri),
+          );
+          const editor = await vscode.window.showTextDocument(document);
+          editor.selection = new vscode.Selection(range.start, range.start);
+          editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+        } else if (vscode.window.activeTextEditor) {
           vscode.window.activeTextEditor.selection = new vscode.Selection(
             range.start,
             range.start,
@@ -1456,7 +1518,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 
   // Register Custom Outline
-  ablOutlineProvider = new AblOutlineProvider(client, ctx.extensionPath);
+  ablOutlineProvider = new AblOutlineProvider(
+    client,
+    ctx.extensionPath,
+    ctx.globalStorageUri.fsPath,
+  );
   vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
 }
 
@@ -1504,6 +1570,7 @@ function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
+      vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
       outputChannel.info(`Now starting ABL language server...`);
       client.start();
     } else {
@@ -1518,7 +1585,7 @@ function parseOpenEdgeProjectConfig(
 ): OpenEdgeProjectConfig {
   const prjConfig = new OpenEdgeProjectConfig();
   prjConfig.uri = vscode.Uri.parse(path.dirname(uri.path));
-  prjConfig.name = config.name;
+  prjConfig.name = config.artifactId ?? config.name ?? '';
   prjConfig.version = config.version;
   prjConfig.defaultProfileDisplayName = config.defaultProfileDisplayName;
   prjConfig.rootDir =

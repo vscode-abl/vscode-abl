@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as cp from 'child_process';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as cp from 'node:child_process';
+import * as path from 'node:path';
 import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
-import * as crypto from 'crypto';
-import { tmpdir } from 'os';
+import * as crypto from 'node:crypto';
+import { tmpdir } from 'node:os';
 import { outputChannel } from './ablStatus';
 import * as vscode from 'vscode';
 
@@ -29,6 +29,7 @@ export function executeGenCatalog(project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: false,
     output: [],
+    procedures: project.procedures,
     procedure: 'NetAssemblyCatalog.p',
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));

@@ -1,7 +1,7 @@
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import { tmpdir } from 'os';
-import * as path from 'path';
+import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { batchOutputChannel } from './ablStatus';
 import { create } from './OutputChannelProcess';
@@ -23,6 +23,10 @@ function checkBuilderDirectoryExists(rootDir: string) {
 export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
+  if (!currProfile) {
+    vscode.window.showErrorMessage('No active profile found.');
+    return;
+  }
   const terminal = vscode.window.createTerminal({
     name: 'TTY execution',
     env: { DLC: currProfile.dlc },
@@ -39,6 +43,7 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: true,
     output: [],
+    procedures: project.procedures,
     procedure: filename,
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
@@ -56,13 +61,17 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
                 "-T", path.join(project.rootDir, ".builder", "tmp")
             ])
             .join(" ");
-  terminal.sendText(cmd.replace(/\\/g, '/'), true);
+  terminal.sendText(cmd.replaceAll('\\', '/'), true);
   terminal.show();
 }
 
 export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
+  if (!currProfile) {
+    vscode.window.showErrorMessage('No active profile found.');
+    return;
+  }
 
   const env = process.env;
   env.DLC = currProfile.dlc;
@@ -79,6 +88,7 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     returnValue: '',
     super: true,
     output: [],
+    procedures: project.procedures,
     procedure: filename,
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
