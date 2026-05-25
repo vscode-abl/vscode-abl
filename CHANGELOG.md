@@ -1,6 +1,7 @@
-1.29.x
-======
+1.30.0 (May 25th, 2026)
+=======================
 
+* 🛂 Starting from version 1.32 (ETA mid-June 2026), some features — the debugger, Speedscript, Maven-based dependency management, and commercial support contracts — will require a paid subscription. All code editing features (syntax completion, hover, builders, external entrypoints, etc.) remain free.
 * ✨ Code formatter (full document and range) based on PDSOE code + trimFinalSpaces, insertFinalNewLine and trimFinalNewLines
 * ✨ Support for referenced projects in the debugger (`refProjects` attribute in launch configuration)
 * ✨ Improved source code search in the debugger
