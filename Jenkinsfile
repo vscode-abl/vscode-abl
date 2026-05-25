@@ -62,7 +62,7 @@ pipeline {
     stage('🔍 Sonar') { 
       agent {
         docker {
-          image 'sonarsource/sonar-scanner-cli:11.5.0.2154_7.3.0'
+          image 'sonarsource/sonar-scanner-cli:12.1.0.3233_8.0.1'
           args "-e SONAR_USER_HOME=/tmp"
           reuseNode true
         }
