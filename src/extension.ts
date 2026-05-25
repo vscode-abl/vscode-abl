@@ -143,19 +143,6 @@ export function activate(ctx: vscode.ExtensionContext) {
     },
   );
 
-  if (!ctx.globalState.get<boolean>('hideStartupMessage01')) {
-    vscode.window
-      .showInformationMessage(
-        'Starting with the next stable version, some features currently available for free will require a paid license. A free edition with code editing features will remain available. Stay tuned for pricing details.',
-        "Don't show again",
-      )
-      .then((selection) => {
-        if (selection === "Don't show again") {
-          ctx.globalState.update('hideStartupMessage01', true);
-        }
-      });
-  }
-
   registerCommands(ctx);
   vscode.debug.registerDebugAdapterDescriptorFactory(
     'abl',
