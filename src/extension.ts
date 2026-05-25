@@ -1201,8 +1201,14 @@ function changeBuildModeCmd() {
       value: 4,
     },
   ];
+  const currentItem = quickPick.items.find((item) => item.value === buildMode);
+  if (currentItem) {
+    quickPick.activeItems = [currentItem];
+  }
+
   quickPick.onDidAccept(() => {
     quickPick.hide();
+    buildMode = quickPick.selectedItems[0].value;
     vscode.workspace
       .getConfiguration('abl')
       .update(
