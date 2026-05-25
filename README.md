@@ -16,7 +16,7 @@ This extension is [sponsored](https://community.progress.com/s/question/0D5Pb000
 * Code completion
 
 ## Requirements
-This extension requires at least one OpenEdge installation with a developer license. The extension is currently tested with 11.7, 12.2, and 12.8. It may or may not work with older versions.
+This extension requires at least one OpenEdge installation with a developer license. The extension is currently tested with 12.2, 12.8, and 13.0. It may or may not work with older versions.
 
 ## Global Configuration
 OpenEdge runtimes have to be declared in the VSCode configuration file. Open settings `(Ctrl + comma)` -> Extensions -> ABL Configuration -> Runtimes, or modify `settings.json`:
@@ -33,8 +33,8 @@ OpenEdge runtimes have to be declared in the VSCode configuration file. Open set
             "path": "C:\\Progress\\Openedge-12.2"
         },
         {
-            "name": "11.7",
-            "path": "C:\\Progress\\OpenEdge-11.7"
+            "name": "13.0",
+            "path": "C:\\Progress\\OpenEdge-13.0"
         }
     ],
 ```
@@ -247,7 +247,7 @@ Use [ABLUnit Test Runner](https://marketplace.visualstudio.com/items?itemName=kh
 ## Configuration checklist
 
 Here are a few things to verify before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
-* OpenEdge must be installed on your local machine and configured in VSCode. As of today, versions 11.7, 12.2, and 12.8 have been tested.
+* OpenEdge must be installed on your local machine and configured in VSCode. As of today, versions 11.7, 12.2, 12.2, 12.8 and 13.0 have been tested.
 * Verify that the `openedge-project.json` file is present in the root directory and has no syntax errors.
 * Make sure at least one `.p` or `.cls` file is opened, as the extension is not active by default.
 * Check the Java command line being executed (using Process Explorer, for example).
