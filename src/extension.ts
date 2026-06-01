@@ -31,6 +31,8 @@ import {
 } from './shared/openEdgeConfigFile';
 import { machineIdSync } from 'node-machine-id';
 import { usernameSync } from 'username';
+import { AblCompileTool } from './tools/AblCompileTool';
+import { AblXrefTool } from './tools/AblXrefTool';
 
 let client: LanguageClient;
 
@@ -1506,6 +1508,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   );
   vscode.commands.executeCommand('setContext', 'oeDoc.mode', 3);
   docNodeProvider.fetchData();
+
+  ctx.subscriptions.push(
+    vscode.lm.registerTool('abl_compile', new AblCompileTool(client)),
+    vscode.lm.registerTool('abl_xref', new AblXrefTool(client)),
+  );
 
   // Register Class Browser
   classBrowserProvider = new ClassBrowserProvider(client, projects);

@@ -41,6 +41,48 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languageModelTools": [
+      {
+        "name": "abl_compile",
+        "displayName": "ABL Compile File",
+        "modelDescription": "Compiles an OpenEdge ABL source file using the language server and returns all compiler errors and warnings with their location and severity. Use this to check whether ABL code is valid after making changes.",
+        "userDescription": "Compile an ABL file and return compiler diagnostics",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablCompile",
+        "icon": "$(gear)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to compile (e.g. file:///path/to/file.p). If omitted, the active editor is used."
+            }
+          }
+        }
+      },
+      {
+        "name": "abl_xref",
+        "displayName": "ABL Generate XREF",
+        "modelDescription": "Generates an XREF or XML XREF file for an OpenEdge ABL source file using the language server and returns its content. Use this to inspect cross-reference information such as table/field accesses, procedure calls, and include file references.",
+        "userDescription": "Generate an XREF (or XML XREF) for an ABL file and return its content",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablXref",
+        "icon": "$(list-tree)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to process (e.g. file:///path/to/file.p). If omitted, the active editor is used."
+            },
+            "xml": {
+              "type": "boolean",
+              "description": "When true, generates XML XREF (proparse/xmlXref); when false or omitted, generates plain XREF (proparse/xref)."
+            }
+          }
+        }
+      }
+    ],
     "configurationDefaults": {
       "[abl]": {
         "editor.semanticHighlighting.enabled": false,
