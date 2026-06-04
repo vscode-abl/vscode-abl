@@ -309,6 +309,12 @@
         "command": "abl.explorer.compile",
         "title": "Compile",
         "description": "Compile file or directory"
+      },
+      {
+        "command": "abl.stripMarkup",
+        "category": "ABL",
+        "title": "Strip AppBuilder Markup",
+        "description": "Strip AppBuilder visual layout markup and metadata from OpenEdge files"
       }
     ],
     "breakpoints": [
@@ -747,6 +753,10 @@
         {
           "command": "abl.runProgres.currentFile",
           "when": "editorLangId == 'abl'"
+        },
+        {
+          "command": "abl.stripMarkup",
+          "when": "editorLangId == 'abl'"
         }
       ],
       "view/title": [
@@ -793,7 +803,12 @@
       "abl.explorerSubmenu": [
         {
           "command": "abl.explorer.compile",
-          "group": "01_compile@01",
+          "group": "01_file@01",
+          "when": "abl.isABLProject"
+        },
+        {
+          "command": "abl.stripMarkup",
+          "group": "01_file@02",
           "when": "abl.isABLProject"
         }
       ],
@@ -832,6 +847,11 @@
         {
           "command": "abl.generateXmlXref",
           "group": "01_file@06",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.stripMarkup",
+          "group": "01_file@07",
           "when": "editorTextFocus && config.abl.showCommandsInContextMenu && resourceLangId == abl"
         },
         {

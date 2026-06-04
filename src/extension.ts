@@ -1374,6 +1374,22 @@ function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
   }
 }
 
+function stripAppbuilderMarkup(uri: vscode.Uri, uris?: vscode.Uri[]) {
+  if (uri) {
+    const targets = uris && uris.length > 0 ? uris : [uri];
+    for (const target of targets) {
+      client.sendRequest('proparse/stripAppBuilderMarkup', {
+        fileUri: target.toString(),
+      });
+    }
+  } else {
+    if (vscode.window.activeTextEditor == undefined) return;
+    client.sendRequest('proparse/stripAppBuilderMarkup', {
+      fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+    });
+  }
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTerminalProfileProvider('proenv.terminal-profile', {
     provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
@@ -1475,6 +1491,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       'abl.explorer.compile',
       compileFromExplorer,
+    ),
+    vscode.commands.registerCommand(
+      'abl.stripMarkup',
+      stripAppbuilderMarkup,
     ),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
