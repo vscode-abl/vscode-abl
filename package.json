@@ -90,143 +90,171 @@
     "commands": [
       {
         "command": "abl.getDlcDirectory",
-        "title": "ABL: Return OE dir",
+        "category": "ABL",
+        "title": "Return OE dir",
         "enablement": "false",
         "description": "Return the OpenEdge installation directory for a project"
       },
       {
         "command": "abl.debugListingLine",
-        "title": "ABL: Find debug listing line",
+        "category": "ABL",
+        "title": "Find debug listing line",
         "description": "Find debug listing line"
       },
       {
         "command": "abl.openInAB",
-        "title": "ABL: Open file in AppBuilder",
+        "category": "ABL",
+        "title": "Open file in AppBuilder",
         "description": "Open current file in AppBuilder"
       },
       {
         "command": "abl.openInProcEd",
-        "title": "ABL: Open file in procedure editor",
+        "category": "ABL",
+        "title": "Open file in procedure editor",
         "description": "Open current file in procedure editor"
       },
       {
         "command": "abl.runProgres.currentFile",
-        "title": "ABL: Run with _progres",
+        "category": "ABL",
+        "title": "Run with _progres",
         "description": "Run current file in TTY session"
       },
       {
         "command": "abl.runBatch.currentFile",
-        "title": "ABL: Run with _progres -b",
+        "category": "ABL",
+        "title": "Run with _progres -b",
         "description": "Run current file in batch session"
       },
       {
         "command": "abl.runProwin.currentFile",
-        "title": "ABL: Run with prowin",
+        "category": "ABL",
+        "title": "Run with prowin",
         "description": "Run current file in GUI session"
       },
       {
         "command": "abl.dataDictionary",
-        "title": "ABL: Open Data Dictionary",
+        "category": "ABL",
+        "title": "Open Data Dictionary",
         "description": "Open the Data Dictionary external tool"
       },
       {
         "command": "abl.stop.langserv",
-        "title": "ABL: Stop Language Server",
+        "category": "ABL",
+        "title": "Stop Language Server",
         "description": "Stop ABL Language Server"
       },
       {
         "command": "abl.restart.langserv",
-        "title": "ABL: Restart Language Server",
+        "category": "ABL",
+        "title": "Restart Language Server",
         "description": "Restart ABL Language Server"
       },
       {
         "command": "abl.changeBuildMode",
-        "title": "ABL: Change build mode",
+        "category": "ABL",
+        "title": "Change build mode",
         "description": "Change ABL Build Mode"
       },
       {
         "command": "abl.project.rebuild",
-        "title": "ABL: Rebuild Project",
+        "category": "ABL",
+        "title": "Rebuild Project",
         "description": "Rebuild Project"
       },
       {
         "command": "abl.setDefaultProject",
-        "title": "ABL: Set default project",
+        "category": "ABL",
+        "title": "Set default project",
         "description": "Set default project"
       },
       {
         "command": "abl.project.switch.profile",
-        "title": "ABL: Switch project to profile",
+        "category": "ABL",
+        "title": "Switch project to profile",
         "description": "Switch project profile"
       },
       {
         "command": "abl.preprocess",
-        "title": "ABL: Preprocess current file",
+        "category": "ABL",
+        "title": "Preprocess current file",
         "description": "Preprocess current file"
       },
       {
         "command": "abl.dumpFileStatus",
-        "title": "ABL: Dump current file status",
+        "category": "ABL",
+        "title": "Dump current file status",
         "description": "Dump current file status"
       },
       {
         "command": "abl.compileBuffer",
-        "title": "ABL: Syntax check active editor",
+        "category": "ABL",
+        "title": "Syntax check active editor",
         "description": "Syntax check active editor"
       },
       {
         "command": "abl.generateListing",
-        "title": "ABL: Generate listing",
+        "category": "ABL",
+        "title": "Generate listing",
         "description": "Generate listing of current file"
       },
       {
         "command": "abl.generateDebugListing",
-        "title": "ABL: Generate debug listing",
+        "category": "ABL",
+        "title": "Generate debug listing",
         "description": "Generate debug listing of current file"
       },
       {
         "command": "abl.generateXref",
-        "title": "ABL: Generate XREF",
+        "category": "ABL",
+        "title": "Generate XREF",
         "description": "Generate XREF of current file"
       },
       {
         "command": "abl.generateXmlXref",
-        "title": "ABL: Generate XML-XREF",
+        "category": "ABL",
+        "title": "Generate XML-XREF",
         "description": "Generate XML-XREF of current file"
       },
       {
         "command": "abl.generateXrefAndJumpToCurrentLine",
-        "title": "ABL: Generate XREF and jump to current source line",
+        "category": "ABL",
+        "title": "Generate XREF and jump to current source line",
         "description": "Generate XREF of current file and jump to the current line in the XREF output"
       },
       {
         "command": "abl.catalog",
-        "title": "ABL: Generate Assembly Catalog",
+        "category": "ABL",
+        "title": "Generate Assembly Catalog",
         "description": "Generate Assembly Catalog"
       },
       {
         "command": "abl.fixUpperCasing",
-        "title": "ABL: Convert to uppercase",
+        "category": "ABL",
+        "title": "Convert to uppercase",
         "description": "Convert keywords to uppercase"
       },
       {
         "command": "abl.fixLowerCasing",
-        "title": "ABL: Convert to lowercase",
+        "category": "ABL",
+        "title": "Convert to lowercase",
         "description": "Convert keywords to lowercase"
       },
       {
         "command": "abl.expandKeywords",
-        "title": "ABL: Expand Keywords",
+        "category": "ABL",
+        "title": "Expand Keywords",
         "description": "Expand keywords"
       },
       {
         "command": "abl.organizeUsings",
-        "title": "ABL: Organize Usings",
+        "category": "ABL",
+        "title": "Organize Usings",
         "description": "Organize USING statements"
       },
       {
         "command": "abl.dumpLangServStatus",
-        "title": "ABL: Dump Language Server status",
+        "category": "ABL",
+        "title": "Dump Language Server status",
         "description": "Dump Language Server status"
       },
       {
@@ -266,12 +294,14 @@
       },
       {
         "command": "abl.explorer.compile",
+        "category": "ABL",
         "title": "Compile",
         "description": "Compile file or directory"
       },
       {
         "command": "abl.stripMarkup",
-        "title": "ABL: Strip AppBuilder Markup",
+        "category": "ABL",
+        "title": "Strip AppBuilder Markup",
         "description": "Strip AppBuilder visual layout markup and metadata from OpenEdge files"
       }
     ],
