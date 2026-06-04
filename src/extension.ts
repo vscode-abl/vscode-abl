@@ -31,6 +31,7 @@ import {
 } from './shared/openEdgeConfigFile';
 import { machineIdSync } from 'node-machine-id';
 import { usernameSync } from 'username';
+import { stripMarkupActiveEditor, stripMarkupExplorer } from './ablStripMarkup';
 
 let client: LanguageClient;
 
@@ -1472,6 +1473,16 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       'abl.explorer.compile',
       compileFromExplorer,
+    ),
+    vscode.commands.registerCommand(
+      'abl.stripMarkup',
+      (uri?: vscode.Uri, uris?: vscode.Uri[]) => {
+        if (uri) {
+          stripMarkupExplorer(uri, uris);
+        } else {
+          stripMarkupActiveEditor();
+        }
+      },
     ),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
