@@ -1,6 +1,7 @@
 1.31.x
 ======
 
+* ✨ Language Model Tools (#539)
 * ✨ Inlay hints (#259)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 
