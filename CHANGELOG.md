@@ -1,6 +1,7 @@
 1.31.x
 ======
 
+* ✨ Inlay hints
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 
 1.30.0 (May 25th, 2026)
