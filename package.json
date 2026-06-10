@@ -315,6 +315,12 @@
         "category": "ABL",
         "title": "Strip AppBuilder Markup",
         "description": "Strip AppBuilder visual layout markup and metadata from OpenEdge files"
+      },
+      {
+        "command": "abl.toggleLineComment",
+        "category": "ABL",
+        "title": "Toggle Line Comment",
+        "description": "Toggle line comment in ABL files"
       }
     ],
     "breakpoints": [

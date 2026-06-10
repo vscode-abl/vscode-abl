@@ -1390,6 +1390,49 @@ function stripAppbuilderMarkup(uri: vscode.Uri, uris?: vscode.Uri[]) {
   }
 }
 
+async function toggleLineComment() {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) return;
+
+  const doc = editor.document;
+  const selectedLines = new Set<number>();
+  for (const sel of editor.selections) {
+    const startLine = sel.start.line;
+    const endLine =
+      !sel.isEmpty && sel.end.character === 0 && sel.end.line > sel.start.line
+        ? sel.end.line - 1
+        : sel.end.line;
+    for (let i = startLine; i <= endLine; i++) selectedLines.add(i);
+  }
+
+  const nonEmptyLines = Array.from(selectedLines).filter(
+    (ln) => doc.lineAt(ln).text.trim().length > 0,
+  );
+  const allBlockComments =
+    nonEmptyLines.length > 0 &&
+    nonEmptyLines.every((ln) => {
+      const trimmed = doc.lineAt(ln).text.trim();
+      return trimmed.startsWith('/*') && trimmed.endsWith('*/');
+    });
+
+  if (allBlockComments) {
+    await editor.edit((editBuilder) => {
+      for (const ln of selectedLines) {
+        const line = doc.lineAt(ln);
+        if (line.text.trim().length === 0) continue;
+        const text = line.text;
+        const startIdx = text.indexOf('/*');
+        const endIdx = text.lastIndexOf('*/');
+        const indentation = text.slice(0, startIdx);
+        const inner = text.slice(startIdx + 2, endIdx).trim();
+        editBuilder.replace(line.range, (indentation + inner).trimEnd());
+      }
+    });
+  } else {
+    await vscode.commands.executeCommand('editor.action.commentLine');
+  }
+}
+
 function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.window.registerTerminalProfileProvider('proenv.terminal-profile', {
     provideTerminalProfile(): vscode.ProviderResult<vscode.TerminalProfile> {
@@ -1492,10 +1535,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       'abl.explorer.compile',
       compileFromExplorer,
     ),
-    vscode.commands.registerCommand(
-      'abl.stripMarkup',
-      stripAppbuilderMarkup,
-    ),
+    vscode.commands.registerCommand('abl.stripMarkup', stripAppbuilderMarkup),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
       async (range: vscode.Range, uri?: string) => {
@@ -1519,6 +1559,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
         }
       },
     ),
+    vscode.commands.registerCommand('abl.toggleLineComment', toggleLineComment),
   ];
   ctx.subscriptions.push(...commands);
 
