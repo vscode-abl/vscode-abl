@@ -3,6 +3,9 @@
 
 * ✨ Language Model Tools (#539)
 * ✨ Inlay hints (#259)
+* ✨ Strip AppBuilder Markup command (#547)
+* ✨ Improved "Toggle line comment" for ABL (#556)
+* 🐛 Fix NPE in ExtendedDocumentOutline (#548)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 
 1.30.0 (May 25th, 2026)
