@@ -1287,17 +1287,17 @@ function generateProenvStartUnix(path: string) {
 }
 
 function generateProenvStartWindows(path: string) {
-  let scriptContent = '@echo off & setlocal\n';
+  let scriptContent = '@echo off & setlocal\r\n';
   if (projects.length > 1) {
     // Multiple projects, one entry per project
-    scriptContent += 'echo Choose project:\n';
-    scriptContent += 'echo ===============\n';
+    scriptContent += 'echo Choose project:\r\n';
+    scriptContent += 'echo ===============\r\n';
 
     let responseHandler = '';
-    let labels = 'echo Invalid choice\ngoto stdexit\n';
+    let labels = 'echo Invalid choice\r\ngoto stdexit\r\n';
     projects.forEach((prj, index) => {
       scriptContent +=
-        'echo   ^* ' + (index + 1) + ' =^> ' + prj.rootDir + '\n';
+        'echo   ^* ' + (index + 1) + ' =^> ' + prj.rootDir + '\r\n';
       const cfg = prj.profiles.get(prj.activeProfile);
       const x2 = cfg.dlc + '\\bin\\proenv.bat';
       responseHandler +=
@@ -1305,61 +1305,49 @@ function generateProenvStartWindows(path: string) {
         (index + 1) +
         '" goto choice' +
         (index + 1) +
-        '\n';
+        '\r\n';
       labels +=
         ':choice' +
         (index + 1) +
-        ':\npushd "' +
+        ':\r\npushd "' +
         prj.rootDir +
         '" && call "' +
         x2 +
-        '" && popd\ngoto stdexit\n';
+        '" && popd\ngoto stdexit\r\n';
     });
-    scriptContent += 'echo.\n';
-    scriptContent += 'set /P answer=Your choice: \n';
+    scriptContent += 'echo.\r\n';
+    scriptContent += 'set /P answer=Your choice: \r\n';
     scriptContent += responseHandler;
     scriptContent += labels;
   } else if (projects.length == 1) {
     // One project, go directly to proenv
     const cfg = projects[0].profiles.get(projects[0].activeProfile);
     const x2 = cfg.dlc + '\\bin\\proenv.bat';
-    scriptContent += 'call ' + x2 + ' && goto stdexit \n';
+    scriptContent += 'call ' + x2 + ' && goto stdexit \r\n';
   } else {
     // No OE projects, just offer all proenv
-    scriptContent += 'echo No projects configured, choose OE version:\n';
-    scriptContent += 'echo ==========================================\n';
+    scriptContent += 'echo No projects configured, choose OE version:\r\n';
+    scriptContent += 'echo ==========================================\r\n';
 
     let responseHandler = '';
-    let labels = 'echo Invalid choice\ngoto stdexit\n';
+    const labels = 'echo Invalid choice\r\ngoto stdexit\r\n';
     oeRuntimes.forEach((runtime, index) => {
       scriptContent +=
-        'echo ^* ' + (index + 1) + ' =^> ' + runtime.path + ' \n';
-      responseHandler +=
-        'if /i "%answer%" == "' +
-        (index + 1) +
-        '" goto choice' +
-        (index + 1) +
-        '\n';
-      labels +=
-        ':choice' +
-        (index + 1) +
-        ':\ncall "' +
-        runtime.path +
-        '\\bin\\proenv.bat"\ngoto stdexit\n';
+        'echo ^* ' + (index + 1) + ' =^> ' + runtime.path + ' \r\n';
       responseHandler +=
         'if /i "%answer%" == "' +
         (index + 1) +
         '" ( call "' +
         runtime.path +
-        '\\bin\\proenv.bat" && goto stdexit )\n';
+        '\\bin\\proenv.bat" && goto stdexit )\r\n';
     });
-    scriptContent += 'echo.\n';
-    scriptContent += 'set /P answer=Your choice: \n';
+    scriptContent += 'echo.\r\n';
+    scriptContent += 'set /P answer=Your choice: \r\n';
     scriptContent += responseHandler;
     scriptContent += labels;
   }
-  scriptContent += ':stdexit\n';
-  scriptContent += 'pause\nexit /b 0\n';
+  scriptContent += ':stdexit\r\n';
+  scriptContent += 'pause\r\nexit /b 0\r\n';
 
   fs.writeFileSync(path, scriptContent);
 }
