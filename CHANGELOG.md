@@ -7,6 +7,7 @@
 * ✨ Improved "Toggle line comment" for ABL (#556)
 * 🐛 Fix NPE in ExtendedDocumentOutline (#548)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
+* ⬆️ TextMate Grammar 1.4.1
 
 1.30.0 (May 25th, 2026)
 =======================

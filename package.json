@@ -950,7 +950,7 @@
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
     "@vscode/vsce": "^3.9.1",
-    "abl-tmlanguage": "^1.4.0",
+    "abl-tmlanguage": "^1.4.1",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
