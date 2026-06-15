@@ -1,3 +1,9 @@
+1.30.1 (June 15th, 2026)
+========================
+
+* 🐛 Fix NullPointerException in ExtendedDocumentOutline view (#548)
+* ⬆️ ABL-LS 1.25.1
+
 1.30.0 (May 25th, 2026)
 =======================
 
