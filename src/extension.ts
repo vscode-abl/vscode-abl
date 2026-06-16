@@ -46,6 +46,8 @@ let machineId = '';
 let defaultProjectName: string;
 let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
+let lastStatusAt = 0;
+let statusWatchdog: ReturnType<typeof setInterval> | undefined;
 
 interface ProjectQuickPickItem extends vscode.QuickPickItem {
   project: OpenEdgeProjectConfig;
@@ -201,6 +203,10 @@ export function activate(ctx: vscode.ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+  if (statusWatchdog !== undefined) {
+    clearInterval(statusWatchdog);
+    statusWatchdog = undefined;
+  }
   if (!client) {
     return undefined;
   }
@@ -334,6 +340,8 @@ function createLanguageClient(): LanguageClient {
     clientOptions,
   );
   tmp.onNotification('proparse/status', (statusParams: any) => {
+    lastStatusAt = Date.now();
+    oeStatusBarItem.backgroundColor = undefined;
     const numProjects = statusParams.projects.length;
     let str = '';
     if (numProjects == 0) str = 'No projects found';
@@ -353,6 +361,16 @@ function createLanguageClient(): LanguageClient {
       '\n' +
       statusParams.projects.join('\n');
   });
+
+  statusWatchdog = setInterval(() => {
+    if (lastStatusAt > 0 && Date.now() - lastStatusAt > 10_000) {
+      oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+        'statusBarItem.warningBackground',
+      );
+      oeStatusBarItem.text =
+        '$(warning) ABL LS';
+    }
+  }, 5_000);
   tmp.onRequest('proparse/identifier', (requestParams: any) => {
     return machineIdSync(true);
   });
@@ -524,7 +542,12 @@ function dumpLangServStatus(): void {
 
 function stopLangServer(): Promise<void> {
   outputChannel.info('Received request to stop ABL Language Server');
-  return client.stop(5000);
+  return client.stop(5000).then(() => {
+    oeStatusBarItem.text = 'No ABL Language Server';
+    oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+      'statusBarItem.warningBackground',
+    );
+  });
 }
 
 function restartLangServer(): Promise<void> {
@@ -538,7 +561,13 @@ function restartLangServer(): Promise<void> {
   if (client.isRunning()) {
     return client
       .stop(5000)
-      .then(() => outputChannel.info('ABL Language Server stopped'))
+      .then(() => {
+        outputChannel.info('ABL Language Server stopped');
+        oeStatusBarItem.text = 'No ABL Language Server';
+        oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+          'statusBarItem.warningBackground',
+        );
+      })
       .then(fn)
       .catch((error_) => {
         outputChannel.info(
