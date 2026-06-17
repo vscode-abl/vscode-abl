@@ -5,6 +5,7 @@
 * ✨ Inlay hints (#259)
 * ✨ Strip AppBuilder Markup command (#547)
 * ✨ Improved "Toggle line comment" for ABL (#556)
+* ✨ Improved status bar area (#550)
 * 🐛 Fix ProEnv menu (#557)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.1
