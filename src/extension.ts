@@ -112,6 +112,14 @@ export function activate(ctx: vscode.ExtensionContext) {
   }
 
   readGlobalOpenEdgeRuntimes();
+
+  const currentVersion = ctx.extension.packageJSON.version as string;
+  const lastVersion = ctx.globalState.get<string>('lastVersion') || '0.0.0';
+  if ((currentVersion >= "1.32.0") && (lastVersion < currentVersion)) {
+    ctx.globalState.update('whatsNewVersion', currentVersion);
+    showWhatsNew(ctx, currentVersion);
+  }
+
   readWorkspaceOEConfigFiles();
 
   client = createLanguageClient();
@@ -1687,6 +1695,18 @@ function readGlobalOpenEdgeRuntimes() {
     );
     outputChannel.info(`No OpenEdge runtime configured on this machine`);
   }
+}
+
+function showWhatsNew(ctx: vscode.ExtensionContext, version: string): void {
+  const htmlPath = path.join(ctx.extensionPath, 'resources', 'whats-new.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+  const panel = vscode.window.createWebviewPanel(
+    'ablWhatsNew',
+    `What's New in the ABL Extension 1.32.0`,
+    vscode.ViewColumn.One,
+    { enableScripts: false },
+  );
+  panel.webview.html = html;
 }
 
 function getDlcDirectory(version: string): string {
