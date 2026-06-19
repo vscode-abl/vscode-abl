@@ -209,6 +209,12 @@
         "description": "Set default project"
       },
       {
+        "command": "abl.project.reload",
+        "title": "Reload project",
+        "category": "ABL",
+        "description": "Reload project"
+      },
+      {
         "command": "abl.project.switch.profile",
         "title": "Switch project to profile",
         "category": "ABL",
@@ -901,6 +907,11 @@
         {
           "command": "abl.project.switch.profile",
           "group": "02_project@03",
+          "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
+        },
+        {
+          "command": "abl.project.reload",
+          "group": "02_project@04",
           "when": "editorTextFocus && config.abl.showCommandsInContextMenu && config.abl.showProjectCommandsInContextMenu && resourceLangId == abl"
         },
         {

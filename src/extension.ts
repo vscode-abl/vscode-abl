@@ -1128,6 +1128,33 @@ function rebuildProject() {
   }
 }
 
+function reloadProject() {
+  if (projects.length == 1) {
+    client.sendRequest('proparse/reloadProject', {
+      projectUri: projects[0].uri.toString(),
+    });
+  } else {
+    const list = projects.map((project) => ({
+      label: project.name,
+      description: project.rootDir,
+      project: project,
+    }));
+    list.sort((a, b) => a.label.localeCompare(b.label));
+
+    const quickPick = vscode.window.createQuickPick<ProjectQuickPickItem>();
+    quickPick.canSelectMany = false;
+    quickPick.title = 'Reload project:';
+    quickPick.items = list;
+    quickPick.onDidAccept(() => {
+      quickPick.hide();
+      client.sendRequest('proparse/reloadProject', {
+        projectUri: quickPick.selectedItems[0].project.uri.toString(),
+      });
+    });
+    quickPick.show();
+  }
+}
+
 function openDataDictionaryCmd() {
   if (projects.length == 1) {
     openDataDictionary(projects[0]);
@@ -1607,6 +1634,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       switchProfileCmd,
     ),
     vscode.commands.registerCommand('abl.project.rebuild', rebuildProject),
+    vscode.commands.registerCommand('abl.project.reload', reloadProject),
     vscode.commands.registerCommand(
       'abl.dataDictionary',
       openDataDictionaryCmd,
