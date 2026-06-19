@@ -375,8 +375,7 @@ function createLanguageClient(): LanguageClient {
       oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
         'statusBarItem.warningBackground',
       );
-      oeStatusBarItem.text =
-        '$(warning) ABL LS';
+      oeStatusBarItem.text = '$(warning) ABL LS';
     }
   }, 5_000);
   tmp.onRequest('proparse/identifier', (requestParams: any) => {
@@ -920,53 +919,59 @@ function generateXmlXref() {
 }
 
 function fixUpperCasing() {
-  if (vscode.window.activeTextEditor == undefined) return;
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-  if (!cfg) {
-    vscode.window.showInformationMessage(
-      "Current buffer doesn't belong to any OpenEdge project",
-    );
+  const editor = vscode.window.activeTextEditor;
+  if (
+    !editor ||
+    (editor.document.uri.scheme !== 'file' &&
+      editor.document.uri.scheme !== 'untitled')
+  ) {
     return;
   }
   client.sendRequest('proparse/fixCasing', {
     upper: true,
-    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+    fileUri: editor.document.uri.toString(),
   });
 }
 
 function fixLowerCasing() {
-  if (vscode.window.activeTextEditor == undefined) return;
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-  if (!cfg) {
-    vscode.window.showInformationMessage(
-      "Current buffer doesn't belong to any OpenEdge project",
-    );
+  const editor = vscode.window.activeTextEditor;
+  if (
+    !editor ||
+    (editor.document.uri.scheme !== 'file' &&
+      editor.document.uri.scheme !== 'untitled')
+  ) {
     return;
   }
-
   client.sendRequest('proparse/fixCasing', {
     upper: false,
-    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+    fileUri: editor.document.uri.toString(),
   });
 }
 
 function expandKeywords() {
-  if (vscode.window.activeTextEditor == undefined) return;
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
-  if (!cfg) {
-    vscode.window.showInformationMessage(
-      "Current buffer doesn't belong to any OpenEdge project",
-    );
+  const editor = vscode.window.activeTextEditor;
+  if (
+    !editor ||
+    (editor.document.uri.scheme !== 'file' &&
+      editor.document.uri.scheme !== 'untitled')
+  ) {
     return;
   }
   client.sendRequest('proparse/expandKeywords', {
-    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+    fileUri: editor.document.uri.toString(),
   });
 }
 
 function organizeUsings() {
-  if (vscode.window.activeTextEditor == undefined) return;
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const editor = vscode.window.activeTextEditor;
+  if (
+    !editor ||
+    (editor.document.uri.scheme !== 'file' &&
+      editor.document.uri.scheme !== 'untitled')
+  ) {
+    return;
+  }
+  const cfg = getProject(editor.document.uri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -975,7 +980,7 @@ function organizeUsings() {
   }
 
   client.sendRequest('proparse/organizeUsing', {
-    fileUri: vscode.window.activeTextEditor.document.uri.toString(),
+    fileUri: editor.document.uri.toString(),
   });
 }
 
