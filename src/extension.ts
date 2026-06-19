@@ -118,8 +118,8 @@ export function activate(ctx: vscode.ExtensionContext) {
   readGlobalOpenEdgeRuntimes();
 
   const currentVersion = ctx.extension.packageJSON.version as string;
-  const lastVersion = ctx.globalState.get<string>('lastVersion') || '0.0.0';
-  if ((currentVersion >= "1.32.0") && (lastVersion < currentVersion)) {
+  const lastVersion = ctx.globalState.get<string>('whatsNewVersion') || '0.0.0';
+  if (currentVersion >= '1.32.0' && lastVersion < currentVersion) {
     ctx.globalState.update('whatsNewVersion', currentVersion);
     showWhatsNew(ctx, currentVersion);
   }
