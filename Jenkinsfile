@@ -91,7 +91,8 @@ pipeline {
       }
       steps {
         script {
-          if ("develop" == env.BRANCH_NAME) {
+          sh "echo Artifacts not published!"
+          /* if ("develop" == env.BRANCH_NAME) {
             withSecrets() {
               sh "npx @vscode/vsce publish --pre-release --packagePath *.vsix"
               sh "npx ovsx publish --pre-release --packagePath *.vsix"
@@ -103,7 +104,7 @@ pipeline {
             }
           } else {
             sh "echo Artifacts not published!"
-          }
+          } */
         }
       }
     }

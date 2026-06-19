@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
+  <title>What's New in the ABL Extension 1.32.0</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      color: var(--vscode-foreground);
+      background-color: var(--vscode-editor-background);
+      padding: 32px 48px;
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      color: var(--vscode-textLink-foreground);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--vscode-descriptionForeground);
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 1.15em;
+      font-weight: 600;
+      margin: 28px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--vscode-panel-border);
+    }
+
+    p { margin-bottom: 12px; }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    ul li { margin-bottom: 4px; }
+
+    .progress-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background-color: var(--vscode-textBlockQuote-background);
+      border-left: 4px solid var(--vscode-textLink-foreground);
+      padding: 16px 20px;
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 28px;
+    }
+
+    .progress-banner p { margin: 0; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0 28px;
+    }
+
+    .card {
+      border: 1px solid var(--vscode-panel-border);
+      border-radius: 6px;
+      padding: 16px 20px;
+    }
+
+    .card.free { border-top: 3px solid #4caf50; }
+    .card.paid { border-top: 3px solid var(--vscode-textLink-foreground); }
+
+    .card h3 {
+      font-size: 1em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .card.free h3 { color: #4caf50; }
+    .card.paid h3 { color: var(--vscode-textLink-foreground); }
+
+    .card ul { margin: 0; }
+
+    .cta {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 24px;
+      background-color: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .cta:hover { background-color: var(--vscode-button-hoverBackground); }
+  </style>
+</head>
+<body>
+
+  <h1>What's New in the ABL Extension 1.32.0</h1>
+  <p class="subtitle">Important update: new commercial features and licensing</p>
+
+  <div class="progress-banner">
+    <p>
+      The OpenEdge ABL extension has grown significantly over the past years, and so have the development and maintenance costs associated with it.
+      To ensure the continued delivery of new features, bug fixes, and long-term support, a commercial licensing model is being introduced for selected advanced capabilities.
+      Core code editing features remain, and will always remain, available at no cost.
+    </p>
+  </div>
+
+  <h2>Recent Highlights</h2>
+  <p>Here is a summary of the major features delivered recently:</p>
+  <ul>
+    <li><strong>Code formatter</strong>: full document and range formatting, based on PDSOE</li>
+    <li><strong>SpeedScript / Webspeed support</strong>: syntax highlighting and language features for Webspeed files</li>
+    <li><strong>PASOE Debugger improvements</strong>: referenced projects, SSL communication, resume per thread</li>
+    <li><strong>Classic Debugger improvements</strong>: improved source code search, launch mode fixes</li>
+    <li><strong>Maven-based dependency management</strong>: including transitive dependencies</li>
+    <li><strong>ABL Outline View &amp; Class Browser</strong>: navigate your code structure at a glance</li>
+    <li><strong>Organize USINGs</strong>: clean up USING statements automatically (<code>Ctrl+Shift+U</code>)</li>
+    <li><strong>Expand Keywords</strong>: expand abbreviated keywords to their full form</li>
+    <li><strong>Right-click compile</strong>: compile files and directories directly from the Explorer view</li>
+    <li><strong>Online documentation</strong>: links to Progress documentation on statement hover</li>
+    <li><strong>Pre- and post-compilation hooks</strong>: run scripts before and after each build</li>
+    <li><strong>OpenEdge 13.0 support</strong>: documentation and runtime compatibility</li>
+  </ul>
+
+  <h2>What's Free, What's Not</h2>
+  <p>
+    Starting from version 1.32, some advanced features will require a paid subscription.
+    All core code editing features remain <strong>free forever</strong>.
+  </p>
+
+  <div class="cards">
+    <div class="card free">
+      <h3>Always free</h3>
+      <ul>
+        <li>Syntax completion &amp; hover</li>
+        <li>Go-to-definition &amp; references</li>
+        <li>Code formatting</li>
+        <li>Compile, XREF, listing generation</li>
+        <li>Pre- and post-compilation hooks</li>
+        <li>openedge-project.json support</li>
+        <li>Data Dictionary integration</li>
+        <li>AppBuilder / Procedure Editor integration</li>
+        <li>Run TTY, Batch, and GUI procedures</li>
+        <li>Organize USINGs, Expand Keywords</li>
+      </ul>
+    </div>
+    <div class="card paid">
+      <h3>Requires a license (from v1.32)</h3>
+      <ul>
+        <li>PASOE Debugger</li>
+        <li>Classic Debugger (<code>_progres</code> or <code>prowin</code>)</li>
+        <li>SpeedScript / Webspeed support</li>
+        <li>Maven-based dependency management</li>
+        <li>Email-based support (support@riverside-software.fr)</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>
+    Licenses are available as node-locked or floating seats, billed monthly or yearly.
+    For full details, pricing, and to manage your subscription:
+  </p>
+  <a class="cta" href="https://vscode.riverside-software.fr">See plans and pricing</a>
+
+</body>
+</html>
