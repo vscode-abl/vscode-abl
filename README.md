@@ -3,7 +3,7 @@ This extension provides rich OpenEdge ABL support for Visual Studio Code - [Exte
 
 ## Current Status
 
-Starting from version 1.32 (ETA mid-June 2026), some features — the debugger, Speedscript, Maven-based dependency management, and commercial support contracts — will require a paid subscription. All code editing features (syntax completion, hover, builders, external entrypoints, etc.) remain free.
+Starting from version 1.32, some features — the debugger, Speedscript, Maven-based dependency management, and commercial support contracts — will require a paid subscription. All code editing features (syntax completion, hover, builders, external entrypoints, etc.) remain free.
 
 This extension is [sponsored](https://community.progress.com/s/question/0D5Pb00002M3AAsKAN/exciting-news-progress-openedge-sponsors-vs-code-plugin) by Progress Software.
 
