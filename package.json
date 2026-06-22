@@ -995,7 +995,7 @@
     "openedge-abl-lsp": "file:",
     "ovsx": "^0.10.12",
     "username": "^7.0.0",
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
