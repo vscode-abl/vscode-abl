@@ -17,9 +17,21 @@ export const batchOutputChannel = vscode.window.createOutputChannel(
   'ABL Batch',
   { log: true },
 );
-export const lsOutputChannel = vscode.window.createOutputChannel(
-  'ABL Language Server',
-);
+function createRawOutputChannel(name: string): vscode.LogOutputChannel {
+  const ch = vscode.window.createOutputChannel(name);
+  const emitter = new vscode.EventEmitter<vscode.LogLevel>();
+  return Object.assign(ch, {
+    logLevel: vscode.LogLevel.Info,
+    onDidChangeLogLevel: emitter.event,
+    trace: (message: string) => ch.appendLine(message),
+    debug: (message: string) => ch.appendLine(message),
+    info: (message: string) => ch.appendLine(message),
+    warn: (message: string) => ch.appendLine(message),
+    error: (message: string | Error) => ch.appendLine(message instanceof Error ? message.message : message),
+  }) as vscode.LogOutputChannel;
+}
+
+export const lsOutputChannel = createRawOutputChannel('ABL Language Server');
 
 let statusBarEntry: vscode.StatusBarItem;
 

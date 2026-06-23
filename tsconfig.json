@@ -5,6 +5,9 @@
     "sourceMap": true,
     "target": "es2022",
     "lib": ["es2022"],
+    "paths": {
+      "vscode-languageclient/node": ["./node_modules/vscode-languageclient/lib/node/main"]
+    },
     "plugins": [
       {
         "name": "typescript-tslint-plugin"
