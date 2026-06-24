@@ -153,10 +153,10 @@ subscribe to 'preCompileHook' anywhere.
 subscribe to 'postCompileHook' anywhere.
 
 procedure preCompileHook:
-  define input  parameter ipSrcFile as character no-undo.
-  define input  parameter ipRCode   as character no-undo.
-  define input  parameter ipXref    as character no-undo.
-  define output parameter opCancel  as integer   no-undo.
+  define input  parameter ipSrcFile  as character no-undo.
+  define input  parameter ipBuildDir as character no-undo.
+  define input  parameter ipXref     as character no-undo.
+  define output parameter opCancel   as integer   no-undo.
 
   // Messages written in .builder/clientlog
   log-manager:write-message("Pre-compilation hook").
@@ -166,8 +166,12 @@ end.
 
 procedure postCompileHook:
   define input  parameter ipSrcFile as character no-undo.
-  define input  parameter ipRCode   as character no-undo.
+  define input  parameter ipBuildDir   as character no-undo.
   define input  parameter ipXref    as character no-undo.
+
+  // Messages written in .builder/clientlog
+  // COMPILER:ERROR could be used for compile status of the file
+  log-manager:write-message("Post-compilation hook - compile-status: " + STRING(COMPILER:ERROR)).
 
 end procedure.
 
