@@ -1,3 +1,9 @@
+1.32.1 (June 24th, 2026)
+========================
+
+* 🐛 Fix heartbeat message on node-locked licenses
+* ⬆️ ABL-LS 1.25.3
+
 1.32.0 (June 18th, 2026)
 ========================
 
