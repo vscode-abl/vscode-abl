@@ -1,13 +1,31 @@
-1.31.x
+1.33.x
 ======
 
 * ✨ Language Model Tools (#539)
 * ✨ Inlay hints (#259)
 * ✨ Strip AppBuilder Markup command (#547)
 * ✨ Improved "Toggle line comment" for ABL (#556)
+* ✨ Improved status bar area (#550)
+* ✨ Improved context menu (#566)
+* ✨ Check if .p is referenced as include file (#453)
+* 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
+* 🐛 ABL commands on file resources (#568)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.1
+
+1.32.1 (June 24th, 2026)
+========================
+
+* 🐛 Fix heartbeat message on node-locked licenses
+* ⬆️ ABL-LS 1.25.3
+
+1.32.0 (June 18th, 2026)
+========================
+
+* 💸 Commercial features
+* ✨ Proxy support in Language Server (use `http.proxyHost`, `http.proxyPort`, `http.proxyUser`, `http.proxyPassword` (and their `https` variant) system properties in LS extra arguments)
+* ⬆️ ABL-LS 1.25.2
 
 1.30.1 (June 15th, 2026)
 ========================
