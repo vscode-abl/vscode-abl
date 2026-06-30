@@ -12,7 +12,7 @@
 * 🐛 Fix ProEnv menu (#557)
 * 🐛 ABL commands on file resources (#568)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.4.1
+* ⬆️ TextMate Grammar 1.4.2
 
 1.32.1 (June 24th, 2026)
 ========================
