@@ -1,6 +1,7 @@
 1.33.x
 ======
 
+* ✨ Add reloadProject command
 * ✨ Language Model Tools (#539)
 * ✨ Inlay hints (#259)
 * ✨ Strip AppBuilder Markup command (#547)
@@ -8,11 +9,13 @@
 * ✨ Improved status bar area (#550)
 * ✨ Improved context menu (#566)
 * ✨ Check if .p is referenced as include file (#453)
+* ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
 * 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
 * 🐛 ABL commands on file resources (#568)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.2
+* ⬆️ PCTTools 1.0.6
 
 1.32.1 (June 24th, 2026)
 ========================
