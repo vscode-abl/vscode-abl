@@ -9,9 +9,11 @@
 * ✨ Improved status bar area (#550)
 * ✨ Improved context menu (#566)
 * ✨ Check if .p is referenced as include file (#453)
+* ✨ Sort options in ABL Outline View
 * ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
 * 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
+* 🐛 Fix stale connection to LS in ABL Outline and Class Browser views when LS was restarted
 * 🐛 ABL commands on file resources (#568)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.2
