@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'node:fs';
-import { LanguageClient } from 'vscode-languageclient/node';
+import { getClient } from '../extension';
 
 interface AblXrefInput {
   fileUri?: string;
@@ -14,7 +14,6 @@ interface XrefResult {
 }
 
 export class AblXrefTool implements vscode.LanguageModelTool<AblXrefInput> {
-  constructor(private readonly client: LanguageClient) {}
 
   async prepareInvocation(
     options: vscode.LanguageModelToolInvocationPrepareOptions<AblXrefInput>,
@@ -38,7 +37,7 @@ export class AblXrefTool implements vscode.LanguageModelTool<AblXrefInput> {
       throw new Error('No file URI provided and no active ABL editor is open.');
     }
 
-    const rslt = await this.client.sendRequest<XrefResult>(
+    const rslt = await getClient().sendRequest<XrefResult>(
       options.input.xml ? 'proparse/xrefXml' : 'proparse/xref',
       {
         fileUri: uri.toString(),

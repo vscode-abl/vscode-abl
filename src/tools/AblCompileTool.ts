@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import { LanguageClient } from 'vscode-languageclient/node';
+import { getClient } from '../extension';
 
 interface AblCompileInput {
   fileUri?: string;
 }
 
 export class AblCompileTool implements vscode.LanguageModelTool<AblCompileInput> {
-  constructor(private readonly client: LanguageClient) {}
 
   async prepareInvocation(
     options: vscode.LanguageModelToolInvocationPrepareOptions<AblCompileInput>,
@@ -30,7 +29,7 @@ export class AblCompileTool implements vscode.LanguageModelTool<AblCompileInput>
       throw new Error('No file URI provided and no active ABL editor is open.');
     }
 
-    await this.client.sendRequest('proparse/buildResource', {
+    await getClient().sendRequest('proparse/buildResource', {
       uri: uri.toString(),
       forceBuild: false,
     });

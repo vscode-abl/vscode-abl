@@ -340,6 +340,24 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "ablOutline.sortByName",
+        "shortTitle": "Name",
+        "title": "Sort by Name",
+        "enablement": "view == ablOutline && ablOutline.sortMode != 'name'"
+      },
+      {
+        "command": "ablOutline.sortByPosition",
+        "shortTitle": "Position",
+        "title": "Sort by Position",
+        "enablement": "view == ablOutline && ablOutline.sortMode != 'position'"
+      },
+      {
+        "command": "ablOutline.sortByCategory",
+        "shortTitle": "Category",
+        "title": "Sort by Category",
+        "enablement": "view == ablOutline && ablOutline.sortMode != 'category'"
+      },
+      {
         "command": "abl.explorer.compile",
         "title": "Compile",
         "description": "Compile file or directory"
@@ -887,6 +905,21 @@
         {
           "command": "classBrowser.refresh",
           "when": "view == classBrowser",
+          "group": "navigation"
+        },
+        {
+          "command": "ablOutline.sortByName",
+          "when": "view == ablOutline",
+          "group": "navigation"
+        },
+        {
+          "command": "ablOutline.sortByPosition",
+          "when": "view == ablOutline",
+          "group": "navigation"
+        },
+        {
+          "command": "ablOutline.sortByCategory",
+          "when": "view == ablOutline",
           "group": "navigation"
         }
       ],

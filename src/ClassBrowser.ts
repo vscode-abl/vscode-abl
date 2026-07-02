@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { LanguageClient } from 'vscode-languageclient/node';
+import { getClient } from './extension';
 
 type CategoryType = 'projectClasses' | 'propathClasses' | 'assemblies';
 
@@ -12,10 +12,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
   > = this._onDidChangeTreeData.event;
   private dataCache: Map<string, SourceCodeTypeInfo[]> = new Map();
 
-  constructor(
-    private client: LanguageClient,
-    private projects: Array<any>,
-  ) {}
+  constructor(private projects: Array<any>) {}
 
   refresh(): void {
     // Clear all cached data
@@ -110,7 +107,7 @@ export class ClassBrowserProvider implements vscode.TreeDataProvider<ClassBrowse
       } else {
         // Call the appropriate language server method based on category
         const requestMethod = this._getRequestMethod(category);
-        result = (await this.client.sendRequest(requestMethod, {
+        result = (await getClient().sendRequest(requestMethod, {
           projectUri: projectUri,
         })) as SourceCodeTypeInfo[];
 

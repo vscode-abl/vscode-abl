@@ -2,7 +2,7 @@ import path = require('path');
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { LanguageClient } from 'vscode-languageclient/node';
+import { getClient } from './extension';
 import { outputChannel } from './ablStatus';
 
 const ABL_TAG_PRIVATE = 2;
@@ -31,6 +31,8 @@ interface ExtendedDocumentSymbol extends vscode.DocumentSymbol {
   children: ExtendedDocumentSymbol[];
 }
 
+export type AblOutlineSortMode = 'name' | 'position' | 'category';
+
 export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<
     OutlineItem | undefined | void
@@ -43,9 +45,9 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
   private readonly extensionPath: string;
   private readonly iconCacheDir: string;
   private readonly iconPathCache = new Map<string, string>();
+  private sortMode: AblOutlineSortMode = 'name';
 
   constructor(
-    private readonly client: LanguageClient,
     extensionPath: string,
     globalStoragePath: string,
   ) {
@@ -82,6 +84,39 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     this._onDidChangeTreeData.fire();
   }
 
+  setSortMode(mode: AblOutlineSortMode): void {
+    this.sortMode = mode;
+    vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', mode);
+    this.refresh();
+  }
+
+  private _sortSymbols(
+    symbols: ExtendedDocumentSymbol[],
+  ): ExtendedDocumentSymbol[] {
+    const sorted = [...symbols];
+    switch (this.sortMode) {
+      case 'name':
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'category':
+        sorted.sort((a, b) => {
+          const labelA = this._getLabelForSymbolKind(a.kind);
+          const labelB = this._getLabelForSymbolKind(b.kind);
+          return labelA.localeCompare(labelB) || a.name.localeCompare(b.name);
+        });
+        break;
+      case 'position':
+      default:
+        sorted.sort(
+          (a, b) =>
+            a.range.start.line - b.range.start.line ||
+            a.range.start.character - b.range.start.character,
+        );
+        break;
+    }
+    return sorted;
+  }
+
   getTreeItem(element: OutlineItem): vscode.TreeItem {
     return element;
   }
@@ -94,7 +129,7 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     if (element) {
       // Return children of the element
       if (element.symbol.children && element.symbol.children.length > 0) {
-        return element.symbol.children.map((child) =>
+        return this._sortSymbols(element.symbol.children).map((child) =>
           this._createOutlineItem(child, element.symbolUri),
         );
       }
@@ -102,7 +137,7 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     } else {
       // Root level - request document symbols from language server
       try {
-        const symbols = await this.client.sendRequest<ExtendedDocumentSymbol[]>(
+        const symbols = await getClient().sendRequest<ExtendedDocumentSymbol[]>(
           'proparse/extendedDocumentSymbol',
           {
             textDocument: {
@@ -115,7 +150,7 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
           return [];
         }
 
-        return symbols.map((symbol) =>
+        return this._sortSymbols(symbols).map((symbol) =>
           this._createOutlineItem(symbol, this.currentDocumentUri),
         );
       } catch (error) {

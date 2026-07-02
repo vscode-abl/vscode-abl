@@ -36,6 +36,10 @@ import { AblXrefTool } from './tools/AblXrefTool';
 
 let client: LanguageClient;
 
+export function getClient(): LanguageClient {
+  return client;
+}
+
 const projects: Array<OpenEdgeProjectConfig> = new Array();
 const docNodeProvider = new DocumentationNodeProvider();
 let classBrowserProvider: ClassBrowserProvider;
@@ -1683,6 +1687,15 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       },
     ),
     vscode.commands.registerCommand('abl.toggleLineComment', toggleLineComment),
+    vscode.commands.registerCommand('ablOutline.sortByName', () =>
+      ablOutlineProvider.setSortMode('name'),
+    ),
+    vscode.commands.registerCommand('ablOutline.sortByPosition', () =>
+      ablOutlineProvider.setSortMode('position'),
+    ),
+    vscode.commands.registerCommand('ablOutline.sortByCategory', () =>
+      ablOutlineProvider.setSortMode('category'),
+    ),
   ];
   ctx.subscriptions.push(...commands);
 
@@ -1694,21 +1707,21 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   docNodeProvider.fetchData();
 
   ctx.subscriptions.push(
-    vscode.lm.registerTool('abl_compile', new AblCompileTool(client)),
-    vscode.lm.registerTool('abl_xref', new AblXrefTool(client)),
+    vscode.lm.registerTool('abl_compile', new AblCompileTool()),
+    vscode.lm.registerTool('abl_xref', new AblXrefTool()),
   );
 
   // Register Class Browser
-  classBrowserProvider = new ClassBrowserProvider(client, projects);
+  classBrowserProvider = new ClassBrowserProvider(projects);
   vscode.window.registerTreeDataProvider('classBrowser', classBrowserProvider);
 
   // Register Custom Outline
   ablOutlineProvider = new AblOutlineProvider(
-    client,
     ctx.extensionPath,
     ctx.globalStorageUri.fsPath,
   );
   vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
+  vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
 function readOEConfigFile(uri: vscode.Uri) {
