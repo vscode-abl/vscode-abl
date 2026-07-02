@@ -118,7 +118,9 @@ export class DocViewPanel {
     // If we already have a panel, show it.
     if (DocViewPanel.currentPanel) {
       DocViewPanel.currentPanel._navigateTo(page, true);
-      DocViewPanel.currentPanel._panel.reveal(DocViewPanel.currentPanel._panel.viewColumn);
+      DocViewPanel.currentPanel._panel.reveal(
+        DocViewPanel.currentPanel._panel.viewColumn,
+      );
       return;
     }
 
@@ -127,7 +129,10 @@ export class DocViewPanel {
       'OEDOC',
       'OpenEdge Documentation',
       column || vscode.ViewColumn.One,
-      { enableScripts: true, enableFindWidget: true },
+      {
+        enableScripts: true,
+        enableFindWidget: true,
+      },
     );
 
     DocViewPanel.currentPanel = new DocViewPanel(panel, page);
@@ -168,8 +173,16 @@ export class DocViewPanel {
   }
 
   private _updateContext() {
-    vscode.commands.executeCommand('setContext', 'oeDoc.canGoBack', this._historyIndex > 0);
-    vscode.commands.executeCommand('setContext', 'oeDoc.canGoForward', this._historyIndex < this._history.length - 1);
+    vscode.commands.executeCommand(
+      'setContext',
+      'oeDoc.canGoBack',
+      this._historyIndex > 0,
+    );
+    vscode.commands.executeCommand(
+      'setContext',
+      'oeDoc.canGoForward',
+      this._historyIndex < this._history.length - 1,
+    );
   }
 
   private constructor(panel: vscode.WebviewPanel, pageUri: string) {
@@ -213,17 +226,18 @@ export class DocViewPanel {
   }
 
   private _update() {
-    fetch(this._history[this._historyIndex], {
+    const page = this._history[this._historyIndex];
+    fetch(page, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })
       .then((response) => response.json())
       .then((json: { html: string }) => {
-        this._panel.webview.html = this._getHtmlForWebview(json.html);
+        this._panel.webview.html = this._getHtmlForWebview(json.html, page);
       });
   }
 
-  private _getHtmlForWebview(responseHtml: string) {
+  private _getHtmlForWebview(responseHtml: string, pageId: string) {
     return `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -247,6 +261,7 @@ export class DocViewPanel {
 
           * {
             box-sizing: border-box;
+            overflow-anchor: none;
           }
 
           body {
@@ -481,6 +496,35 @@ export class DocViewPanel {
           document.attachEvent('onclick', interceptClickEvent);
       }
       const vscode = acquireVsCodeApi(); // acquireVsCodeApi can only be invoked once
+      const pageId = ${JSON.stringify(pageId)};
+      if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'manual';
+      }
+      const savedState = vscode.getState();
+      const targetScrollY = (savedState && savedState.pageId === pageId && typeof savedState.scrollY === 'number')
+          ? savedState.scrollY
+          : 0;
+      function applyScroll() {
+          window.scrollTo(0, targetScrollY);
+      }
+      // Applied at multiple points because late image/font loads or scroll
+      // anchoring can shift the position after any single one of these fires.
+      applyScroll();
+      document.addEventListener('DOMContentLoaded', applyScroll);
+      window.addEventListener('load', function () {
+          applyScroll();
+          requestAnimationFrame(function () {
+              requestAnimationFrame(applyScroll);
+          });
+          setTimeout(applyScroll, 100);
+      });
+      let scrollSaveTimeout;
+      window.addEventListener('scroll', function () {
+          clearTimeout(scrollSaveTimeout);
+          scrollSaveTimeout = setTimeout(function () {
+              vscode.setState({ pageId: pageId, scrollY: window.scrollY });
+          }, 100);
+      });
 
         </script>
       </head>
