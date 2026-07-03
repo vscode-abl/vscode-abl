@@ -11,6 +11,8 @@
 * ✨ Check if .p is referenced as include file (#453)
 * ✨ Sort options in ABL Outline View
 * ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
+* ✨ tokenStartChars attribute in project configuration file (#580)
+* 🐛 .Net classes not visible in dataType code completion (#583)
 * 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
 * 🐛 Fix stale connection to LS in ABL Outline and Class Browser views when LS was restarted
