@@ -61,6 +61,24 @@
         }
       },
       {
+        "name": "abl_check_syntax",
+        "displayName": "ABL Check Syntax",
+        "modelDescription": "Checks the syntax of an OpenEdge ABL source file's buffer content using the language server, without requiring the file to be saved on disk. Returns success or the list of syntax errors. Use this to validate ABL code after making changes, including unsaved changes. The result contains the status of the compilation and a list of errors, if any. Each error is a raw string containing the severity, followed by a colon and a pipe separated string with the error number, the line number, the file name, and error message.",
+        "userDescription": "Check the syntax of an ABL file's buffer content and return errors",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablCheckSyntax",
+        "icon": "$(check)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to check (e.g. file:///path/to/file.p). If omitted, the active editor is used."
+            }
+          }
+        }
+      },
+      {
         "name": "abl_xref",
         "displayName": "ABL Generate XREF",
         "modelDescription": "Generates an XREF or XML XREF file for an OpenEdge ABL source file using the language server and returns its content. Use this to inspect cross-reference information such as table/field accesses, procedure calls, and include file references.",

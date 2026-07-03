@@ -32,6 +32,7 @@ import {
 import { machineIdSync } from 'node-machine-id';
 import { usernameSync } from 'username';
 import { AblCompileTool } from './tools/AblCompileTool';
+import { AblCheckSyntaxTool } from './tools/AblCheckSyntaxTool';
 import { AblXrefTool } from './tools/AblXrefTool';
 
 let client: LanguageClient;
@@ -1708,6 +1709,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   ctx.subscriptions.push(
     vscode.lm.registerTool('abl_compile', new AblCompileTool()),
+    vscode.lm.registerTool('abl_check_syntax', new AblCheckSyntaxTool()),
     vscode.lm.registerTool('abl_xref', new AblXrefTool()),
   );
 
