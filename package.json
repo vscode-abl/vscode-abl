@@ -365,13 +365,13 @@
       },
       {
         "command": "ablOutline.sortByPosition",
-        "shortTitle": "Position",
+        "shortTitle": "Pos.",
         "title": "Sort by Position",
         "enablement": "view == ablOutline && ablOutline.sortMode != 'position'"
       },
       {
         "command": "ablOutline.sortByCategory",
-        "shortTitle": "Category",
+        "shortTitle": "Cat.",
         "title": "Sort by Category",
         "enablement": "view == ablOutline && ablOutline.sortMode != 'category'"
       },

@@ -29,6 +29,7 @@ interface ExtendedDocumentSymbol extends vscode.DocumentSymbol {
   uri?: string;
   fileId: number;
   children: ExtendedDocumentSymbol[];
+  mainFileRange: vscode.Range;
 }
 
 export type AblOutlineSortMode = 'name' | 'position' | 'category';
@@ -107,11 +108,14 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
         break;
       case 'position':
       default:
-        sorted.sort(
-          (a, b) =>
-            a.range.start.line - b.range.start.line ||
-            a.range.start.character - b.range.start.character,
-        );
+        sorted.sort((a, b) => {
+          const rangeA = a.mainFileRange ?? a.range;
+          const rangeB = b.mainFileRange ?? b.range;
+          return (
+            rangeA.start.line - rangeB.start.line ||
+            rangeA.start.character - rangeB.start.character
+          );
+        });
         break;
     }
     return sorted;
@@ -190,6 +194,11 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     return decoration;
   }
 
+  private _getFileIdDecorator(fileId: number): string {
+    if (!fileId) return "";
+    return `<circle cx="13" cy="3" r="3" fill="#9B59B6"/>`;
+  }
+
   private _getVisibilityDotColor(
     tags: readonly vscode.SymbolTag[] | undefined,
   ): string | undefined {
@@ -205,9 +214,10 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     baseIconPath: string,
     tags: readonly vscode.SymbolTag[] | undefined,
     decoration: string,
+    extraKey = '',
   ): vscode.Uri {
     const tagKey = tags ? tags.map((t) => t.valueOf()).sort((a, b) => a - b).join('-') : '';
-    const cacheKey = baseIconPath + ':v1:' + tagKey;
+    const cacheKey = baseIconPath + ':v1:' + tagKey + ':' + extraKey;
     const cached = this.iconPathCache.get(cacheKey);
     if (cached) return vscode.Uri.file(cached);
 
@@ -252,9 +262,15 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     );
     const baseIcon = this._getIconForSymbolKind(symbol.kind);
     const dotColor = this._getVisibilityDotColor(symbol.tags);
-    const decoration = this._getIconDecorators(symbol.tags);
-    if (dotColor && baseIcon instanceof vscode.Uri) {
-      item.iconPath = this._getCompositeIconUri(baseIcon.fsPath, symbol.tags, decoration);
+    const fileIdDecoration = this._getFileIdDecorator(symbol.fileId);
+    const decoration = this._getIconDecorators(symbol.tags) + fileIdDecoration;
+    if ((dotColor || fileIdDecoration) && baseIcon instanceof vscode.Uri) {
+      item.iconPath = this._getCompositeIconUri(
+        baseIcon.fsPath,
+        symbol.tags,
+        decoration,
+        fileIdDecoration ? 'fid' : '',
+      );
     } else {
       item.iconPath = baseIcon;
     }
