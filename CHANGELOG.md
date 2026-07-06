@@ -12,11 +12,13 @@
 * ✨ Sort options in ABL Outline View
 * ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
 * ✨ tokenStartChars attribute in project configuration file (#580)
+* ✨ Debug with _progres -b command (RSSW-940) 
 * 🐛 .Net classes not visible in dataType code completion (#583)
 * 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
 * 🐛 Fix stale connection to LS in ABL Outline and Class Browser views when LS was restarted
 * 🐛 ABL commands on file resources (#568)
+* 🐛 Missing index fields in schema entrypoint (#473)
 * ⬆️ ABL-LS 1.26.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.2
 * ⬆️ PCTTools 1.0.6
