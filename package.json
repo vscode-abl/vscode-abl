@@ -897,6 +897,24 @@
             "description": "Show inlay hints for parameters using short variable names (e.g., c1, c2, ...)"
           }
         }
+      },
+      {
+        "type": "object",
+        "title": "Expand Keywords",
+        "properties": {
+          "abl.expandKeywords.databaseName": {
+            "order": 1,
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Prepend database name to buffers (e.g., `db.table` instead of `table`)"
+          },
+          "abl.expandKeywords.bufferName": {
+            "order": 2,
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Prepend buffer name to fields (e.g., `table.field` instead of `field`)"
+          }
+        }
       }
     ],
     "menus": {

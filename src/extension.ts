@@ -1027,8 +1027,17 @@ function expandKeywords() {
   ) {
     return;
   }
+  const databaseName = vscode.workspace
+    .getConfiguration('abl.expandKeywords')
+    .get<boolean>('databaseName', false);
+  const bufferName = vscode.workspace
+    .getConfiguration('abl.expandKeywords')
+    .get<boolean>('bufferName', false);
+
   client.sendRequest('proparse/expandKeywords', {
     fileUri: editor.document.uri.toString(),
+    bufferName: bufferName,
+    databaseName: databaseName,
   });
 }
 
