@@ -179,6 +179,12 @@
         "description": "Run current file in TTY session"
       },
       {
+        "command": "abl.debugBatch.currentFile",
+        "title": "Debug with _progres -b",
+        "category": "ABL",
+        "description": "Debug current file in batch session"
+      },
+      {
         "command": "abl.runBatch.currentFile",
         "title": "Run with _progres -b",
         "category": "ABL",
@@ -1062,6 +1068,11 @@
         "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
         "command": "abl.runBatch.currentFile",
         "key": "F2"
+      },
+      {
+        "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",
+        "command": "abl.debugBatch.currentFile",
+        "key": "ctrl+F2"
       },
       {
         "when": "editorTextFocus && config.abl.useProcedureEditorKeyBindings && resourceLangId == abl",

@@ -1287,6 +1287,23 @@ function runCurrentFileBatch() {
   runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
 }
 
+function debugCurrentFileBatch() {
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+    vscode.window.showWarningMessage(
+      'Run current file: no OpenEdge procedure selected',
+    );
+    return;
+  }
+  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  if (!cfg) {
+    vscode.window.showInformationMessage(
+      "Current buffer doesn't belong to any OpenEdge project",
+    );
+    return;
+  }
+  runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg, true);
+}
+
 function runCurrentFileProwin() {
   if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
     vscode.window.showWarningMessage(
@@ -1653,6 +1670,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       'abl.runBatch.currentFile',
       runCurrentFileBatch,
+    ),
+    vscode.commands.registerCommand(
+      'abl.debugBatch.currentFile',
+      debugCurrentFileBatch,
     ),
     vscode.commands.registerCommand(
       'abl.runProwin.currentFile',

@@ -77,6 +77,8 @@ do:
   end.
 end.
 
+run waitForDebuggerVisible.
+
 // PROPATH entries
 assign ppEntries = configJson:GetJsonArray("propath").
 do zz = 1 to ppEntries:Length:
@@ -140,3 +142,38 @@ catch err as Progress.Lang.Error:
   end.
   quit.
 end catch.
+
+procedure waitForDebuggerVisible:
+  define variable cnt as integer no-undo.
+  define variable debugReady as logical init false no-undo.
+  define variable maxWait as integer init 30000 no-undo.
+
+  paramLoop:
+  do cnt = 1 to num-entries(session:startup-parameters):
+    if entry(cnt, session:startup-parameters) begins '-debugReady' then do:
+      debugReady = true.
+      leave paramLoop.
+    end.
+  end.
+  if not debugReady then
+    return.
+
+  etime(yes).
+  maxWait = integer(os-getenv('DEBUG_MAX_WAIT')) no-error.
+
+  do while etime < maxWait and debugger:visible = false:
+    // check if debugger is connected every 1 second
+    message 'Waiting for debugger to connect... (' + string(etime) + '/' + string(maxWait) + 'ms)'.
+    pause 1.
+  end.
+
+  if debugger:visible then
+    message 'Debugger connected!'.
+  else do:
+    /* if os-getenv('ABLUNIT_TEST_RUNNER_UNIT_TESTING') = 'true' or
+      os-getenv('ABLUNIT_TEST_RUNNER_UNIT_TESTING') = '1' then do:
+      undo, throw new Progress.Lang.AppError("Debugger not connected - exit with code 1 to indicate unit test failure", 99).
+    end. */
+    message 'Debugger not connected - test execution will continue without debugging'.
+  end.
+end procedure.
