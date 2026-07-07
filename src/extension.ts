@@ -1743,7 +1743,11 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     ctx.extensionPath,
     ctx.globalStorageUri.fsPath,
   );
-  vscode.window.registerTreeDataProvider('ablOutline', ablOutlineProvider);
+  const ablOutlineView = vscode.window.createTreeView('ablOutline', {
+    treeDataProvider: ablOutlineProvider,
+  });
+  ablOutlineProvider.setTreeView(ablOutlineView);
+  ctx.subscriptions.push(ablOutlineView);
   vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
