@@ -13,6 +13,7 @@
 * ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
 * ✨ tokenStartChars attribute in project configuration file (#580)
 * ✨ Debug with _progres -b command (RSSW-940) 
+* ✨ Expand keyword options (#377)
 * 🐛 .Net classes not visible in dataType code completion (#583)
 * 🐛 Source range in definition entrypoint (#536)
 * 🐛 Fix ProEnv menu (#557)
