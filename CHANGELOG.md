@@ -1,5 +1,5 @@
-1.33.x
-======
+1.34.0 (July 13th, 2026)
+========================
 
 * ✨ Add reloadProject command
 * ✨ Language Model Tools (#539)

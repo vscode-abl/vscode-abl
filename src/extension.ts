@@ -123,8 +123,9 @@ export function activate(ctx: vscode.ExtensionContext) {
   readGlobalOpenEdgeRuntimes();
 
   const currentVersion = ctx.extension.packageJSON.version as string;
+  const isPreRelease = Number.parseInt(currentVersion.split('.')[1], 10) % 2 === 1;
   const lastVersion = ctx.globalState.get<string>('whatsNewVersion') || '0.0.0';
-  if (currentVersion >= '1.32.0' && lastVersion < currentVersion) {
+  if (!isPreRelease && currentVersion >= '1.32.0' && lastVersion < currentVersion) {
     ctx.globalState.update('whatsNewVersion', currentVersion);
     showWhatsNew(ctx, currentVersion);
   }
@@ -1941,7 +1942,7 @@ function showWhatsNew(ctx: vscode.ExtensionContext, version: string): void {
   const html = fs.readFileSync(htmlPath, 'utf8');
   const panel = vscode.window.createWebviewPanel(
     'ablWhatsNew',
-    `What's New in the ABL Extension 1.32.0`,
+    `What's New in the ABL Extension 1.34.0`,
     vscode.ViewColumn.One,
     { enableScripts: false },
   );
