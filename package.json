@@ -342,7 +342,7 @@
       },
       {
         "command": "abl.switchDocTo122",
-        "shortTitle": "12.2",
+        "cat": "12.2",
         "title": "Switch to 12.2 documentation",
         "enablement": "view == openEdgeDocumentation && oeDoc.mode != 2"
       },
@@ -377,7 +377,7 @@
       },
       {
         "command": "ablOutline.sortByCategory",
-        "shortTitle": "Cat.",
+        "cat": "Cat.",
         "title": "Sort by Category",
         "enablement": "view == ablOutline && ablOutline.sortMode != 'category'"
       },
@@ -387,16 +387,16 @@
         "description": "Compile file or directory"
       },
       {
-        "command": "abl.stripMarkup",
+        "command": "abl.showLsOutput",
         "category": "ABL",
-        "title": "Strip AppBuilder Markup",
-        "description": "Strip AppBuilder visual layout markup and metadata from OpenEdge files"
+        "title": "Show LS Output",
+        "description": "Show ABL Language Server output view"
       },
       {
-        "command": "abl.toggleLineComment",
+        "command": "abl.showOutput",
         "category": "ABL",
-        "title": "Toggle Line Comment",
-        "description": "Toggle line comment in ABL files"
+        "title": "Show ABL Output",
+        "description": "Show ABL output view"
       }
     ],
     "breakpoints": [

@@ -1392,6 +1392,13 @@ function changeBuildModeCmd() {
   quickPick.show();
 }
 
+function showLsOutput(){
+  lsOutputChannel?.show();
+}
+function showOutput(){
+  outputChannel?.show();
+}
+
 function generateProenvStartUnix(path: string) {
   let scriptContent = '#!/bin/sh\n\n';
   if (projects.length > 1) {
@@ -1690,6 +1697,8 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       runCurrentFileProwin,
     ),
     vscode.commands.registerCommand('abl.changeBuildMode', changeBuildModeCmd),
+    vscode.commands.registerCommand('abl.showLsOutput', showLsOutput),
+    vscode.commands.registerCommand('abl.showOutput', showOutput),
     vscode.commands.registerCommand(
       'abl.explorer.compile',
       compileFromExplorer,
