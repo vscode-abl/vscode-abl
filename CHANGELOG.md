@@ -20,7 +20,7 @@
 * 🐛 Fix stale connection to LS in ABL Outline and Class Browser views when LS was restarted
 * 🐛 ABL commands on file resources (#568)
 * 🐛 Missing index fields in schema entrypoint (#473)
-* ⬆️ ABL-LS 1.26.0-SNAPSHOT
+* ⬆️ ABL-LS 1.26.0
 * ⬆️ TextMate Grammar 1.4.2
 * ⬆️ PCTTools 1.0.6
 
