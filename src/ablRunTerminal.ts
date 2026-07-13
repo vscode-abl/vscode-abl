@@ -3,8 +3,10 @@ import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { batchOutputChannel } from './ablStatus';
+import { batchOutputChannel, outputChannel } from './ablStatus';
+import { getClient } from './extension';
 import { create } from './OutputChannelProcess';
+import { FileInfo } from './shared/FileInfo';
 import { OpenEdgeProjectConfig } from './shared/openEdgeConfigFile';
 
 const builderExists: { [rootDir: string]: boolean } = {};
@@ -65,7 +67,11 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
   terminal.show();
 }
 
-export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
+export async function runBatch(
+  filename: string,
+  project: OpenEdgeProjectConfig,
+  debug: boolean = false,
+) {
   checkBuilderDirectoryExists(project.rootDir);
   const currProfile = project.profiles.get(project.activeProfile);
   if (!currProfile) {
@@ -75,6 +81,18 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
 
   const env = process.env;
   env.DLC = currProfile.dlc;
+  env.DEBUG_MAX_WAIT = '15000';
+
+  // When running in batch mode, we want to use the relative path of the procedure if available so breakpoints can be set on the startup procedure.
+  let procedure = filename;
+  try {
+    const result = (await getClient().sendRequest('proparse/fileInfo', {
+      fileUri: vscode.Uri.file(filename).toString(),
+    })) as FileInfo;
+    if (result?.relativePath) procedure = result.relativePath;
+  } catch {
+    // Fall back to the initial filename if the language server request fails
+  }
 
   const prmFileName = path.join(
     tmpdir(),
@@ -89,14 +107,12 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
     super: true,
     output: [],
     procedures: project.procedures,
-    procedure: filename,
+    procedure: procedure,
   };
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
   // prettier-ignore
-  create(
-        currProfile.getTTYExecutable(),
-        currProfile.extraParameters
+  let params = currProfile.extraParameters
             .split(" ")
             .concat([
                 "-b",
@@ -104,8 +120,15 @@ export function runBatch(filename: string, project: OpenEdgeProjectConfig) {
                 "-p", path.join(__dirname, "../resources/abl-src/dynrun.p"),
                 "-param", prmFileName,
                 "-T", path.join(project.rootDir, ".builder", "tmp")
-            ]),
-        { env: env, cwd: project.rootDir, detached: true },
-        batchOutputChannel
-    );
+            ]);
+  if (debug) {
+    params = params.concat(['-debugReady', '3099']);
+  }
+
+  create(
+    currProfile.getTTYExecutable(),
+    params,
+    { env: env, cwd: project.rootDir, detached: true },
+    batchOutputChannel,
+  );
 }

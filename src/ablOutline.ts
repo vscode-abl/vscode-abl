@@ -2,7 +2,7 @@ import path = require('path');
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { LanguageClient } from 'vscode-languageclient/node';
+import { getClient } from './extension';
 import { outputChannel } from './ablStatus';
 
 const ABL_TAG_PRIVATE = 2;
@@ -29,7 +29,10 @@ interface ExtendedDocumentSymbol extends vscode.DocumentSymbol {
   uri?: string;
   fileId: number;
   children: ExtendedDocumentSymbol[];
+  mainFileRange: vscode.Range;
 }
+
+export type AblOutlineSortMode = 'name' | 'position' | 'category';
 
 export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<
@@ -43,9 +46,14 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
   private readonly extensionPath: string;
   private readonly iconCacheDir: string;
   private readonly iconPathCache = new Map<string, string>();
+  private sortMode: AblOutlineSortMode = 'name';
+  private treeView: vscode.TreeView<OutlineItem> | undefined;
+  private rootItems: OutlineItem[] | undefined;
+  private readonly parentMap = new WeakMap<OutlineItem, OutlineItem | undefined>();
+  private lastRevealedItem: OutlineItem | undefined;
+  private selectionSyncTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
-    private readonly client: LanguageClient,
     extensionPath: string,
     globalStoragePath: string,
   ) {
@@ -71,6 +79,11 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
       }
     });
 
+    // Keep the tree selection in sync with the cursor position
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      this._onSelectionChanged(event);
+    });
+
     // Set initial document if there's an active editor
     if (vscode.window.activeTextEditor?.document.languageId === 'abl') {
       this.currentDocumentUri =
@@ -78,12 +91,61 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     }
   }
 
-  refresh(): void {
+  setTreeView(treeView: vscode.TreeView<OutlineItem>): void {
+    this.treeView = treeView;
+  }
+
+  refresh(invalidate = true): void {
+    if (invalidate) {
+      this.rootItems = undefined;
+      this.lastRevealedItem = undefined;
+    }
     this._onDidChangeTreeData.fire();
+  }
+
+  setSortMode(mode: AblOutlineSortMode): void {
+    this.sortMode = mode;
+    vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', mode);
+    this.refresh(false);
+  }
+
+  private _sortItems(items: OutlineItem[]): OutlineItem[] {
+    const sorted = [...items];
+    switch (this.sortMode) {
+      case 'name':
+        sorted.sort((a, b) => a.symbol.name.localeCompare(b.symbol.name));
+        break;
+      case 'category':
+        sorted.sort((a, b) => {
+          const labelA = this._getLabelForSymbolKind(a.symbol.kind);
+          const labelB = this._getLabelForSymbolKind(b.symbol.kind);
+          return (
+            labelA.localeCompare(labelB) ||
+            a.symbol.name.localeCompare(b.symbol.name)
+          );
+        });
+        break;
+      case 'position':
+      default:
+        sorted.sort((a, b) => {
+          const rangeA = a.symbol.mainFileRange ?? a.symbol.range;
+          const rangeB = b.symbol.mainFileRange ?? b.symbol.range;
+          return (
+            rangeA.start.line - rangeB.start.line ||
+            rangeA.start.character - rangeB.start.character
+          );
+        });
+        break;
+    }
+    return sorted;
   }
 
   getTreeItem(element: OutlineItem): vscode.TreeItem {
     return element;
+  }
+
+  getParent(element: OutlineItem): vscode.ProviderResult<OutlineItem> {
+    return this.parentMap.get(element);
   }
 
   async getChildren(element?: OutlineItem): Promise<OutlineItem[]> {
@@ -92,17 +154,13 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     }
 
     if (element) {
-      // Return children of the element
-      if (element.symbol.children && element.symbol.children.length > 0) {
-        return element.symbol.children.map((child) =>
-          this._createOutlineItem(child, element.symbolUri),
-        );
-      }
-      return [];
-    } else {
+      return this._sortItems(element.childItems);
+    }
+
+    if (!this.rootItems) {
       // Root level - request document symbols from language server
       try {
-        const symbols = await this.client.sendRequest<ExtendedDocumentSymbol[]>(
+        const symbols = await getClient().sendRequest<ExtendedDocumentSymbol[]>(
           'proparse/extendedDocumentSymbol',
           {
             textDocument: {
@@ -111,18 +169,115 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
           },
         );
 
-        if (!symbols || symbols.length === 0) {
-          return [];
-        }
-
-        return symbols.map((symbol) =>
-          this._createOutlineItem(symbol, this.currentDocumentUri),
+        this.rootItems = this._buildItemTree(
+          symbols ?? [],
+          this.currentDocumentUri,
+          undefined,
         );
       } catch (error) {
         console.error('Error retrieving document symbols:', error);
         return [];
       }
     }
+
+    return this._sortItems(this.rootItems);
+  }
+
+  private _buildItemTree(
+    symbols: ExtendedDocumentSymbol[],
+    parentUri: string | undefined,
+    parentItem: OutlineItem | undefined,
+  ): OutlineItem[] {
+    return symbols.map((symbol) => {
+      const item = this._createOutlineItem(symbol, parentUri);
+      this.parentMap.set(item, parentItem);
+      item.childItems =
+        symbol.children && symbol.children.length > 0
+          ? this._buildItemTree(symbol.children, item.symbolUri, item)
+          : [];
+      return item;
+    });
+  }
+
+  private _onSelectionChanged(
+    event: vscode.TextEditorSelectionChangeEvent,
+  ): void {
+    if (!this.treeView?.visible) {
+      return;
+    }
+    const editor = event.textEditor;
+    if (
+      editor.document.languageId !== 'abl' ||
+      editor.document.uri.toString() !== this.currentDocumentUri
+    ) {
+      return;
+    }
+
+    const position = editor.selection.active;
+    if (this.selectionSyncTimer) {
+      clearTimeout(this.selectionSyncTimer);
+    }
+    this.selectionSyncTimer = setTimeout(() => {
+      this.selectionSyncTimer = undefined;
+      void this._revealItemAtPosition(position);
+    }, 100);
+  }
+
+  private async _revealItemAtPosition(
+    position: vscode.Position,
+  ): Promise<void> {
+    if (!this.treeView) {
+      return;
+    }
+    if (!this.rootItems) {
+      await this.getChildren();
+    }
+
+    const item = this._findItemAtPosition(this.rootItems ?? [], position);
+    if (!item || item === this.lastRevealedItem) {
+      return;
+    }
+    this.lastRevealedItem = item;
+    try {
+      await this.treeView.reveal(item, {
+        select: true,
+        focus: false,
+        expand: false,
+      });
+    } catch (err) {
+      outputChannel.appendLine(`Failed to reveal outline item: ${err}`);
+    }
+  }
+
+  private _findItemAtPosition(
+    items: OutlineItem[],
+    position: vscode.Position,
+  ): OutlineItem | undefined {
+    for (const item of items) {
+      const range = item.symbol.mainFileRange ?? item.symbol.range;
+      if (!this._rangeContainsPosition(range, position)) {
+        continue;
+      }
+      return this._findItemAtPosition(item.childItems, position) ?? item;
+    }
+    return undefined;
+  }
+
+  private _rangeContainsPosition(
+    range: vscode.Range,
+    position: vscode.Position,
+  ): boolean {
+    return (
+      this._comparePositions(range.start, position) <= 0 &&
+      this._comparePositions(position, range.end) <= 0
+    );
+  }
+
+  private _comparePositions(
+    a: { line: number; character: number },
+    b: { line: number; character: number },
+  ): number {
+    return a.line === b.line ? a.character - b.character : a.line - b.line;
   }
 
   private _getIconDecorators(
@@ -155,6 +310,11 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     return decoration;
   }
 
+  private _getFileIdDecorator(fileId: number): string {
+    if (!fileId) return "";
+    return `<circle cx="13" cy="3" r="3" fill="#9B59B6"/>`;
+  }
+
   private _getVisibilityDotColor(
     tags: readonly vscode.SymbolTag[] | undefined,
   ): string | undefined {
@@ -170,9 +330,10 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     baseIconPath: string,
     tags: readonly vscode.SymbolTag[] | undefined,
     decoration: string,
+    extraKey = '',
   ): vscode.Uri {
     const tagKey = tags ? tags.map((t) => t.valueOf()).sort((a, b) => a - b).join('-') : '';
-    const cacheKey = baseIconPath + ':v1:' + tagKey;
+    const cacheKey = baseIconPath + ':v1:' + tagKey + ':' + extraKey;
     const cached = this.iconPathCache.get(cacheKey);
     if (cached) return vscode.Uri.file(cached);
 
@@ -217,9 +378,15 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
     );
     const baseIcon = this._getIconForSymbolKind(symbol.kind);
     const dotColor = this._getVisibilityDotColor(symbol.tags);
-    const decoration = this._getIconDecorators(symbol.tags);
-    if (dotColor && baseIcon instanceof vscode.Uri) {
-      item.iconPath = this._getCompositeIconUri(baseIcon.fsPath, symbol.tags, decoration);
+    const fileIdDecoration = this._getFileIdDecorator(symbol.fileId);
+    const decoration = this._getIconDecorators(symbol.tags) + fileIdDecoration;
+    if ((dotColor || fileIdDecoration) && baseIcon instanceof vscode.Uri) {
+      item.iconPath = this._getCompositeIconUri(
+        baseIcon.fsPath,
+        symbol.tags,
+        decoration,
+        fileIdDecoration ? 'fid' : '',
+      );
     } else {
       item.iconPath = baseIcon;
     }
@@ -446,6 +613,8 @@ export class AblOutlineProvider implements vscode.TreeDataProvider<OutlineItem> 
 }
 
 export class OutlineItem extends vscode.TreeItem {
+  childItems: OutlineItem[] = [];
+
   constructor(
     public readonly label: string,
     public readonly symbol: ExtendedDocumentSymbol,

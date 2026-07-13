@@ -1,3 +1,29 @@
+1.33.x
+======
+
+* ✨ Add reloadProject command
+* ✨ Language Model Tools (#539)
+* ✨ Inlay hints (#259)
+* ✨ Strip AppBuilder Markup command (#547)
+* ✨ Improved "Toggle line comment" for ABL (#556)
+* ✨ Improved status bar area (#550)
+* ✨ Improved context menu (#566)
+* ✨ Check if .p is referenced as include file (#453)
+* ✨ Sort options in ABL Outline View
+* ✨ Improved text range in the standard Outline view for include files and symbols defined in include files
+* ✨ tokenStartChars attribute in project configuration file (#580)
+* ✨ Debug with _progres -b command (RSSW-940) 
+* ✨ Expand keyword options (#377)
+* 🐛 .Net classes not visible in dataType code completion (#583)
+* 🐛 Source range in definition entrypoint (#536)
+* 🐛 Fix ProEnv menu (#557)
+* 🐛 Fix stale connection to LS in ABL Outline and Class Browser views when LS was restarted
+* 🐛 ABL commands on file resources (#568)
+* 🐛 Missing index fields in schema entrypoint (#473)
+* ⬆️ ABL-LS 1.26.0
+* ⬆️ TextMate Grammar 1.4.2
+* ⬆️ PCTTools 1.0.6
+
 1.32.1 (June 24th, 2026)
 ========================
 
