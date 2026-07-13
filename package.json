@@ -342,7 +342,7 @@
       },
       {
         "command": "abl.switchDocTo122",
-        "cat": "12.2",
+        "shortTitle": "12.2",
         "title": "Switch to 12.2 documentation",
         "enablement": "view == openEdgeDocumentation && oeDoc.mode != 2"
       },
@@ -377,7 +377,7 @@
       },
       {
         "command": "ablOutline.sortByCategory",
-        "cat": "Cat.",
+        "shortTitle": "Cat.",
         "title": "Sort by Category",
         "enablement": "view == ablOutline && ablOutline.sortMode != 'category'"
       },
