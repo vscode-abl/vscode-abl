@@ -2,6 +2,7 @@
 ======
 
 * ✨ Improved compilation hook (#588)
+* 🐛 Fix NPE in definition entrypoint (#594)
 * ⬆️ ABL-LS 1.27.0-SNAPSHOT
 
 1.34.0 (July 13th, 2026)
