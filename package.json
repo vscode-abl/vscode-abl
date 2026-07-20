@@ -915,6 +915,18 @@
             "markdownDescription": "Prepend buffer name to fields (e.g., `table.field` instead of `field`)"
           }
         }
+      },
+      {
+        "type": "object",
+        "title": "Fix Casing",
+        "properties": {
+          "abl.fixCasing.preprocessor": {
+            "order": 1,
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Fix casing of preprocessor directives (e.g. `&IF`, `&THEN`, `&GLOBAL-DEFINE`, ...)"
+          }
+        }
       }
     ],
     "menus": {

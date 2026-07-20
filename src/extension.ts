@@ -998,9 +998,13 @@ function fixUpperCasing() {
   ) {
     return;
   }
+  const preprocessor = vscode.workspace
+    .getConfiguration('abl.fixCasing')
+    .get<boolean>('preprocessor', false);
   client.sendRequest('proparse/fixCasing', {
     upper: true,
     fileUri: editor.document.uri.toString(),
+    preprocessorDirectives: preprocessor,
   });
 }
 
@@ -1013,9 +1017,13 @@ function fixLowerCasing() {
   ) {
     return;
   }
+  const preprocessor = vscode.workspace
+    .getConfiguration('abl.fixCasing')
+    .get<boolean>('preprocessor', false);
   client.sendRequest('proparse/fixCasing', {
     upper: false,
     fileUri: editor.document.uri.toString(),
+    preprocessorDirectives: preprocessor,
   });
 }
 
