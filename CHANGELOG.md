@@ -2,6 +2,9 @@
 ======
 
 * ✨ Improved compilation hook (#588)
+* ✨ Fix casing action: preprocessor directives (#125)
+* ✨ Code completion on camel case class names (not fully completed yet) (#201)
+* 🐛 Preprocessor parser: support for LOG and LOGICAL functions (#593)
 * 🐛 Fix NPE in definition entrypoint (#594)
 * ⬆️ ABL-LS 1.27.0-SNAPSHOT
 
