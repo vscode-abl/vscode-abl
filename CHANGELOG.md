@@ -7,6 +7,8 @@
 * 🐛 Code completion: fix visibility issues
 * 🐛 Preprocessor parser: support for LOG and LOGICAL functions (#593)
 * 🐛 Fix NPE in definition entrypoint (#594)
+* 🐛 Inlay hints not displayed on dataset methods (#595)
+* 🐛 Fix exceptions when opening files on a different drive letter (#597)
 * ⬆️ ABL-LS 1.27.0-SNAPSHOT
 
 1.34.0 (July 13th, 2026)
