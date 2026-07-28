@@ -34,6 +34,9 @@ import { usernameSync } from 'username';
 import { AblCompileTool } from './tools/AblCompileTool';
 import { AblCheckSyntaxTool } from './tools/AblCheckSyntaxTool';
 import { AblXrefTool } from './tools/AblXrefTool';
+import { AblDebugListingTool } from './tools/AblDebugListingTool';
+import { AblListingTool } from './tools/AblListingTool';
+import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
 
@@ -1750,6 +1753,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.lm.registerTool('abl_compile', new AblCompileTool()),
     vscode.lm.registerTool('abl_check_syntax', new AblCheckSyntaxTool()),
     vscode.lm.registerTool('abl_xref', new AblXrefTool()),
+    vscode.lm.registerTool('abl_debug_listing', new AblDebugListingTool()),
+    vscode.lm.registerTool('abl_listing', new AblListingTool()),
+    vscode.lm.registerTool('abl_preprocess', new AblPreprocessTool()),
   );
 
   // Register Class Browser
