@@ -6,7 +6,8 @@
     "target": "es2022",
     "lib": ["es2022"],
     "strict": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "exclude": ["node_modules"]
 }

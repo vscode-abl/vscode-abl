@@ -26,7 +26,7 @@ const config = {
     vscode: 'commonjs vscode',
   },
   resolve: {
-    // support reading TypeScript and JavaScript files -> https://github.com/TypeStrong/ts-loader
+    // support reading TypeScript and JavaScript files -> https://github.com/umijs/esbuild-loader
     extensions: ['.ts', '.js'],
   },
   module: {
@@ -36,7 +36,10 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader',
+            loader: 'esbuild-loader',
+            options: {
+              target: 'es2022',
+            },
           },
         ],
       },
