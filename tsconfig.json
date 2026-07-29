@@ -4,7 +4,9 @@
     "rootDir": "src",
     "sourceMap": true,
     "target": "es2022",
-    "lib": ["es2022"]
+    "lib": ["es2022"],
+    "strict": false,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"]
 }

@@ -24,6 +24,7 @@
     "webpack-dev": "webpack --mode development --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "lint": "eslint .",
+    "typecheck": "node ./node_modules/typescript7/bin/tsc --noEmit -p tsconfig.json",
     "grammar-version": "npm list abl-tmlanguage --depth=0 | head -2 | tail -1 | cut -c 5- > resources/grammar-version.txt"
   },
   "icon": "resources/images/progress_icon.png",
@@ -1223,6 +1224,7 @@
     "globals": "^15.0.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
+    "typescript7": "npm:typescript@^7.0.2",
     "webpack": "^5.105.1",
     "webpack-cli": "^6.0.1"
   }
