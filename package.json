@@ -773,6 +773,14 @@
             "default": false,
             "description": "Delete r-code if syntax errors are found during build",
             "order": 12
+          },
+          "abl.configuration.maxReferencesResults": {
+            "type": "integer",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Maximum number of results displayed in Go To References",
+            "order": 13
           }
         }
       },
