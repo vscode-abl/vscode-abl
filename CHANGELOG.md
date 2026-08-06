@@ -4,6 +4,8 @@
 * ✨ Improved compilation hook (#588)
 * ✨ Fix casing action: preprocessor directives (#125)
 * ✨ Code completion on camel case class names (#201)
+* ✨ Super implementation entrypoint
+* ✨ Delay compilation when Git operation is in progress
 * 🐛 Code completion: fix visibility issues
 * 🐛 Preprocessor parser: support for LOG and LOGICAL functions (#593)
 * 🐛 Fix NPE in definition entrypoint (#594)
