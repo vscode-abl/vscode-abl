@@ -13,6 +13,7 @@
 * 🐛 Fix exceptions when opening files on a different drive letter (#597)
 * ⬆️ ABL-LS 1.27.0-SNAPSHOT
 * ⬆️ Java 21.0.12+8
+* ⬆️ TextMate Grammar 1.4.3
 
 1.34.0 (July 13th, 2026)
 ========================
