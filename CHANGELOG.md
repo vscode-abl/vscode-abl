@@ -1,3 +1,10 @@
+1.34.1 (August 17th, 2026)
+==========================
+
+* 🐛 Fix exceptions when opening files on a different drive letter (#597)
+* ⬆️ Java 21.0.12+8
+* ⬆️ ABL-LS 1.26.2
+
 1.34.0 (July 13th, 2026)
 ========================
 
