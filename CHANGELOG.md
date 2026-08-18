@@ -11,7 +11,7 @@
 * 🐛 Fix NPE in definition entrypoint (#594)
 * 🐛 Inlay hints not displayed on dataset methods (#595)
 * ⬆️ ABL-LS 1.27.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.4.3
+* ⬆️ TextMate Grammar 1.4.4
 
 1.34.1 (August 17th, 2026)
 ==========================
