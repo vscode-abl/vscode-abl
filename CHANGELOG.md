@@ -8,9 +8,9 @@
 * ✨ Delay compilation when Git operation is in progress
 * 🐛 Code completion: fix visibility issues
 * 🐛 Preprocessor parser: support for LOG and LOGICAL functions (#593)
-* 🐛 Fix NPE in definition entrypoint (#594)
+* 🐛 Fix NPE in definition entrypoint (#594) + inlay hints (Riverside-Software/sonar-openedge#1234)
 * 🐛 Inlay hints not displayed on dataset methods (#595)
-* ⬆️ ABL-LS 1.27.0-SNAPSHOT
+* ⬆️ ABL-LS 1.27.0
 * ⬆️ TextMate Grammar 1.4.4
 
 1.34.1 (August 17th, 2026)
