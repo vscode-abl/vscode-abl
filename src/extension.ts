@@ -7,6 +7,7 @@ import {
   Executable,
   LanguageClient,
   LanguageClientOptions,
+  Location,
   ServerOptions,
 } from 'vscode-languageclient/node';
 import { openDataDictionary } from './ablDataDictionary';
@@ -34,6 +35,9 @@ import { usernameSync } from 'username';
 import { AblCompileTool } from './tools/AblCompileTool';
 import { AblCheckSyntaxTool } from './tools/AblCheckSyntaxTool';
 import { AblXrefTool } from './tools/AblXrefTool';
+import { AblDebugListingTool } from './tools/AblDebugListingTool';
+import { AblListingTool } from './tools/AblListingTool';
+import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
 
@@ -336,7 +340,12 @@ function createLanguageClient(): LanguageClient {
         if (hover) {
           hover.contents = hover.contents.map((content) => {
             if (content instanceof vscode.MarkdownString) {
-              content.isTrusted = { enabledCommands: ['abl.openDocEntry'] };
+              content.isTrusted = {
+                enabledCommands: [
+                  'abl.openDocEntry',
+                  'abl.gotoSuperImplementation',
+                ],
+              };
               content.supportThemeIcons = true;
             }
             return content;
@@ -393,6 +402,33 @@ function createLanguageClient(): LanguageClient {
 
 function openDocumentationEntry(uri: string): void {
   DocViewPanel.createOrShow(uri);
+}
+
+function gotoSuperImplementation(
+  fileUri: string,
+  methodName: string,
+  methodSignature: string,
+): void {
+  client
+    .sendRequest<Location>('proparse/superImplementation', {
+      fileUri: fileUri,
+      methodName: methodName,
+      methodSignature: methodSignature,
+    })
+    .then(async (result) => {
+      const location = client.protocol2CodeConverter.asLocation(result);
+      const targetDoc = await vscode.workspace.openTextDocument(location.uri);
+      const editor = await vscode.window.showTextDocument(targetDoc, {
+        selection: location.range,
+        preserveFocus: false,
+      });
+      editor.revealRange(location.range, vscode.TextEditorRevealType.InCenter);
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        `Error navigating to super implementation: ${error.message}`,
+      );
+    });
 }
 
 function switchDocTo122(): void {
@@ -952,7 +988,7 @@ async function getXrefLineSelectionForSourceLine(
 }
 
 function generateXmlXref() {
-    const editor = vscode.window.activeTextEditor;
+  const editor = vscode.window.activeTextEditor;
   if (
     !editor ||
     (editor.document.uri.scheme !== 'file' &&
@@ -998,9 +1034,13 @@ function fixUpperCasing() {
   ) {
     return;
   }
+  const preprocessor = vscode.workspace
+    .getConfiguration('abl.fixCasing')
+    .get<boolean>('preprocessor', false);
   client.sendRequest('proparse/fixCasing', {
     upper: true,
     fileUri: editor.document.uri.toString(),
+    preprocessorDirectives: preprocessor,
   });
 }
 
@@ -1013,9 +1053,13 @@ function fixLowerCasing() {
   ) {
     return;
   }
+  const preprocessor = vscode.workspace
+    .getConfiguration('abl.fixCasing')
+    .get<boolean>('preprocessor', false);
   client.sendRequest('proparse/fixCasing', {
     upper: false,
     fileUri: editor.document.uri.toString(),
+    preprocessorDirectives: preprocessor,
   });
 }
 
@@ -1618,6 +1662,10 @@ function registerCommands(ctx: vscode.ExtensionContext) {
 
   const commands = [
     vscode.commands.registerCommand('abl.openDocEntry', openDocumentationEntry),
+    vscode.commands.registerCommand(
+      'abl.gotoSuperImplementation',
+      gotoSuperImplementation,
+    ),
     vscode.commands.registerCommand('abl.docBack', () => DocViewPanel.goBack()),
     vscode.commands.registerCommand('abl.docForward', () =>
       DocViewPanel.goForward(),
@@ -1742,6 +1790,9 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.lm.registerTool('abl_compile', new AblCompileTool()),
     vscode.lm.registerTool('abl_check_syntax', new AblCheckSyntaxTool()),
     vscode.lm.registerTool('abl_xref', new AblXrefTool()),
+    vscode.lm.registerTool('abl_debug_listing', new AblDebugListingTool()),
+    vscode.lm.registerTool('abl_listing', new AblListingTool()),
+    vscode.lm.registerTool('abl_preprocess', new AblPreprocessTool()),
   );
 
   // Register Class Browser

@@ -160,8 +160,20 @@ procedure preCompileHook:
 
   // Messages written in .builder/clientlog
   log-manager:write-message("Pre-compilation hook").
-  opCancel = 0. // Don't cancel compilation
-  // Return 1 to log a warning, and 2 to log an error
+
+  // Report a compiler warning
+  run hookWarning in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipSrcFile), /* message */ "My warning").
+  // Report a compiler error
+  run hookError in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipSrcFile), /* message */ "My warning").
+
+  // Status  
+  // 0 -> Don't cancel compilation
+  // 1 -> deprecated, use hookWarning + return value 4
+  // 2 -> deprecated, use hookError + return value 4
+  // 3 -> handled by hook, compilation success
+  // 4 -> handled by hook, compilation failure
+  opCancel = 0.
+
 end.
 
 procedure postCompileHook:

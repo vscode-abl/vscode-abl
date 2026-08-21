@@ -1,7 +1,7 @@
 {
   "name": "openedge-abl-lsp",
   "publisher": "RiversideSoftware",
-  "version": "1.34.1",
+  "version": "1.35.8",
   "description": "OpenEdge ABL support for VS Code",
   "displayName": "OpenEdge ABL",
   "author": "chriscamicas",
@@ -96,6 +96,60 @@
             "xml": {
               "type": "boolean",
               "description": "When true, generates XML XREF (proparse/xmlXref); when false or omitted, generates plain XREF (proparse/xref)."
+            }
+          }
+        }
+      },
+      {
+        "name": "abl_debug_listing",
+        "displayName": "ABL Debug Listing",
+        "modelDescription": "Generates a debug listing (COMPILE ... DEBUG-LISTING) for an OpenEdge ABL source file using the language server and returns its content. Use this to inspect how the compiler expands preprocessor directives and include files, along with debug line-number mapping information.",
+        "userDescription": "Generate a debug listing for an ABL file and return its content",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablDebugListing",
+        "icon": "$(debug)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to process (e.g. file:///path/to/file.p). If omitted, the active editor is used."
+            }
+          }
+        }
+      },
+      {
+        "name": "abl_listing",
+        "displayName": "ABL Listing",
+        "modelDescription": "Generates a regular listing (COMPILE ... LISTING) for an OpenEdge ABL source file using the language server and returns its content. Use this to inspect how the compiler expands preprocessor directives and include files.",
+        "userDescription": "Generate a listing for an ABL file and return its content",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablListing",
+        "icon": "$(list-unordered)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to process (e.g. file:///path/to/file.p). If omitted, the active editor is used."
+            }
+          }
+        }
+      },
+      {
+        "name": "abl_preprocess",
+        "displayName": "ABL Preprocess",
+        "modelDescription": "Generates a preprocessed source (COMPILE ... PREPROCESS) for an OpenEdge ABL source file using the language server and returns its content. Use this to inspect the source code after preprocessor directives and include files have been resolved.",
+        "userDescription": "Preprocess an ABL file and return its content",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablPreprocess",
+        "icon": "$(symbol-misc)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileUri": {
+              "type": "string",
+              "description": "URI of the ABL file to process (e.g. file:///path/to/file.p). If omitted, the active editor is used."
             }
           }
         }
@@ -915,6 +969,18 @@
             "markdownDescription": "Prepend buffer name to fields (e.g., `table.field` instead of `field`)"
           }
         }
+      },
+      {
+        "type": "object",
+        "title": "Fix Casing",
+        "properties": {
+          "abl.fixCasing.preprocessor": {
+            "order": 1,
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Fix casing of preprocessor directives (e.g. `&IF`, `&THEN`, `&GLOBAL-DEFINE`, ...)"
+          }
+        }
       }
     ],
     "menus": {
@@ -1138,13 +1204,13 @@
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
     "@vscode/vsce": "^3.9.1",
-    "abl-tmlanguage": "^1.4.2",
+    "abl-tmlanguage": "^1.4.4",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
     "ovsx": "^0.10.12",
     "username": "^7.0.0",
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

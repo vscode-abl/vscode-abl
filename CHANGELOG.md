@@ -1,3 +1,18 @@
+1.35.x
+======
+
+* ✨ Improved compilation hook (#588)
+* ✨ Fix casing action: preprocessor directives (#125)
+* ✨ Code completion on camel case class names (#201)
+* ✨ Super implementation entrypoint
+* ✨ Delay compilation when Git operation is in progress
+* 🐛 Code completion: fix visibility issues
+* 🐛 Preprocessor parser: support for LOG and LOGICAL functions (#593)
+* 🐛 Fix NPE in definition entrypoint (#594) + inlay hints (Riverside-Software/sonar-openedge#1234)
+* 🐛 Inlay hints not displayed on dataset methods (#595)
+* ⬆️ ABL-LS 1.27.0
+* ⬆️ TextMate Grammar 1.4.4
+
 1.34.1 (August 17th, 2026)
 ==========================
 
