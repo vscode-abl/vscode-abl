@@ -1,5 +1,5 @@
-1.35.x
-======
+1.36.0 (August 21st, 2026)
+==========================
 
 * ✨ Improved compilation hook (#588)
 * ✨ Fix casing action: preprocessor directives (#125)
