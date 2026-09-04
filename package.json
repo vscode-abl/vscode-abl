@@ -311,6 +311,12 @@
         "description": "Dump current file status"
       },
       {
+        "command": "abl.profilerInfo",
+        "title": "Profiler Information",
+        "category": "ABL",
+        "description": "Get profiler information for current file"
+      },
+      {
         "command": "abl.compileBuffer",
         "title": "Syntax check active editor",
         "category": "ABL",
