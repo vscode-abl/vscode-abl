@@ -1562,6 +1562,16 @@ function generateProenvStartWindows(path: string) {
   fs.writeFileSync(path, scriptContent);
 }
 
+function profilerInfo(uri: vscode.Uri) {
+  const fileUri = uri ? uri : vscode.window.activeTextEditor?.document.uri;
+  if (!fileUri) {
+    return;
+  }
+  client.sendRequest('proparse/profilerInfo', {
+    fileUri: fileUri.toString(),
+  });
+}
+
 function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
   const targets = uris && uris.length > 0 ? uris : [uri];
   for (const uri of targets) {
@@ -1742,6 +1752,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       'abl.explorer.compile',
       compileFromExplorer,
     ),
+    vscode.commands.registerCommand('abl.profilerInfo', profilerInfo),
     vscode.commands.registerCommand('abl.stripMarkup', stripAppbuilderMarkup),
     vscode.commands.registerCommand(
       'ablOutline.goToSymbol',
