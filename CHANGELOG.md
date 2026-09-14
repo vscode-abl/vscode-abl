@@ -1,6 +1,9 @@
 1.37.x
 ======
 
+* ✨ Very first implementation of references entrypoint. No need to open issues at this stage.
+* 🐛 Code completion: fix variable from parent class visibility
+* 🐛 Fix preprocessor issue with multiline strings (#604)
 * ⬆️ ABL-LS 1.28.0-SNAPSHOT
 
 1.36.0 (August 21st, 2026)
