@@ -24,6 +24,13 @@ import { AblOutlineProvider } from './ablOutline';
 import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
 import {
+  StatusParams,
+  getOverallSeverity,
+  formatProjectTooltip,
+  countProjectsBySeverity,
+  buildStatusText,
+} from './shared/StatusParams';
+import {
   loadConfigFile,
   OpenEdgeConfig,
   OpenEdgeMainConfig,
@@ -57,6 +64,7 @@ let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 let lastStatusAt = 0;
 let statusWatchdog: ReturnType<typeof setInterval> | undefined;
+const DEFAULT_STATUS_TOOLTIP = 'ABL plugin status';
 
 interface ProjectQuickPickItem extends vscode.QuickPickItem {
   project: OpenEdgeProjectConfig;
@@ -144,7 +152,10 @@ export function activate(ctx: vscode.ExtensionContext) {
     100,
   );
   oeStatusBarItem.text = 'No ABL Language Server';
-  oeStatusBarItem.tooltip = 'ABL plugin status';
+  oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
+  oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+    'statusBarItem.errorBackground',
+  );
   oeStatusBarItem.show();
   oeStatusBarItem.command = 'abl.changeBuildMode';
   ctx.subscriptions.push(oeStatusBarItem);
@@ -362,35 +373,71 @@ function createLanguageClient(): LanguageClient {
     serverOptions,
     clientOptions,
   );
-  tmp.onNotification('proparse/status', (statusParams: any) => {
+  tmp.onNotification('proparse/status', (statusParams: StatusParams) => {
     lastStatusAt = Date.now();
-    oeStatusBarItem.backgroundColor = undefined;
-    const numProjects = statusParams.projects.length;
-    let str = '';
-    if (numProjects == 0) str = 'No projects found';
-    else if (numProjects > statusParams.numInitializedProjects)
-      str =
-        'Project init: ' +
-        statusParams.numInitializedProjects +
-        '/' +
-        numProjects;
-    else str = numProjects + ' project(s)';
-    str += ' • ' + statusParams.pendingTasks + ' task(s)';
-    oeStatusBarItem.text = str;
+    const projectDetails = statusParams.projectDetails ?? [];
 
-    oeStatusBarItem.tooltip =
-      'Build mode: ' +
-      buildModeName(buildMode) +
-      '\n' +
-      statusParams.projects.join('\n');
+    // Count projects by severity
+    const counts = countProjectsBySeverity(projectDetails);
+    const severity = getOverallSeverity(projectDetails);
+
+    // Set background color based on severity
+    if (severity === 'warning') {
+      oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+        'statusBarItem.warningBackground',
+      );
+    } else {
+      oeStatusBarItem.backgroundColor = undefined;
+    }
+
+    // Build status bar text with detailed counts
+    if (projectDetails.length > 0) {
+      oeStatusBarItem.text = buildStatusText(counts, statusParams.pendingTasks);
+    } else {
+      // Fallback to legacy format when no project details available
+      const numProjects = statusParams.projects.length;
+      let str = '';
+      if (numProjects == 0) {
+        str = 'No projects found';
+      } else if (numProjects > statusParams.numInitializedProjects) {
+        str =
+          'Project init: ' +
+          statusParams.numInitializedProjects +
+          '/' +
+          numProjects;
+      } else {
+        str = numProjects + ' project(s)';
+      }
+      str += ' • ' + statusParams.pendingTasks + ' task(s)';
+      oeStatusBarItem.text = str;
+    }
+
+    // Build detailed tooltip
+    const tooltipLines: string[] = [];
+    tooltipLines.push('Build mode: ' + buildModeName(buildMode));
+    tooltipLines.push('');
+
+    if (projectDetails.length > 0) {
+      // Use detailed project info
+      for (const project of projectDetails) {
+        tooltipLines.push(formatProjectTooltip(project));
+        tooltipLines.push('');
+      }
+    } else {
+      // Fallback to legacy format
+      tooltipLines.push(...statusParams.projects);
+    }
+
+    oeStatusBarItem.tooltip = tooltipLines.join('\n').trim();
   });
 
   statusWatchdog = setInterval(() => {
     if (lastStatusAt > 0 && Date.now() - lastStatusAt > 10_000) {
       oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-        'statusBarItem.warningBackground',
+        'statusBarItem.errorBackground',
       );
-      oeStatusBarItem.text = '$(warning) ABL LS';
+      oeStatusBarItem.text = 'No ABL Language Server';
+      oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
     }
   }, 5_000);
   tmp.onRequest('proparse/identifier', (requestParams: any) => {
@@ -593,8 +640,9 @@ function stopLangServer(): Promise<void> {
   outputChannel.info('Received request to stop ABL Language Server');
   return client.stop(5000).then(() => {
     oeStatusBarItem.text = 'No ABL Language Server';
+    oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
     oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-      'statusBarItem.warningBackground',
+      'statusBarItem.errorBackground',
     );
   });
 }
@@ -613,8 +661,9 @@ function restartLangServer(): Promise<void> {
       .then(() => {
         outputChannel.info('ABL Language Server stopped');
         oeStatusBarItem.text = 'No ABL Language Server';
+        oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
         oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-          'statusBarItem.warningBackground',
+          'statusBarItem.errorBackground',
         );
       })
       .then(fn)
@@ -1160,8 +1209,17 @@ function switchProfileCmd() {
   }
 }
 
+function setStatusBarPending(message: string) {
+  oeStatusBarItem.text = '$(sync~spin) ' + message;
+  oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
+  oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+    'statusBarItem.warningBackground',
+  );
+}
+
 function rebuildProject() {
   if (projects.length == 1) {
+    setStatusBarPending('Rebuilding ' + projects[0].name + '...');
     client.sendRequest('proparse/rebuildProject', {
       projectUri: projects[0].uri.toString(),
     });
@@ -1179,8 +1237,10 @@ function rebuildProject() {
     quickPick.items = list;
     quickPick.onDidAccept(() => {
       quickPick.hide();
+      const selectedProject = quickPick.selectedItems[0].project;
+      setStatusBarPending('Rebuilding ' + selectedProject.name + '...');
       client.sendRequest('proparse/rebuildProject', {
-        projectUri: quickPick.selectedItems[0].project.uri.toString(),
+        projectUri: selectedProject.uri.toString(),
       });
     });
     quickPick.show();
@@ -1189,6 +1249,7 @@ function rebuildProject() {
 
 function reloadProject() {
   if (projects.length == 1) {
+    setStatusBarPending('Reloading ' + projects[0].name + '...');
     client.sendRequest('proparse/reloadProject', {
       projectUri: projects[0].uri.toString(),
     });
@@ -1206,8 +1267,10 @@ function reloadProject() {
     quickPick.items = list;
     quickPick.onDidAccept(() => {
       quickPick.hide();
+      const selectedProject = quickPick.selectedItems[0].project;
+      setStatusBarPending('Reloading ' + selectedProject.name + '...');
       client.sendRequest('proparse/reloadProject', {
-        projectUri: quickPick.selectedItems[0].project.uri.toString(),
+        projectUri: selectedProject.uri.toString(),
       });
     });
     quickPick.show();
