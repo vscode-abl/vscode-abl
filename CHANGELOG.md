@@ -8,6 +8,7 @@
 * 🐛 Code completion: fix variable from parent class visibility
 * 🐛 Fix preprocessor issue with multiline strings (#604)
 * ⬆️ ABL-LS 1.28.0-SNAPSHOT
+* ⬆️ TextMate Grammar 1.4.5
 
 1.36.0 (August 21st, 2026)
 ==========================
