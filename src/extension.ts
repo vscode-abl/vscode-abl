@@ -170,18 +170,10 @@ export function activate(ctx: vscode.ExtensionContext) {
     '**/openedge-project.json',
   );
   projectConfigWatcher.onDidCreate((uri) => {
-    if (readOEConfigFile(uri)) startLanguageServerIfNeeded();
+    void handleProjectConfigChange(uri);
   });
   projectConfigWatcher.onDidChange((uri) => {
-    if (!readOEConfigFile(uri)) return;
-
-    if (client.isRunning()) {
-      client.sendRequest('proparse/reloadProject', {
-        projectUri: vscode.Uri.file(path.dirname(uri.fsPath)).toString(),
-      });
-    } else {
-      startLanguageServerIfNeeded();
-    }
+    void handleProjectConfigChange(uri);
   });
   ctx.subscriptions.push(projectConfigWatcher);
 
@@ -1891,11 +1883,12 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
-function startLanguageServerIfNeeded(): void {
-  if (projects.length === 0) return;
+function startLanguageServerIfNeeded(): Promise<void> {
+  if (projects.length === 0) return Promise.resolve();
 
   vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
-  if (client.isRunning() || languageServerStartPromise !== undefined) return;
+  if (client.isRunning()) return Promise.resolve();
+  if (languageServerStartPromise !== undefined) return languageServerStartPromise;
 
   outputChannel.info(`Now starting ABL language server...`);
   const startPromise = client.start();
@@ -1911,6 +1904,29 @@ function startLanguageServerIfNeeded(): void {
       outputChannel.error(`Unable to start ABL language server: ${error_}`);
     },
   );
+  return startPromise;
+}
+
+async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
+  if (!readOEConfigFile(uri)) return;
+
+  const reloadAfterStartup =
+    client.isRunning() || languageServerStartPromise !== undefined;
+
+  try {
+    await startLanguageServerIfNeeded();
+  } catch {
+    return;
+  }
+
+  if (!reloadAfterStartup || !client.isRunning()) return;
+
+  const projectUri = vscode.Uri.file(path.dirname(uri.fsPath)).toString();
+  try {
+    await client.sendRequest('proparse/reloadProject', { projectUri });
+  } catch (error_) {
+    outputChannel.error(`Unable to reload ABL project ${projectUri}: ${error_}`);
+  }
 }
 
 function readOEConfigFile(uri: vscode.Uri): boolean {
