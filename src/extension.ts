@@ -47,6 +47,7 @@ import { AblListingTool } from './tools/AblListingTool';
 import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
+let languageServerStartPromise: Promise<void> | undefined;
 
 export function getClient(): LanguageClient {
   return client;
@@ -135,9 +136,14 @@ export function activate(ctx: vscode.ExtensionContext) {
   readGlobalOpenEdgeRuntimes();
 
   const currentVersion = ctx.extension.packageJSON.version as string;
-  const isPreRelease = Number.parseInt(currentVersion.split('.')[1], 10) % 2 === 1;
+  const isPreRelease =
+    Number.parseInt(currentVersion.split('.')[1], 10) % 2 === 1;
   const lastVersion = ctx.globalState.get<string>('whatsNewVersion') || '0.0.0';
-  if (!isPreRelease && currentVersion >= '1.32.0' && lastVersion < currentVersion) {
+  if (
+    !isPreRelease &&
+    currentVersion >= '1.32.0' &&
+    lastVersion < currentVersion
+  ) {
     ctx.globalState.update('whatsNewVersion', currentVersion);
     showWhatsNew(ctx, currentVersion);
   }
@@ -161,13 +167,33 @@ export function activate(ctx: vscode.ExtensionContext) {
   ctx.subscriptions.push(oeStatusBarItem);
 
   // Monitor configuration changes
-  vscode.workspace.onDidChangeConfiguration((event) => {
-    readGlobalOpenEdgeRuntimes();
-  });
+  const oeRuntimeConfigWatcher = vscode.workspace.onDidChangeConfiguration(
+    (event) => {
+      readGlobalOpenEdgeRuntimes();
+    },
+  );
+
   // Monitor changes in all openedge-project.json files
-  vscode.workspace
-    .createFileSystemWatcher('**/openedge-project.json')
-    .onDidChange((uri) => readOEConfigFile(uri));
+  const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
+    '**/openedge-project.json',
+  );
+  projectConfigWatcher.onDidCreate((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+  projectConfigWatcher.onDidChange((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+
+  const debugAdapterDescriptorFactory =
+    vscode.debug.registerDebugAdapterDescriptorFactory(
+      'abl',
+      new AblDebugAdapterDescriptorFactory({ ...process.env }),
+    );
+  ctx.subscriptions.push(
+    oeRuntimeConfigWatcher,
+    projectConfigWatcher,
+    debugAdapterDescriptorFactory,
+  );
 
   fs.readFile(
     path.join(__dirname, '../resources/grammar-version.txt'),
@@ -177,10 +203,6 @@ export function activate(ctx: vscode.ExtensionContext) {
   );
 
   registerCommands(ctx);
-  vscode.debug.registerDebugAdapterDescriptorFactory(
-    'abl',
-    new AblDebugAdapterDescriptorFactory({ ...process.env }),
-  );
 
   // Return extension entrypoints
   return {
@@ -1868,7 +1890,71 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
-function readOEConfigFile(uri: vscode.Uri) {
+function startLanguageServerIfNeeded(): Promise<void> {
+  if (projects.length === 0) return Promise.resolve();
+
+  vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
+  if (client.isRunning()) return Promise.resolve();
+  if (languageServerStartPromise !== undefined)
+    return languageServerStartPromise;
+
+  outputChannel.info(`Now starting ABL language server...`);
+  const startPromise = client.start();
+  languageServerStartPromise = startPromise;
+  void startPromise.then(
+    () => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+    },
+    (error_) => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+      outputChannel.error(`Unable to start ABL language server: ${error_}`);
+    },
+  );
+  return startPromise;
+}
+
+// A single save can raise several file system events (e.g. truncate + write on Windows)
+const configChangeTimers = new Map<string, NodeJS.Timeout>();
+
+function scheduleProjectConfigChange(uri: vscode.Uri): void {
+  const key = uri.toString();
+  clearTimeout(configChangeTimers.get(key));
+  configChangeTimers.set(
+    key,
+    setTimeout(() => {
+      configChangeTimers.delete(key);
+      void handleProjectConfigChange(uri);
+    }, 200),
+  );
+}
+
+async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
+  if (!readOEConfigFile(uri)) return;
+
+  const reloadAfterStartup =
+    client.isRunning() || languageServerStartPromise !== undefined;
+
+  try {
+    await startLanguageServerIfNeeded();
+  } catch {
+    return;
+  }
+
+  if (!reloadAfterStartup || !client.isRunning()) return;
+
+  const projectUri = vscode.Uri.file(path.dirname(uri.fsPath)).toString();
+  try {
+    await client.sendRequest('proparse/reloadProject', { projectUri });
+  } catch (error_) {
+    outputChannel.error(
+      `Unable to reload ABL project ${projectUri}: ${error_}`,
+    );
+  }
+}
+
+function readOEConfigFile(uri: vscode.Uri): boolean {
   outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
   const config = loadConfigFile(uri.fsPath);
   if (config) {
@@ -1897,7 +1983,9 @@ function readOEConfigFile(uri: vscode.Uri) {
         }
       } else {
         projects.push(prjConfig);
+        return true;
       }
+      return idx > -1 && projects[idx].rootDir == prjConfig.rootDir;
     } else {
       outputChannel.info(
         `Skip OpenEdge project in ${prjConfig.rootDir} -- OpenEdge install not found`,
@@ -1906,15 +1994,14 @@ function readOEConfigFile(uri: vscode.Uri) {
   } else {
     outputChannel.info(`--> Invalid config file`);
   }
+  return false;
 }
 
 function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
-      vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
-      outputChannel.info(`Now starting ABL language server...`);
-      client.start();
+      startLanguageServerIfNeeded();
     } else {
       outputChannel.info(`No OpenEdge projects found in workspace`);
     }
