@@ -173,7 +173,15 @@ export function activate(ctx: vscode.ExtensionContext) {
     if (readOEConfigFile(uri)) startLanguageServerIfNeeded();
   });
   projectConfigWatcher.onDidChange((uri) => {
-    if (readOEConfigFile(uri)) startLanguageServerIfNeeded();
+    if (!readOEConfigFile(uri)) return;
+
+    if (client.isRunning()) {
+      client.sendRequest('proparse/reloadProject', {
+        projectUri: vscode.Uri.file(path.dirname(uri.fsPath)).toString(),
+      });
+    } else {
+      startLanguageServerIfNeeded();
+    }
   });
   ctx.subscriptions.push(projectConfigWatcher);
 
