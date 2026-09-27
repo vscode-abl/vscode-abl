@@ -47,6 +47,7 @@ import { AblListingTool } from './tools/AblListingTool';
 import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
+let languageServerStartPromise: Promise<void> | undefined;
 
 export function getClient(): LanguageClient {
   return client;
@@ -165,9 +166,16 @@ export function activate(ctx: vscode.ExtensionContext) {
     readGlobalOpenEdgeRuntimes();
   });
   // Monitor changes in all openedge-project.json files
-  vscode.workspace
-    .createFileSystemWatcher('**/openedge-project.json')
-    .onDidChange((uri) => readOEConfigFile(uri));
+  const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
+    '**/openedge-project.json',
+  );
+  projectConfigWatcher.onDidCreate((uri) => {
+    if (readOEConfigFile(uri)) startLanguageServerIfNeeded();
+  });
+  projectConfigWatcher.onDidChange((uri) => {
+    if (readOEConfigFile(uri)) startLanguageServerIfNeeded();
+  });
+  ctx.subscriptions.push(projectConfigWatcher);
 
   fs.readFile(
     path.join(__dirname, '../resources/grammar-version.txt'),
@@ -1875,7 +1883,29 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
-function readOEConfigFile(uri: vscode.Uri) {
+function startLanguageServerIfNeeded(): void {
+  if (projects.length === 0) return;
+
+  vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
+  if (client.isRunning() || languageServerStartPromise !== undefined) return;
+
+  outputChannel.info(`Now starting ABL language server...`);
+  const startPromise = client.start();
+  languageServerStartPromise = startPromise;
+  void startPromise.then(
+    () => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+    },
+    (error_) => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+      outputChannel.error(`Unable to start ABL language server: ${error_}`);
+    },
+  );
+}
+
+function readOEConfigFile(uri: vscode.Uri): boolean {
   outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
   const config = loadConfigFile(uri.fsPath);
   if (config) {
@@ -1904,7 +1934,9 @@ function readOEConfigFile(uri: vscode.Uri) {
         }
       } else {
         projects.push(prjConfig);
+        return true;
       }
+      return idx > -1 && projects[idx].rootDir == prjConfig.rootDir;
     } else {
       outputChannel.info(
         `Skip OpenEdge project in ${prjConfig.rootDir} -- OpenEdge install not found`,
@@ -1913,15 +1945,14 @@ function readOEConfigFile(uri: vscode.Uri) {
   } else {
     outputChannel.info(`--> Invalid config file`);
   }
+  return false;
 }
 
 function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
-      vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
-      outputChannel.info(`Now starting ABL language server...`);
-      client.start();
+      startLanguageServerIfNeeded();
     } else {
       outputChannel.info(`No OpenEdge projects found in workspace`);
     }
