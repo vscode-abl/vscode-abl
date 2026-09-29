@@ -782,16 +782,29 @@ function dumpFileStatus() {
   });
 }
 
-function preprocessFile() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+// Target of a command: URI passed by a context menu (explorer or editor), or active editor
+function getTargetUri(uri?: vscode.Uri): vscode.Uri | undefined {
+  const target =
+    uri instanceof vscode.Uri
+      ? uri
+      : vscode.window.activeTextEditor?.document.uri;
+  if (!target || (target.scheme !== 'file' && target.scheme !== 'untitled'))
+    return undefined;
+  return target;
+}
+
+// Same as getTargetUri, but active editor has to be an ABL document
+function getTargetAblUri(uri?: vscode.Uri): vscode.Uri | undefined {
+  if (uri instanceof vscode.Uri) return getTargetUri(uri);
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl')
+    return undefined;
+  return getTargetUri();
+}
+
+function preprocessFile(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -801,7 +814,7 @@ function preprocessFile() {
 
   client
     .sendRequest('proparse/preprocess', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -819,16 +832,10 @@ function preprocessFile() {
     });
 }
 
-function generateListing() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+function generateListing(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -838,7 +845,7 @@ function generateListing() {
 
   client
     .sendRequest('proparse/listing', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -856,16 +863,10 @@ function generateListing() {
     });
 }
 
-function generateDebugListing() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+function generateDebugListing(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -875,7 +876,7 @@ function generateDebugListing() {
 
   client
     .sendRequest('proparse/debugListing', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -893,17 +894,11 @@ function generateDebugListing() {
     });
 }
 
-function generateXref() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
+function generateXref(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
 
-  const cfg = getProject(editor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -912,7 +907,7 @@ function generateXref() {
   }
   client
     .sendRequest('proparse/xref', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -1036,17 +1031,11 @@ async function getXrefLineSelectionForSourceLine(
   return { start: closestXrefLineNumber, count: matchCount };
 }
 
-function generateXmlXref() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
+function generateXmlXref(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
 
-  const cfg = getProject(editor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -1056,7 +1045,7 @@ function generateXmlXref() {
 
   client
     .sendRequest('proparse/xmlXref', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -1370,72 +1359,76 @@ function openInProcedureEditor() {
   }
 }
 
-function runCurrentFile() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFile(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  runTTY(fileUri.fsPath, cfg);
 }
 
-function runCurrentFileBatch() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFileBatch(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  runBatch(fileUri.fsPath, cfg);
 }
 
-function debugCurrentFileBatch() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function debugCurrentFileBatch(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg, true);
+  runBatch(fileUri.fsPath, cfg, true);
 }
 
-function runCurrentFileProwin() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFileProwin(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  runGUI(fileUri.fsPath, cfg);
 }
 
 function buildModeName(val: number) {

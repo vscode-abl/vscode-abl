@@ -4,6 +4,7 @@
 * ✨ Projects open in read-only mode when builder already active in another window (#553)
 * ✨ Improved hover on fields and variables
 * ✨ Very first implementation of references entrypoint. No need to open issues at this stage.
+* ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
 * 🐛 Check syntax failure with non-English OpenEdge install (#612)
 * 🐛 Code completion: fix variable from parent class visibility
 * 🐛 Fix preprocessor issue with multiline strings (#604)

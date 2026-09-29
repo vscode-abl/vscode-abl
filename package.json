@@ -1059,9 +1059,74 @@
           "when": "abl.isABLProject"
         },
         {
-          "command": "abl.stripMarkup",
+          "command": "abl.preprocess",
           "group": "01_file@02",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateListing",
+          "group": "01_file@03",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateDebugListing",
+          "group": "01_file@04",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXref",
+          "group": "01_file@05",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXmlXref",
+          "group": "01_file@06",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.stripMarkup",
+          "group": "01_file@07",
           "when": "abl.isABLProject"
+        },
+        {
+          "command": "abl.runProgres.currentFile",
+          "group": "02_run@01",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.runBatch.currentFile",
+          "group": "02_run@02",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.debugBatch.currentFile",
+          "group": "02_run@03",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.runProwin.currentFile",
+          "group": "02_run@04",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.changeBuildMode",
+          "group": "03_project@01",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.rebuild",
+          "group": "03_project@02",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.switch.profile",
+          "group": "03_project@03",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.reload",
+          "group": "03_project@04",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
         }
       ],
       "editor/context": [
