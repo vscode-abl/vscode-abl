@@ -1205,12 +1205,10 @@
   "dependencies": {
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
-    "@vscode/vsce": "^3.9.1",
     "abl-tmlanguage": "^1.4.5",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
-    "ovsx": "^0.10.12",
     "username": "^7.0.0",
     "vscode-languageclient": "^10.1.0"
   },
@@ -1221,8 +1219,10 @@
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^4.0.0",
     "eslint": "^10.0.1",
     "globals": "^15.0.0",
+    "ovsx": "^1.2.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.105.1",
