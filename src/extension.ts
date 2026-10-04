@@ -247,7 +247,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         );
         return;
       }
-      if (batchMode) runBatch(procedure, cfg);
+      if (batchMode) void runBatch(procedure, cfg);
       else runTTY(procedure, cfg);
     },
   };
@@ -436,14 +436,12 @@ function createLanguageClient(): LanguageClient {
 
     // Build detailed tooltip
     const tooltipLines: string[] = [];
-    tooltipLines.push('Build mode: ' + buildModeName(buildMode));
-    tooltipLines.push('');
+    tooltipLines.push('Build mode: ' + buildModeName(buildMode), '');
 
     if (projectDetails.length > 0) {
       // Use detailed project info
       for (const project of projectDetails) {
-        tooltipLines.push(formatProjectTooltip(project));
-        tooltipLines.push('');
+        tooltipLines.push(formatProjectTooltip(project), '');
       }
     } else {
       // Fallback to legacy format
@@ -655,7 +653,7 @@ function setDefaultProject(): void {
 }
 
 function dumpLangServStatus(): void {
-  client.sendNotification('proparse/dumpStatus', {});
+  void client.sendNotification('proparse/dumpStatus', {});
 }
 
 function stopLangServer(): Promise<void> {
@@ -721,7 +719,7 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
       JSON.stringify({ profile: label }),
     );
     project.activeProfile = label;
-    restartLangServer();
+    void restartLangServer();
   });
   quickPick.show();
 }
@@ -747,6 +745,9 @@ function compileBuffer() {
       } else {
         vscode.window.showInformationMessage('Syntax is correct');
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage('Error occurred while compiling buffer');
     });
 }
 
@@ -775,7 +776,7 @@ function debugListingLine() {
     })
     .then((input) => {
       if (input && editor)
-        client.sendNotification('proparse/showDebugListingLine', {
+        void client.sendNotification('proparse/showDebugListingLine', {
           fileUri: editor.document.uri.toString(),
           lineNumber: Number.parseInt(input),
         });
@@ -799,7 +800,7 @@ function dumpFileStatus() {
     return;
   }
 
-  client.sendNotification('proparse/dumpFileStatus', {
+  void client.sendNotification('proparse/dumpFileStatus', {
     fileUri: editor.document.uri.toString(),
   });
 }
@@ -851,6 +852,11 @@ function preprocessFile(uri?: vscode.Uri) {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during preprocess: ' + error.message,
+      );
     });
 }
 
@@ -882,6 +888,11 @@ function generateListing(uri?: vscode.Uri) {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during listing generation: ' + error.message,
+      );
     });
 }
 
@@ -913,6 +924,11 @@ function generateDebugListing(uri?: vscode.Uri) {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during debug listing generation: ' + error.message,
+      );
     });
 }
 
@@ -944,6 +960,11 @@ function generateXref(uri?: vscode.Uri) {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XREF generation: ' + error.message,
+      );
     });
 }
 
@@ -1006,6 +1027,11 @@ function generateXrefAndJumpToCurrentLine() {
             );
           });
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XREF generation: ' + error.message,
+      );
     });
 }
 
@@ -1082,6 +1108,11 @@ function generateXmlXref(uri?: vscode.Uri) {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XML XREF generation: ' + error.message,
+      );
     });
 }
 
@@ -1097,7 +1128,7 @@ function fixUpperCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  client.sendRequest('proparse/fixCasing', {
+  void client.sendRequest('proparse/fixCasing', {
     upper: true,
     fileUri: editor.document.uri.toString(),
     preprocessorDirectives: preprocessor,
@@ -1116,7 +1147,7 @@ function fixLowerCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  client.sendRequest('proparse/fixCasing', {
+  void client.sendRequest('proparse/fixCasing', {
     upper: false,
     fileUri: editor.document.uri.toString(),
     preprocessorDirectives: preprocessor,
@@ -1139,7 +1170,7 @@ function expandKeywords() {
     .getConfiguration('abl.expandKeywords')
     .get<boolean>('bufferName', false);
 
-  client.sendRequest('proparse/expandKeywords', {
+  void client.sendRequest('proparse/expandKeywords', {
     fileUri: editor.document.uri.toString(),
     bufferName: bufferName,
     databaseName: databaseName,
@@ -1163,7 +1194,7 @@ function organizeUsings() {
     return;
   }
 
-  client.sendRequest('proparse/organizeUsing', {
+  void client.sendRequest('proparse/organizeUsing', {
     fileUri: editor.document.uri.toString(),
   });
 }
@@ -1231,7 +1262,7 @@ function setStatusBarPending(message: string) {
 function rebuildProject() {
   if (projects.length == 1) {
     setStatusBarPending('Rebuilding ' + projects[0].name + '...');
-    client.sendRequest('proparse/rebuildProject', {
+    void client.sendRequest('proparse/rebuildProject', {
       projectUri: projects[0].uri.toString(),
     });
   } else {
@@ -1250,7 +1281,7 @@ function rebuildProject() {
       quickPick.hide();
       const selectedProject = quickPick.selectedItems[0].project;
       setStatusBarPending('Rebuilding ' + selectedProject.name + '...');
-      client.sendRequest('proparse/rebuildProject', {
+      void client.sendRequest('proparse/rebuildProject', {
         projectUri: selectedProject.uri.toString(),
       });
     });
@@ -1261,7 +1292,7 @@ function rebuildProject() {
 function reloadProject() {
   if (projects.length == 1) {
     setStatusBarPending('Reloading ' + projects[0].name + '...');
-    client.sendRequest('proparse/reloadProject', {
+    void client.sendRequest('proparse/reloadProject', {
       projectUri: projects[0].uri.toString(),
     });
   } else {
@@ -1280,7 +1311,7 @@ function reloadProject() {
       quickPick.hide();
       const selectedProject = quickPick.selectedItems[0].project;
       setStatusBarPending('Reloading ' + selectedProject.name + '...');
-      client.sendRequest('proparse/reloadProject', {
+      void client.sendRequest('proparse/reloadProject', {
         projectUri: selectedProject.uri.toString(),
       });
     });
@@ -1414,7 +1445,7 @@ function runCurrentFileBatch(uri?: vscode.Uri) {
     );
     return;
   }
-  runBatch(fileUri.fsPath, cfg);
+  void runBatch(fileUri.fsPath, cfg);
 }
 
 function debugCurrentFileBatch(uri?: vscode.Uri) {
@@ -1432,7 +1463,7 @@ function debugCurrentFileBatch(uri?: vscode.Uri) {
     );
     return;
   }
-  runBatch(fileUri.fsPath, cfg, true);
+  void runBatch(fileUri.fsPath, cfg, true);
 }
 
 function runCurrentFileProwin(uri?: vscode.Uri) {
@@ -1643,7 +1674,7 @@ function generateProenvStartWindows(path: string) {
 function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
   const targets = uris && uris.length > 0 ? uris : [uri];
   for (const uri of targets) {
-    client.sendRequest('proparse/buildResource', {
+    void client.sendRequest('proparse/buildResource', {
       uri: uri.toString(),
       forceBuild: false,
     });
@@ -1654,13 +1685,13 @@ function stripAppbuilderMarkup(uri: vscode.Uri, uris?: vscode.Uri[]) {
   if (uri) {
     const targets = uris && uris.length > 0 ? uris : [uri];
     for (const target of targets) {
-      client.sendRequest('proparse/stripAppBuilderMarkup', {
+      void client.sendRequest('proparse/stripAppBuilderMarkup', {
         fileUri: target.toString(),
       });
     }
   } else {
     if (vscode.window.activeTextEditor == undefined) return;
-    client.sendRequest('proparse/stripAppBuilderMarkup', {
+    void client.sendRequest('proparse/stripAppBuilderMarkup', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     });
   }
@@ -2001,7 +2032,7 @@ function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
-      startLanguageServerIfNeeded();
+      void startLanguageServerIfNeeded();
     } else {
       outputChannel.info(`No OpenEdge projects found in workspace`);
     }
