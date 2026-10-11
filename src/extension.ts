@@ -9,6 +9,7 @@ import {
   LanguageClientOptions,
   Location,
   ServerOptions,
+  TextEdit,
 } from 'vscode-languageclient/node';
 import { openDataDictionary } from './ablDataDictionary';
 import { runBatch, runTTY } from './ablRunTerminal';
@@ -1116,6 +1117,30 @@ function generateXmlXref(uri?: vscode.Uri) {
     });
 }
 
+// Sends a request returning a list of TextEdit, and applies them to the document.
+// The returned promise resolves once the edits are applied, so that commands can be chained.
+async function requestAndApplyEdits(
+  document: vscode.TextDocument,
+  method: string,
+  params: object,
+) {
+  const version = document.version;
+  const edits = await client.sendRequest<TextEdit[]>(method, params);
+  if (!edits || edits.length === 0) return;
+  if (document.version !== version) {
+    vscode.window.showWarningMessage(
+      'Document was modified during the operation, changes were not applied',
+    );
+    return;
+  }
+  const wsEdit = new vscode.WorkspaceEdit();
+  wsEdit.set(
+    document.uri,
+    await client.protocol2CodeConverter.asTextEdits(edits),
+  );
+  await vscode.workspace.applyEdit(wsEdit);
+}
+
 function fixUpperCasing() {
   const editor = vscode.window.activeTextEditor;
   if (
@@ -1128,9 +1153,11 @@ function fixUpperCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  void client.sendRequest('proparse/fixCasing', {
+  return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: true,
-    fileUri: editor.document.uri.toString(),
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     preprocessorDirectives: preprocessor,
   });
 }
@@ -1147,9 +1174,11 @@ function fixLowerCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  void client.sendRequest('proparse/fixCasing', {
+  return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: false,
-    fileUri: editor.document.uri.toString(),
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     preprocessorDirectives: preprocessor,
   });
 }
@@ -1170,8 +1199,10 @@ function expandKeywords() {
     .getConfiguration('abl.expandKeywords')
     .get<boolean>('bufferName', false);
 
-  void client.sendRequest('proparse/expandKeywords', {
-    fileUri: editor.document.uri.toString(),
+  return requestAndApplyEdits(editor.document, 'proparse/expandKeywords', {
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     bufferName: bufferName,
     databaseName: databaseName,
   });
@@ -1194,8 +1225,10 @@ function organizeUsings() {
     return;
   }
 
-  void client.sendRequest('proparse/organizeUsing', {
-    fileUri: editor.document.uri.toString(),
+  return requestAndApplyEdits(editor.document, 'proparse/organizeUsing', {
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
   });
 }
 
