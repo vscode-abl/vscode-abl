@@ -28,7 +28,7 @@
   },
   "icon": "resources/images/progress_icon.png",
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Programming Languages",
@@ -1275,12 +1275,12 @@
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
     "username": "^7.0.0",
-    "vscode-languageclient": "^10.1.0"
+    "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
     "@types/node-fetch": "^2.6.11",
-    "@types/vscode": "^1.97.0",
+    "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vscode/test-electron": "^2.3.9",
