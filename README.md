@@ -147,46 +147,89 @@ The language server's compilation pipeline supports pre- and post-compilation ho
 "procedures": [ { "name": "src/dev/hooks.p", "mode": "persistent" } ]
 ```
 
+Each hook receives an input `JsonObject` describing the compilation, and can return an output `JsonObject`. New attributes can be added to those objects in future versions without changing the signature of the hooks, so your hooks won't break when the extension is updated.
+
+| Event | Input object attributes | Output object attributes |
+|---|---|---|
+| `preCompile` | `sourceFile`, `sourceDir`, `buildDir`, `xrefFile`, `threadNumber` | `status` (integer, see below) |
+| `postCompile` | Same as `preCompile`, plus `error` and `warning` (logical) | Not used yet |
+| `preCompileBuffer` | `bufferFile`, `threadNumber` | Not used yet |
+| `postCompileBuffer` | Same as `preCompileBuffer`, plus `error` and `warning` (logical) | Not used yet |
+
+`buildDir` always contains the build directory, even when it's the same as the source directory.
+
 Procedure template:
 ```abl
-subscribe to 'preCompileHook' anywhere.
-subscribe to 'postCompileHook' anywhere.
+using Progress.Json.ObjectModel.JsonObject.
 
-procedure preCompileHook:
-  define input  parameter ipSrcFile  as character no-undo.
-  define input  parameter ipBuildDir as character no-undo.
-  define input  parameter ipXref     as character no-undo.
-  define output parameter opCancel   as integer   no-undo.
+subscribe to 'preCompile' anywhere.
+subscribe to 'postCompile' anywhere.
+
+procedure preCompile:
+  define input  parameter ipCtx    as JsonObject no-undo.
+  define output parameter opResult as JsonObject no-undo.
 
   // Messages written in .builder/clientlog
-  log-manager:write-message("Pre-compilation hook").
+  log-manager:write-message("Pre-compilation hook: " + ipCtx:GetCharacter("sourceFile")).
 
   // Report a compiler warning
-  run hookWarning in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipSrcFile), /* message */ "My warning").
+  run hookWarning in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipCtx:GetCharacter("sourceFile")), /* message */ "My warning").
   // Report a compiler error
-  run hookError in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipSrcFile), /* message */ "My warning").
+  run hookError in source-procedure (/* err num */ 789, /* line number */ 2, /* file name */ search(ipCtx:GetCharacter("sourceFile")), /* message */ "My error").
 
-  // Status  
+  // Output object is optional. If not set, compilation is executed normally.
+  // Status:
   // 0 -> Don't cancel compilation
   // 1 -> deprecated, use hookWarning + return value 4
   // 2 -> deprecated, use hookError + return value 4
-  // 3 -> handled by hook, compilation success
-  // 4 -> handled by hook, compilation failure
-  opCancel = 0.
-
-end.
-
-procedure postCompileHook:
-  define input  parameter ipSrcFile as character no-undo.
-  define input  parameter ipBuildDir   as character no-undo.
-  define input  parameter ipXref    as character no-undo.
-
-  // Messages written in .builder/clientlog
-  // COMPILER:ERROR could be used for compile status of the file
-  log-manager:write-message("Post-compilation hook - compile-status: " + STRING(COMPILER:ERROR)).
+  // 3 -> Handled by hook, compilation success
+  // 4 -> Handled by hook, compilation failure
+  opResult = new JsonObject().
+  opResult:Add("status", 0).
 
 end procedure.
 
+procedure postCompile:
+  define input  parameter ipCtx    as JsonObject no-undo.
+  define output parameter opResult as JsonObject no-undo.
+
+  // Messages written in .builder/clientlog
+  log-manager:write-message("Post-compilation hook - compile-status: " + string(ipCtx:GetLogical("error"))).
+
+end procedure.
+```
+
+Notes:
+- `status` is ignored if it isn't a JSON number.
+- If several procedures subscribe to `preCompile`, only the output object of the last subscriber is taken into account.
+- If `preCompile` cancels or handles the compilation (status other than 0), the legacy `preCompileHook` event isn't published.
+
+### Legacy hooks (deprecated)
+
+The previous hooks (`preCompileHook`, `postCompileHook`, `preCompileBufferHook` and `postCompileBufferHook`) are still published, but **they are deprecated and will be removed in a couple of months at most**. Please migrate to the new JSON-based hooks described above. Don't subscribe to both versions of the same hook, as your code would be executed twice.
+
+Legacy signatures:
+```abl
+procedure preCompileHook:
+  define input  parameter ipSrcFile  as character no-undo.
+  define input  parameter ipBuildDir as character no-undo. // Empty when build directory is the same as source directory
+  define input  parameter ipXref     as character no-undo.
+  define output parameter opCancel   as integer   no-undo. // Same values as 'status' above
+end procedure.
+
+procedure postCompileHook:
+  define input  parameter ipSrcFile  as character no-undo.
+  define input  parameter ipBuildDir as character no-undo.
+  define input  parameter ipXref     as character no-undo.
+end procedure.
+
+procedure preCompileBufferHook:
+  define input  parameter ipBufferFile as character no-undo.
+end procedure.
+
+procedure postCompileBufferHook:
+  define input  parameter ipBufferFile as character no-undo.
+end procedure.
 ```
 
 ## Debugger
