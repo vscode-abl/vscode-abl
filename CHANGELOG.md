@@ -1,8 +1,10 @@
 1.37.x
 ======
 
+* 💥 Compilation hooks signature updated, read [documentation](https://github.com/vscode-abl/vscode-abl/tree/develop#pre--and-post-compilation-hooks)
 * ✨ Projects open in read-only mode when builder already active in another window (#553)
 * ✨ Improved hover on fields and variables
+* ✨ Improved status bar
 * ✨ Very first implementation of references entrypoint. No need to open issues at this stage.
 * ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
 * ✨ Convert expand keywords / fix casing / organize usings to synchronous actions (#610)
