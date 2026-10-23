@@ -8,7 +8,7 @@
 * ✨ Very first implementation of references entrypoint. No need to open issues at this stage.
 * ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
 * ✨ Convert expand keywords / fix casing / organize usings to synchronous actions (#610)
-* 🐛 Fix issue when adding file in source directory, with include / exclude patterns
+* 🐛 Fix issue when adding file in source directory, with include / exclude patterns (#624)
 * 🐛 ON _event_ keyword case problem (#620)
 * 🐛 Check syntax failure with non-English OpenEdge install (#612)
 * 🐛 Code completion: fix variable from parent class visibility
