@@ -153,6 +153,45 @@
             }
           }
         }
+      },
+      {
+        "name": "abl_start_language_server",
+        "displayName": "ABL Start Language Server",
+        "modelDescription": "Starts the ABL language server, or restarts it if it is already running.",
+        "userDescription": "Start the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablStartLanguageServer",
+        "icon": "$(play)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "abl_stop_language_server",
+        "displayName": "ABL Stop Language Server",
+        "modelDescription": "Stops the ABL language server.",
+        "userDescription": "Stop the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablStopLanguageServer",
+        "icon": "$(debug-stop)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "abl_restart_language_server",
+        "displayName": "ABL Restart Language Server",
+        "modelDescription": "Restarts the ABL language server. Use after changing the build mode or openedge-project.json, or when compile results look stale.",
+        "userDescription": "Restart the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablRestartLanguageServer",
+        "icon": "$(debug-restart)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
       }
     ],
     "configurationDefaults": {

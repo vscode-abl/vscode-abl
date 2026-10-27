@@ -46,6 +46,12 @@ import { AblXrefTool } from './tools/AblXrefTool';
 import { AblDebugListingTool } from './tools/AblDebugListingTool';
 import { AblListingTool } from './tools/AblListingTool';
 import { AblPreprocessTool } from './tools/AblPreprocessTool';
+import {
+  AblLanguageServerTool,
+  RESTART_LANGUAGE_SERVER,
+  START_LANGUAGE_SERVER,
+  STOP_LANGUAGE_SERVER,
+} from './tools/AblLanguageServerTool';
 
 let client: LanguageClient;
 let languageServerStartPromise: Promise<void> | undefined;
@@ -1935,6 +1941,18 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.lm.registerTool('abl_debug_listing', new AblDebugListingTool()),
     vscode.lm.registerTool('abl_listing', new AblListingTool()),
     vscode.lm.registerTool('abl_preprocess', new AblPreprocessTool()),
+    vscode.lm.registerTool(
+      'abl_start_language_server',
+      new AblLanguageServerTool(START_LANGUAGE_SERVER),
+    ),
+    vscode.lm.registerTool(
+      'abl_stop_language_server',
+      new AblLanguageServerTool(STOP_LANGUAGE_SERVER),
+    ),
+    vscode.lm.registerTool(
+      'abl_restart_language_server',
+      new AblLanguageServerTool(RESTART_LANGUAGE_SERVER),
+    ),
   );
 
   // Register Class Browser
