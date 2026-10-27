@@ -192,6 +192,37 @@
           "type": "object",
           "properties": {}
         }
+      },
+      {
+        "name": "abl_set_build_mode",
+        "displayName": "ABL Set Build Mode",
+        "modelDescription": "Changes the ABL build mode (abl.buildMode setting) of the language server. Use 'none' to disable automatic builds, for example when sources have to be compiled in a particular order. Optionally restarts the language server afterwards.",
+        "userDescription": "Change the ABL build mode",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablSetBuildMode",
+        "icon": "$(tools)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "everything",
+                "classes",
+                "modified",
+                "none"
+              ],
+              "description": "everything = build all sources; classes = build only classes; modified = only build files modified after startup; none = never build"
+            },
+            "restart": {
+              "type": "boolean",
+              "description": "Restart the language server after changing the mode"
+            }
+          },
+          "required": [
+            "mode"
+          ]
+        }
       }
     ],
     "configurationDefaults": {

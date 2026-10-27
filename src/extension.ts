@@ -52,6 +52,7 @@ import {
   START_LANGUAGE_SERVER,
   STOP_LANGUAGE_SERVER,
 } from './tools/AblLanguageServerTool';
+import { AblBuildModeTool } from './tools/AblBuildModeTool';
 
 let client: LanguageClient;
 let languageServerStartPromise: Promise<void> | undefined;
@@ -1530,6 +1531,14 @@ function buildModeName(val: number) {
   else if (val == 4) return 'No build';
 }
 
+export function setBuildMode(value: number): string {
+  buildMode = value;
+  void vscode.workspace
+    .getConfiguration('abl')
+    .update('buildMode', value, vscode.ConfigurationTarget.Workspace);
+  return buildModeName(value) ?? '';
+}
+
 function changeBuildModeCmd() {
   interface BuildModeQuickPick extends vscode.QuickPickItem {
     value: number;
@@ -1569,14 +1578,7 @@ function changeBuildModeCmd() {
 
   quickPick.onDidAccept(() => {
     quickPick.hide();
-    buildMode = quickPick.selectedItems[0].value;
-    vscode.workspace
-      .getConfiguration('abl')
-      .update(
-        'buildMode',
-        quickPick.selectedItems[0].value,
-        vscode.ConfigurationTarget.Workspace,
-      );
+    setBuildMode(quickPick.selectedItems[0].value);
     vscode.window.showInformationMessage(
       'ABL build mode changed to ' + quickPick.selectedItems[0].label,
     );
@@ -1953,6 +1955,7 @@ function registerCommands(ctx: vscode.ExtensionContext) {
       'abl_restart_language_server',
       new AblLanguageServerTool(RESTART_LANGUAGE_SERVER),
     ),
+    vscode.lm.registerTool('abl_set_build_mode', new AblBuildModeTool()),
   );
 
   // Register Class Browser
