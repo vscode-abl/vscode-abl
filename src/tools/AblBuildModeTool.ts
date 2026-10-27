@@ -36,7 +36,7 @@ export class AblBuildModeTool implements vscode.LanguageModelTool<AblBuildModeIn
       );
     }
 
-    const name = setBuildMode(value);
+    const name = await setBuildMode(value);
     let text = `ABL build mode changed to ${name}`;
     if (options.input.restart) {
       await vscode.commands.executeCommand('abl.restart.langserv');

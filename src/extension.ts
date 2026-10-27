@@ -1531,11 +1531,11 @@ function buildModeName(val: number) {
   else if (val == 4) return 'No build';
 }
 
-export function setBuildMode(value: number): string {
-  buildMode = value;
-  void vscode.workspace
+export async function setBuildMode(value: number): Promise<string> {
+  await vscode.workspace
     .getConfiguration('abl')
     .update('buildMode', value, vscode.ConfigurationTarget.Workspace);
+  buildMode = value;
   return buildModeName(value) ?? '';
 }
 
@@ -1578,9 +1578,16 @@ function changeBuildModeCmd() {
 
   quickPick.onDidAccept(() => {
     quickPick.hide();
-    setBuildMode(quickPick.selectedItems[0].value);
-    vscode.window.showInformationMessage(
-      'ABL build mode changed to ' + quickPick.selectedItems[0].label,
+    const selected = quickPick.selectedItems[0];
+    setBuildMode(selected.value).then(
+      () =>
+        vscode.window.showInformationMessage(
+          'ABL build mode changed to ' + selected.label,
+        ),
+      (err) =>
+        vscode.window.showErrorMessage(
+          'Unable to change ABL build mode: ' + err,
+        ),
     );
   });
   quickPick.show();
