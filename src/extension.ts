@@ -46,6 +46,13 @@ import { AblXrefTool } from './tools/AblXrefTool';
 import { AblDebugListingTool } from './tools/AblDebugListingTool';
 import { AblListingTool } from './tools/AblListingTool';
 import { AblPreprocessTool } from './tools/AblPreprocessTool';
+import {
+  AblLanguageServerTool,
+  RESTART_LANGUAGE_SERVER,
+  START_LANGUAGE_SERVER,
+  STOP_LANGUAGE_SERVER,
+} from './tools/AblLanguageServerTool';
+import { AblBuildModeTool } from './tools/AblBuildModeTool';
 
 let client: LanguageClient;
 let languageServerStartPromise: Promise<void> | undefined;
@@ -1528,6 +1535,14 @@ function buildModeName(val: number) {
   else if (val == 4) return 'No build';
 }
 
+export async function setBuildMode(value: number): Promise<string> {
+  await vscode.workspace
+    .getConfiguration('abl')
+    .update('buildMode', value, vscode.ConfigurationTarget.Workspace);
+  buildMode = value;
+  return buildModeName(value) ?? '';
+}
+
 function changeBuildModeCmd() {
   interface BuildModeQuickPick extends vscode.QuickPickItem {
     value: number;
@@ -1567,16 +1582,16 @@ function changeBuildModeCmd() {
 
   quickPick.onDidAccept(() => {
     quickPick.hide();
-    buildMode = quickPick.selectedItems[0].value;
-    vscode.workspace
-      .getConfiguration('abl')
-      .update(
-        'buildMode',
-        quickPick.selectedItems[0].value,
-        vscode.ConfigurationTarget.Workspace,
-      );
-    vscode.window.showInformationMessage(
-      'ABL build mode changed to ' + quickPick.selectedItems[0].label,
+    const selected = quickPick.selectedItems[0];
+    setBuildMode(selected.value).then(
+      () =>
+        vscode.window.showInformationMessage(
+          'ABL build mode changed to ' + selected.label,
+        ),
+      (err) =>
+        vscode.window.showErrorMessage(
+          'Unable to change ABL build mode: ' + err,
+        ),
     );
   });
   quickPick.show();
@@ -1939,6 +1954,19 @@ function registerCommands(ctx: vscode.ExtensionContext) {
     vscode.lm.registerTool('abl_debug_listing', new AblDebugListingTool()),
     vscode.lm.registerTool('abl_listing', new AblListingTool()),
     vscode.lm.registerTool('abl_preprocess', new AblPreprocessTool()),
+    vscode.lm.registerTool(
+      'abl_start_language_server',
+      new AblLanguageServerTool(START_LANGUAGE_SERVER),
+    ),
+    vscode.lm.registerTool(
+      'abl_stop_language_server',
+      new AblLanguageServerTool(STOP_LANGUAGE_SERVER),
+    ),
+    vscode.lm.registerTool(
+      'abl_restart_language_server',
+      new AblLanguageServerTool(RESTART_LANGUAGE_SERVER),
+    ),
+    vscode.lm.registerTool('abl_set_build_mode', new AblBuildModeTool()),
   );
 
   // Register Class Browser
