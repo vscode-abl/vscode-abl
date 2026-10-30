@@ -49,6 +49,8 @@ import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
 let languageServerStartPromise: Promise<void> | undefined;
+// Set when the user explicitly stops the language server, so that it isn't automatically restarted
+let languageServerManuallyStopped = false;
 
 export function getClient(): LanguageClient {
   return client;
@@ -659,6 +661,7 @@ function dumpLangServStatus(): void {
 
 function stopLangServer(): Promise<void> {
   outputChannel.info('Received request to stop ABL Language Server');
+  languageServerManuallyStopped = true;
   return client.stop(5000).then(() => {
     oeStatusBarItem.text = 'No ABL Language Server';
     oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
@@ -670,6 +673,7 @@ function stopLangServer(): Promise<void> {
 
 function restartLangServer(): Promise<void> {
   outputChannel.info('Received request to restart ABL Language Server');
+  languageServerManuallyStopped = false;
   const fn = () => {
     client = createLanguageClient();
     outputChannel.info('Starting new ABL Language Server');
@@ -1996,6 +2000,8 @@ function scheduleProjectConfigChange(uri: vscode.Uri): void {
 
 async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
   if (!readOEConfigFile(uri)) return;
+
+  if (languageServerManuallyStopped) return;
 
   const reloadAfterStartup =
     client.isRunning() || languageServerStartPromise !== undefined;
