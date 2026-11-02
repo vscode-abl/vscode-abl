@@ -1270,7 +1270,7 @@
   "dependencies": {
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
-    "abl-tmlanguage": "^1.4.5",
+    "abl-tmlanguage": "^1.4.6",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
