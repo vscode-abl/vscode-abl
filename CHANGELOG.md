@@ -9,6 +9,7 @@
 * ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
 * ✨ Convert expand keywords / fix casing / organize usings to synchronous actions (#610)
 * ✨ Don't auto-restart language server on openedge-project.json change when manually stopped (#628)
+* 🐛 Class documentation: don't skip first and last line
 * 🐛 Fix issue when adding file in source directory, with include / exclude patterns (#624)
 * 🐛 ON _event_ keyword case problem (#620)
 * 🐛 Check syntax failure with non-English OpenEdge install (#612)
@@ -16,7 +17,7 @@
 * 🐛 Fix preprocessor issue with multiline strings (#604)
 * 🐛 Run with _progres when directory contains spaces (#619)
 * ⬆️ ABL-LS 1.28.0-SNAPSHOT
-* ⬆️ TextMate Grammar 1.4.5
+* ⬆️ TextMate Grammar 1.4.6
 
 1.36.0 (August 21st, 2026)
 ==========================
