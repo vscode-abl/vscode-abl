@@ -743,6 +743,7 @@ function compileBuffer() {
     .sendRequest<any>('proparse/compileBuffer', {
       bufferUri: editor.document.uri.toString(),
       buffer: editor.document.getText(),
+      isDirty: editor.document.isDirty,
     })
     .then((result) => {
       if (result.success === false) {

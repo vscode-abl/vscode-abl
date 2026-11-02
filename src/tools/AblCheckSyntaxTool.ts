@@ -48,6 +48,7 @@ export class AblCheckSyntaxTool implements vscode.LanguageModelTool<AblCheckSynt
       {
         bufferUri: uri.toString(),
         buffer: document.getText(),
+        isDirty: document.isDirty,
       },
     );
 

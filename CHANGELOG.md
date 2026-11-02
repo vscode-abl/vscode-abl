@@ -9,6 +9,7 @@
 * ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
 * ✨ Convert expand keywords / fix casing / organize usings to synchronous actions (#610)
 * ✨ Don't auto-restart language server on openedge-project.json change when manually stopped (#628)
+* ✨ Add `sourceFileName`, `isUntitled` and `isDirty` attributes to buffer compilation hooks (#626)
 * 🐛 Class documentation: don't skip first and last line
 * 🐛 Fix issue when adding file in source directory, with include / exclude patterns (#624)
 * 🐛 ON _event_ keyword case problem (#620)

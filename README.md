@@ -153,10 +153,12 @@ Each hook receives an input `JsonObject` describing the compilation, and can ret
 |---|---|---|
 | `preCompile` | `sourceFile`, `sourceDir`, `buildDir`, `xrefFile`, `threadNumber` | `status` (integer, see below) |
 | `postCompile` | Same as `preCompile`, plus `error` and `warning` (logical) | Not used yet |
-| `preCompileBuffer` | `bufferFile`, `threadNumber` | Not used yet |
+| `preCompileBuffer` | `bufferFile`, `sourceFileName`, `isUntitled`, `isDirty`, `threadNumber` | Not used yet |
 | `postCompileBuffer` | Same as `preCompileBuffer`, plus `error` and `warning` (logical) | Not used yet |
 
 `buildDir` always contains the build directory, even when it's the same as the source directory.
+
+In buffer compilation hooks, `bufferFile` is the temporary file containing the editor content, `sourceFileName` is the absolute path of the original file (or `untitled` if the buffer has never been saved), `isUntitled` is `true` when the buffer has never been saved, and `isDirty` is `true` when the editor has unsaved changes.
 
 Procedure template:
 ```abl
