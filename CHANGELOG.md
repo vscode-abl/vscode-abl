@@ -17,6 +17,7 @@
 * 🐛 Code completion: fix variable from parent class visibility
 * 🐛 Fix preprocessor issue with multiline strings (#604)
 * 🐛 Run with _progres when directory contains spaces (#619)
+* ⬆️ Java 21.0.13+9
 * ⬆️ ABL-LS 1.28.0-SNAPSHOT
 * ⬆️ TextMate Grammar 1.4.6
 
