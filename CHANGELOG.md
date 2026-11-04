@@ -18,7 +18,7 @@
 * 🐛 Fix preprocessor issue with multiline strings (#604)
 * 🐛 Run with _progres when directory contains spaces (#619)
 * ⬆️ Java 21.0.13+9
-* ⬆️ ABL-LS 1.28.0-SNAPSHOT
+* ⬆️ ABL-LS 1.28.0
 * ⬆️ TextMate Grammar 1.4.6
 
 1.36.0 (August 21st, 2026)
