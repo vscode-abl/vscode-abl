@@ -40,7 +40,7 @@ OpenEdge runtimes have to be declared in the VSCode configuration file. Open set
 ```
 
 ## Project Configuration
-OpenEdge projects can be configured in a file called `openedge-project.json`. This file must be in the root directory of the project.
+OpenEdge projects can be configured in a file called `openedge-project.jsonc`. This file must be in the root directory of the project.
 ```jsonc
 {
   "name": "MyProject", // Project name, will be used in the future for dependency management
@@ -99,7 +99,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
 }
 ```
 
-You can also create the openedge-project.json file from an ABL session (PDSOE or plain prowin/_progres) by executing [this procedure](https://github.com/cverbiest/pct-utils/blob/master/src/vscode/generate_riverside_vscodeconfig.p) (provided by [Carl Verbiest](https://github.com/cverbiest)).
+You can also create the openedge-project.jsonc file from an ABL session (PDSOE or plain prowin/_progres) by executing [this procedure](https://github.com/cverbiest/pct-utils/blob/master/src/vscode/generate_riverside_vscodeconfig.p) (provided by [Carl Verbiest](https://github.com/cverbiest)).
 
 ## Activation
 The extension is activated when a `.p`, `.w`, or `.cls` file is opened. ABL actions may fail before the extension is activated.
@@ -121,7 +121,7 @@ The following keyboard shortcuts are configured by default:
 * Shift + F8: Open current file in AppBuilder
 
 ## Extra Profiles
-On top of the default profile configured in `openedge-project.json`, additional profiles can be configured in the `profiles` section. Each profile is defined by a name, parent's name (optional) and a set of values. For example:
+On top of the default profile configured in `openedge-project.jsonc`, additional profiles can be configured in the `profiles` section. Each profile is defined by a name, parent's name (optional) and a set of values. For example:
 ```jsonc
 {
   /* Default profile values */
@@ -138,7 +138,7 @@ When opening a project, VSCode will check for `.vscode/profile.json`. If this fi
 
 ## Speedscript Support
 
-The extension supports [Speedscript](https://docs.progress.com/bundle/openedge-web-speed-developer/page/The-SpeedScript-programming-language.html) (WebSpeed) source files via a dedicated `speedscript` build path type. Add a `speedscript` entry to `buildPath` in `openedge-project.json` and set the `gen` attribute to the output directory of `e4gl-gen.r` (relative to the project root). The extension will monitor those files and handle compilation accordingly.
+The extension supports [Speedscript](https://docs.progress.com/bundle/openedge-web-speed-developer/page/The-SpeedScript-programming-language.html) (WebSpeed) source files via a dedicated `speedscript` build path type. Add a `speedscript` entry to `buildPath` in `openedge-project.jsonc` and set the `gen` attribute to the output directory of `e4gl-gen.r` (relative to the project root). The extension will monitor those files and handle compilation accordingly.
 
 ## Pre- and post-compilation hooks
 
@@ -309,7 +309,7 @@ Use [ABLUnit Test Runner](https://marketplace.visualstudio.com/items?itemName=kh
 
 Here are a few things to verify before opening [issues](https://github.com/vscode-abl/vscode-abl/issues/new):
 * OpenEdge must be installed on your local machine and configured in VSCode. As of today, versions 11.7, 12.2, 12.2, 12.8 and 13.0 have been tested.
-* Verify that the `openedge-project.json` file is present in the root directory and has no syntax errors.
+* Verify that `openedge-project.jsonc` is present in the root directory and has no syntax errors.
 * Make sure at least one `.p` or `.cls` file is opened, as the extension is not active by default.
 * Check the Java command line being executed (using Process Explorer, for example).
 * Check the OE command line being executed (also using Process Explorer, for example).
