@@ -1,5 +1,5 @@
-1.37.x
-======
+1.38.0 (November 5th, 2026)
+===========================
 
 * 💥 Compilation hooks signature updated, read [documentation](https://github.com/vscode-abl/vscode-abl/tree/develop#pre--and-post-compilation-hooks)
 * ✨ Projects open in read-only mode when builder already active in another window (#553)
