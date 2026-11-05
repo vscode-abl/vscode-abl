@@ -1,14 +1,21 @@
 {
-	"folders": [
-		{
-			"path": "project1"
-		},
-		{
-			"path": "project2"
-		},
-		{
-			"path": "project3"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "project1",
+    },
+    {
+      "path": "project2",
+    },
+    {
+      "path": "project3",
+    },
+  ],
+  "settings": {
+    "abl.configuration.runtimes": [
+      {
+        "name": "12.8",
+        "path": "C:\\Progress\\OpenEdge-12.8",
+      },
+    ],
+  },
 }

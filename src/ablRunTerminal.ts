@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { batchOutputChannel, outputChannel } from './ablStatus';
+import { batchOutputChannel } from './ablStatus';
 import { getClient } from './extension';
 import { create } from './OutputChannelProcess';
 import { FileInfo } from './shared/FileInfo';
@@ -29,10 +29,6 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
     vscode.window.showErrorMessage('No active profile found.');
     return;
   }
-  const terminal = vscode.window.createTerminal({
-    name: 'TTY execution',
-    env: { DLC: currProfile.dlc },
-  });
   const prmFileName = path.join(
     tmpdir(),
     'runtty-' + crypto.randomBytes(16).toString('hex') + '.json',
@@ -51,19 +47,23 @@ export function runTTY(filename: string, project: OpenEdgeProjectConfig) {
   fs.writeFileSync(prmFileName, JSON.stringify(cfgFile));
 
   // prettier-ignore
-  const cmd =
-        currProfile.getTTYExecutable() +
-        " " +
-        currProfile.extraParameters
+  const params = currProfile.extraParameters
             .split(" ")
+            .filter((str) => str.length > 0)
             .concat([
                 "-clientlog", path.join(project.rootDir, ".builder", "runtty.log"),
                 "-p", path.join(__dirname, "../resources/abl-src/dynrun.p"),
                 "-param", prmFileName,
                 "-T", path.join(project.rootDir, ".builder", "tmp")
-            ])
-            .join(" ");
-  terminal.sendText(cmd.replaceAll('\\', '/'), true);
+            ]);
+  // Executable and arguments are passed directly to the process (no shell involved), so paths with spaces are preserved
+  const terminal = vscode.window.createTerminal({
+    name: 'TTY execution',
+    shellPath: currProfile.getTTYExecutable(),
+    shellArgs: params,
+    cwd: project.rootDir,
+    env: { DLC: currProfile.dlc },
+  });
   terminal.show();
 }
 
@@ -114,6 +114,7 @@ export async function runBatch(
   // prettier-ignore
   let params = currProfile.extraParameters
             .split(" ")
+            .filter((str) => str.length > 0)
             .concat([
                 "-b",
                 "-clientlog", path.join(project.rootDir, ".builder", "runbatch.log"),

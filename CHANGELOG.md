@@ -1,3 +1,26 @@
+1.37.x
+======
+
+* 💥 Compilation hooks signature updated, read [documentation](https://github.com/vscode-abl/vscode-abl/tree/develop#pre--and-post-compilation-hooks)
+* ✨ Projects open in read-only mode when builder already active in another window (#553)
+* ✨ Improved hover on fields and variables
+* ✨ Improved status bar
+* ✨ Very first implementation of references entrypoint. No need to open issues at this stage.
+* ✨ More commands in the ABL submenu of the File Explorer context menu (#616)
+* ✨ Convert expand keywords / fix casing / organize usings to synchronous actions (#610)
+* ✨ Don't auto-restart language server on openedge-project.json change when manually stopped (#628)
+* ✨ Add `sourceFileName`, `isUntitled` and `isDirty` attributes to buffer compilation hooks (#626)
+* 🐛 Class documentation: don't skip first and last line
+* 🐛 Fix issue when adding file in source directory, with include / exclude patterns (#624)
+* 🐛 ON _event_ keyword case problem (#620)
+* 🐛 Check syntax failure with non-English OpenEdge install (#612)
+* 🐛 Code completion: fix variable from parent class visibility
+* 🐛 Fix preprocessor issue with multiline strings (#604)
+* 🐛 Run with _progres when directory contains spaces (#619)
+* ⬆️ Java 21.0.13+9
+* ⬆️ ABL-LS 1.28.0
+* ⬆️ TextMate Grammar 1.4.6
+
 1.36.0 (August 21st, 2026)
 ==========================
 

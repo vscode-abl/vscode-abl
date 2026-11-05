@@ -1,7 +1,7 @@
 {
   "name": "openedge-abl-lsp",
   "publisher": "RiversideSoftware",
-  "version": "1.36.0",
+  "version": "1.37.14",
   "description": "OpenEdge ABL support for VS Code",
   "displayName": "OpenEdge ABL",
   "author": "chriscamicas",
@@ -28,7 +28,7 @@
   },
   "icon": "resources/images/progress_icon.png",
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Programming Languages",
@@ -663,6 +663,7 @@
                     "12.7",
                     "12.8",
                     "13.0",
+                    "13.1",
                     "ESAP"
                   ],
                   "description": "OpenEdge Execution Environment name. Must be unique."
@@ -694,6 +695,7 @@
               "12.7",
               "12.8",
               "13.0",
+              "13.1",
               "ESAP"
             ]
           },
@@ -1057,9 +1059,74 @@
           "when": "abl.isABLProject"
         },
         {
-          "command": "abl.stripMarkup",
+          "command": "abl.preprocess",
           "group": "01_file@02",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateListing",
+          "group": "01_file@03",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateDebugListing",
+          "group": "01_file@04",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXref",
+          "group": "01_file@05",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.generateXmlXref",
+          "group": "01_file@06",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.stripMarkup",
+          "group": "01_file@07",
           "when": "abl.isABLProject"
+        },
+        {
+          "command": "abl.runProgres.currentFile",
+          "group": "02_run@01",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.runBatch.currentFile",
+          "group": "02_run@02",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.debugBatch.currentFile",
+          "group": "02_run@03",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.runProwin.currentFile",
+          "group": "02_run@04",
+          "when": "abl.isABLProject && !explorerResourceIsFolder && resourceLangId == abl"
+        },
+        {
+          "command": "abl.changeBuildMode",
+          "group": "03_project@01",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.rebuild",
+          "group": "03_project@02",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.switch.profile",
+          "group": "03_project@03",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
+        },
+        {
+          "command": "abl.project.reload",
+          "group": "03_project@04",
+          "when": "abl.isABLProject && config.abl.showProjectCommandsInContextMenu"
         }
       ],
       "editor/context": [
@@ -1203,24 +1270,24 @@
   "dependencies": {
     "@vscode/debugadapter": "^1.68.0",
     "@vscode/debugprotocol": "^1.68.0",
-    "@vscode/vsce": "^3.9.1",
-    "abl-tmlanguage": "^1.4.4",
+    "abl-tmlanguage": "^1.4.6",
     "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "openedge-abl-lsp": "file:",
-    "ovsx": "^0.10.12",
     "username": "^7.0.0",
-    "vscode-languageclient": "^10.1.0"
+    "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
     "@types/node-fetch": "^2.6.11",
-    "@types/vscode": "^1.97.0",
+    "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^4.0.0",
     "eslint": "^10.0.1",
     "globals": "^15.0.0",
+    "ovsx": "^1.2.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.105.1",

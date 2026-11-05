@@ -9,6 +9,7 @@ import {
   LanguageClientOptions,
   Location,
   ServerOptions,
+  TextEdit,
 } from 'vscode-languageclient/node';
 import { openDataDictionary } from './ablDataDictionary';
 import { runBatch, runTTY } from './ablRunTerminal';
@@ -23,6 +24,13 @@ import { ClassBrowserProvider } from './ClassBrowser';
 import { AblOutlineProvider } from './ablOutline';
 import { openInAB, openInProcEditor, runGUI } from './shared/ablRun';
 import { FileInfo, ProjectInfo } from './shared/FileInfo';
+import {
+  StatusParams,
+  getOverallSeverity,
+  formatProjectTooltip,
+  countProjectsBySeverity,
+  buildStatusText,
+} from './shared/StatusParams';
 import {
   loadConfigFile,
   OpenEdgeConfig,
@@ -40,6 +48,9 @@ import { AblListingTool } from './tools/AblListingTool';
 import { AblPreprocessTool } from './tools/AblPreprocessTool';
 
 let client: LanguageClient;
+let languageServerStartPromise: Promise<void> | undefined;
+// Set when the user explicitly stops the language server, so that it isn't automatically restarted
+let languageServerManuallyStopped = false;
 
 export function getClient(): LanguageClient {
   return client;
@@ -57,6 +68,7 @@ let oeStatusBarItem: vscode.StatusBarItem;
 let buildMode = 1;
 let lastStatusAt = 0;
 let statusWatchdog: ReturnType<typeof setInterval> | undefined;
+const DEFAULT_STATUS_TOOLTIP = 'ABL plugin status';
 
 interface ProjectQuickPickItem extends vscode.QuickPickItem {
   project: OpenEdgeProjectConfig;
@@ -127,9 +139,14 @@ export function activate(ctx: vscode.ExtensionContext) {
   readGlobalOpenEdgeRuntimes();
 
   const currentVersion = ctx.extension.packageJSON.version as string;
-  const isPreRelease = Number.parseInt(currentVersion.split('.')[1], 10) % 2 === 1;
+  const isPreRelease =
+    Number.parseInt(currentVersion.split('.')[1], 10) % 2 === 1;
   const lastVersion = ctx.globalState.get<string>('whatsNewVersion') || '0.0.0';
-  if (!isPreRelease && currentVersion >= '1.32.0' && lastVersion < currentVersion) {
+  if (
+    !isPreRelease &&
+    currentVersion >= '1.32.0' &&
+    lastVersion < currentVersion
+  ) {
     ctx.globalState.update('whatsNewVersion', currentVersion);
     showWhatsNew(ctx, currentVersion);
   }
@@ -144,19 +161,42 @@ export function activate(ctx: vscode.ExtensionContext) {
     100,
   );
   oeStatusBarItem.text = 'No ABL Language Server';
-  oeStatusBarItem.tooltip = 'ABL plugin status';
+  oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
+  oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+    'statusBarItem.errorBackground',
+  );
   oeStatusBarItem.show();
   oeStatusBarItem.command = 'abl.changeBuildMode';
   ctx.subscriptions.push(oeStatusBarItem);
 
   // Monitor configuration changes
-  vscode.workspace.onDidChangeConfiguration((event) => {
-    readGlobalOpenEdgeRuntimes();
-  });
+  const oeRuntimeConfigWatcher = vscode.workspace.onDidChangeConfiguration(
+    (event) => {
+      readGlobalOpenEdgeRuntimes();
+    },
+  );
+
   // Monitor changes in all openedge-project.json files
-  vscode.workspace
-    .createFileSystemWatcher('**/openedge-project.json')
-    .onDidChange((uri) => readOEConfigFile(uri));
+  const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
+    '**/openedge-project.json',
+  );
+  projectConfigWatcher.onDidCreate((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+  projectConfigWatcher.onDidChange((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+
+  const debugAdapterDescriptorFactory =
+    vscode.debug.registerDebugAdapterDescriptorFactory(
+      'abl',
+      new AblDebugAdapterDescriptorFactory({ ...process.env }),
+    );
+  ctx.subscriptions.push(
+    oeRuntimeConfigWatcher,
+    projectConfigWatcher,
+    debugAdapterDescriptorFactory,
+  );
 
   fs.readFile(
     path.join(__dirname, '../resources/grammar-version.txt'),
@@ -166,10 +206,6 @@ export function activate(ctx: vscode.ExtensionContext) {
   );
 
   registerCommands(ctx);
-  vscode.debug.registerDebugAdapterDescriptorFactory(
-    'abl',
-    new AblDebugAdapterDescriptorFactory({ ...process.env }),
-  );
 
   // Return extension entrypoints
   return {
@@ -214,7 +250,7 @@ export function activate(ctx: vscode.ExtensionContext) {
         );
         return;
       }
-      if (batchMode) runBatch(procedure, cfg);
+      if (batchMode) void runBatch(procedure, cfg);
       else runTTY(procedure, cfg);
     },
   };
@@ -362,35 +398,69 @@ function createLanguageClient(): LanguageClient {
     serverOptions,
     clientOptions,
   );
-  tmp.onNotification('proparse/status', (statusParams: any) => {
+  tmp.onNotification('proparse/status', (statusParams: StatusParams) => {
     lastStatusAt = Date.now();
-    oeStatusBarItem.backgroundColor = undefined;
-    const numProjects = statusParams.projects.length;
-    let str = '';
-    if (numProjects == 0) str = 'No projects found';
-    else if (numProjects > statusParams.numInitializedProjects)
-      str =
-        'Project init: ' +
-        statusParams.numInitializedProjects +
-        '/' +
-        numProjects;
-    else str = numProjects + ' project(s)';
-    str += ' • ' + statusParams.pendingTasks + ' task(s)';
-    oeStatusBarItem.text = str;
+    const projectDetails = statusParams.projectDetails ?? [];
 
-    oeStatusBarItem.tooltip =
-      'Build mode: ' +
-      buildModeName(buildMode) +
-      '\n' +
-      statusParams.projects.join('\n');
+    // Count projects by severity
+    const counts = countProjectsBySeverity(projectDetails);
+    const severity = getOverallSeverity(projectDetails);
+
+    // Set background color based on severity
+    if (severity === 'warning') {
+      oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+        'statusBarItem.warningBackground',
+      );
+    } else {
+      oeStatusBarItem.backgroundColor = undefined;
+    }
+
+    // Build status bar text with detailed counts
+    if (projectDetails.length > 0) {
+      oeStatusBarItem.text = buildStatusText(counts, statusParams.pendingTasks);
+    } else {
+      // Fallback to legacy format when no project details available
+      const numProjects = statusParams.projects.length;
+      let str = '';
+      if (numProjects == 0) {
+        str = 'No projects found';
+      } else if (numProjects > statusParams.numInitializedProjects) {
+        str =
+          'Project init: ' +
+          statusParams.numInitializedProjects +
+          '/' +
+          numProjects;
+      } else {
+        str = numProjects + ' project(s)';
+      }
+      str += ' • ' + statusParams.pendingTasks + ' task(s)';
+      oeStatusBarItem.text = str;
+    }
+
+    // Build detailed tooltip
+    const tooltipLines: string[] = [];
+    tooltipLines.push('Build mode: ' + buildModeName(buildMode), '');
+
+    if (projectDetails.length > 0) {
+      // Use detailed project info
+      for (const project of projectDetails) {
+        tooltipLines.push(formatProjectTooltip(project), '');
+      }
+    } else {
+      // Fallback to legacy format
+      tooltipLines.push(...statusParams.projects);
+    }
+
+    oeStatusBarItem.tooltip = tooltipLines.join('\n').trim();
   });
 
   statusWatchdog = setInterval(() => {
     if (lastStatusAt > 0 && Date.now() - lastStatusAt > 10_000) {
       oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-        'statusBarItem.warningBackground',
+        'statusBarItem.errorBackground',
       );
-      oeStatusBarItem.text = '$(warning) ABL LS';
+      oeStatusBarItem.text = 'No ABL Language Server';
+      oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
     }
   }, 5_000);
   tmp.onRequest('proparse/identifier', (requestParams: any) => {
@@ -586,21 +656,24 @@ function setDefaultProject(): void {
 }
 
 function dumpLangServStatus(): void {
-  client.sendNotification('proparse/dumpStatus', {});
+  void client.sendNotification('proparse/dumpStatus', {});
 }
 
 function stopLangServer(): Promise<void> {
   outputChannel.info('Received request to stop ABL Language Server');
+  languageServerManuallyStopped = true;
   return client.stop(5000).then(() => {
     oeStatusBarItem.text = 'No ABL Language Server';
+    oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
     oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-      'statusBarItem.warningBackground',
+      'statusBarItem.errorBackground',
     );
   });
 }
 
 function restartLangServer(): Promise<void> {
   outputChannel.info('Received request to restart ABL Language Server');
+  languageServerManuallyStopped = false;
   const fn = () => {
     client = createLanguageClient();
     outputChannel.info('Starting new ABL Language Server');
@@ -613,8 +686,9 @@ function restartLangServer(): Promise<void> {
       .then(() => {
         outputChannel.info('ABL Language Server stopped');
         oeStatusBarItem.text = 'No ABL Language Server';
+        oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
         oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
-          'statusBarItem.warningBackground',
+          'statusBarItem.errorBackground',
         );
       })
       .then(fn)
@@ -650,7 +724,7 @@ function switchProfile(project: OpenEdgeProjectConfig): void {
       JSON.stringify({ profile: label }),
     );
     project.activeProfile = label;
-    restartLangServer();
+    void restartLangServer();
   });
   quickPick.show();
 }
@@ -669,6 +743,7 @@ function compileBuffer() {
     .sendRequest<any>('proparse/compileBuffer', {
       bufferUri: editor.document.uri.toString(),
       buffer: editor.document.getText(),
+      isDirty: editor.document.isDirty,
     })
     .then((result) => {
       if (result.success === false) {
@@ -676,6 +751,9 @@ function compileBuffer() {
       } else {
         vscode.window.showInformationMessage('Syntax is correct');
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage('Error occurred while compiling buffer');
     });
 }
 
@@ -704,7 +782,7 @@ function debugListingLine() {
     })
     .then((input) => {
       if (input && editor)
-        client.sendNotification('proparse/showDebugListingLine', {
+        void client.sendNotification('proparse/showDebugListingLine', {
           fileUri: editor.document.uri.toString(),
           lineNumber: Number.parseInt(input),
         });
@@ -728,21 +806,34 @@ function dumpFileStatus() {
     return;
   }
 
-  client.sendNotification('proparse/dumpFileStatus', {
+  void client.sendNotification('proparse/dumpFileStatus', {
     fileUri: editor.document.uri.toString(),
   });
 }
 
-function preprocessFile() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+// Target of a command: URI passed by a context menu (explorer or editor), or active editor
+function getTargetUri(uri?: vscode.Uri): vscode.Uri | undefined {
+  const target =
+    uri instanceof vscode.Uri
+      ? uri
+      : vscode.window.activeTextEditor?.document.uri;
+  if (!target || (target.scheme !== 'file' && target.scheme !== 'untitled'))
+    return undefined;
+  return target;
+}
+
+// Same as getTargetUri, but active editor has to be an ABL document
+function getTargetAblUri(uri?: vscode.Uri): vscode.Uri | undefined {
+  if (uri instanceof vscode.Uri) return getTargetUri(uri);
+  if (vscode.window.activeTextEditor?.document.languageId !== 'abl')
+    return undefined;
+  return getTargetUri();
+}
+
+function preprocessFile(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -752,7 +843,7 @@ function preprocessFile() {
 
   client
     .sendRequest('proparse/preprocess', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -767,19 +858,18 @@ function preprocessFile() {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during preprocess: ' + error.message,
+      );
     });
 }
 
-function generateListing() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+function generateListing(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -789,7 +879,7 @@ function generateListing() {
 
   client
     .sendRequest('proparse/listing', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -804,19 +894,18 @@ function generateListing() {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during listing generation: ' + error.message,
+      );
     });
 }
 
-function generateDebugListing() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
-  const cfg = getProject(editor.document.uri.fsPath);
+function generateDebugListing(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -826,7 +915,7 @@ function generateDebugListing() {
 
   client
     .sendRequest('proparse/debugListing', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -841,20 +930,19 @@ function generateDebugListing() {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during debug listing generation: ' + error.message,
+      );
     });
 }
 
-function generateXref() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
+function generateXref(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
 
-  const cfg = getProject(editor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -863,7 +951,7 @@ function generateXref() {
   }
   client
     .sendRequest('proparse/xref', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -878,6 +966,11 @@ function generateXref() {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XREF generation: ' + error.message,
+      );
     });
 }
 
@@ -940,6 +1033,11 @@ function generateXrefAndJumpToCurrentLine() {
             );
           });
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XREF generation: ' + error.message,
+      );
     });
 }
 
@@ -987,17 +1085,11 @@ async function getXrefLineSelectionForSourceLine(
   return { start: closestXrefLineNumber, count: matchCount };
 }
 
-function generateXmlXref() {
-  const editor = vscode.window.activeTextEditor;
-  if (
-    !editor ||
-    (editor.document.uri.scheme !== 'file' &&
-      editor.document.uri.scheme !== 'untitled')
-  ) {
-    return;
-  }
+function generateXmlXref(uri?: vscode.Uri) {
+  const fileUri = getTargetUri(uri);
+  if (!fileUri) return;
 
-  const cfg = getProject(editor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
@@ -1007,7 +1099,7 @@ function generateXmlXref() {
 
   client
     .sendRequest('proparse/xmlXref', {
-      fileUri: editor.document.uri.toString(),
+      fileUri: fileUri.toString(),
     })
     .then((result: any) => {
       if (result.fileName === '')
@@ -1022,7 +1114,36 @@ function generateXmlXref() {
               result.message,
           );
       }
+    })
+    .catch((error) => {
+      vscode.window.showErrorMessage(
+        'Error during XML XREF generation: ' + error.message,
+      );
     });
+}
+
+// Sends a request returning a list of TextEdit, and applies them to the document.
+// The returned promise resolves once the edits are applied, so that commands can be chained.
+async function requestAndApplyEdits(
+  document: vscode.TextDocument,
+  method: string,
+  params: object,
+) {
+  const version = document.version;
+  const edits = await client.sendRequest<TextEdit[]>(method, params);
+  if (!edits || edits.length === 0) return;
+  if (document.version !== version) {
+    vscode.window.showWarningMessage(
+      'Document was modified during the operation, changes were not applied',
+    );
+    return;
+  }
+  const wsEdit = new vscode.WorkspaceEdit();
+  wsEdit.set(
+    document.uri,
+    await client.protocol2CodeConverter.asTextEdits(edits),
+  );
+  await vscode.workspace.applyEdit(wsEdit);
 }
 
 function fixUpperCasing() {
@@ -1037,9 +1158,11 @@ function fixUpperCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  client.sendRequest('proparse/fixCasing', {
+  return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: true,
-    fileUri: editor.document.uri.toString(),
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     preprocessorDirectives: preprocessor,
   });
 }
@@ -1056,9 +1179,11 @@ function fixLowerCasing() {
   const preprocessor = vscode.workspace
     .getConfiguration('abl.fixCasing')
     .get<boolean>('preprocessor', false);
-  client.sendRequest('proparse/fixCasing', {
+  return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: false,
-    fileUri: editor.document.uri.toString(),
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     preprocessorDirectives: preprocessor,
   });
 }
@@ -1079,8 +1204,10 @@ function expandKeywords() {
     .getConfiguration('abl.expandKeywords')
     .get<boolean>('bufferName', false);
 
-  client.sendRequest('proparse/expandKeywords', {
-    fileUri: editor.document.uri.toString(),
+  return requestAndApplyEdits(editor.document, 'proparse/expandKeywords', {
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
     bufferName: bufferName,
     databaseName: databaseName,
   });
@@ -1103,8 +1230,10 @@ function organizeUsings() {
     return;
   }
 
-  client.sendRequest('proparse/organizeUsing', {
-    fileUri: editor.document.uri.toString(),
+  return requestAndApplyEdits(editor.document, 'proparse/organizeUsing', {
+    textDocument: {
+      uri: editor.document.uri.toString()
+    },
   });
 }
 
@@ -1160,9 +1289,18 @@ function switchProfileCmd() {
   }
 }
 
+function setStatusBarPending(message: string) {
+  oeStatusBarItem.text = '$(sync~spin) ' + message;
+  oeStatusBarItem.tooltip = DEFAULT_STATUS_TOOLTIP;
+  oeStatusBarItem.backgroundColor = new vscode.ThemeColor(
+    'statusBarItem.warningBackground',
+  );
+}
+
 function rebuildProject() {
   if (projects.length == 1) {
-    client.sendRequest('proparse/rebuildProject', {
+    setStatusBarPending('Rebuilding ' + projects[0].name + '...');
+    void client.sendRequest('proparse/rebuildProject', {
       projectUri: projects[0].uri.toString(),
     });
   } else {
@@ -1179,8 +1317,10 @@ function rebuildProject() {
     quickPick.items = list;
     quickPick.onDidAccept(() => {
       quickPick.hide();
-      client.sendRequest('proparse/rebuildProject', {
-        projectUri: quickPick.selectedItems[0].project.uri.toString(),
+      const selectedProject = quickPick.selectedItems[0].project;
+      setStatusBarPending('Rebuilding ' + selectedProject.name + '...');
+      void client.sendRequest('proparse/rebuildProject', {
+        projectUri: selectedProject.uri.toString(),
       });
     });
     quickPick.show();
@@ -1189,7 +1329,8 @@ function rebuildProject() {
 
 function reloadProject() {
   if (projects.length == 1) {
-    client.sendRequest('proparse/reloadProject', {
+    setStatusBarPending('Reloading ' + projects[0].name + '...');
+    void client.sendRequest('proparse/reloadProject', {
       projectUri: projects[0].uri.toString(),
     });
   } else {
@@ -1206,8 +1347,10 @@ function reloadProject() {
     quickPick.items = list;
     quickPick.onDidAccept(() => {
       quickPick.hide();
-      client.sendRequest('proparse/reloadProject', {
-        projectUri: quickPick.selectedItems[0].project.uri.toString(),
+      const selectedProject = quickPick.selectedItems[0].project;
+      setStatusBarPending('Reloading ' + selectedProject.name + '...');
+      void client.sendRequest('proparse/reloadProject', {
+        projectUri: selectedProject.uri.toString(),
       });
     });
     quickPick.show();
@@ -1307,72 +1450,76 @@ function openInProcedureEditor() {
   }
 }
 
-function runCurrentFile() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFile(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runTTY(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  runTTY(fileUri.fsPath, cfg);
 }
 
-function runCurrentFileBatch() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFileBatch(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  void runBatch(fileUri.fsPath, cfg);
 }
 
-function debugCurrentFileBatch() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function debugCurrentFileBatch(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runBatch(vscode.window.activeTextEditor.document.uri.fsPath, cfg, true);
+  void runBatch(fileUri.fsPath, cfg, true);
 }
 
-function runCurrentFileProwin() {
-  if (vscode.window.activeTextEditor?.document.languageId !== 'abl') {
+function runCurrentFileProwin(uri?: vscode.Uri) {
+  const fileUri = getTargetAblUri(uri);
+  if (!fileUri) {
     vscode.window.showWarningMessage(
       'Run current file: no OpenEdge procedure selected',
     );
     return;
   }
-  const cfg = getProject(vscode.window.activeTextEditor.document.uri.fsPath);
+  const cfg = getProject(fileUri.fsPath);
   if (!cfg) {
     vscode.window.showInformationMessage(
       "Current buffer doesn't belong to any OpenEdge project",
     );
     return;
   }
-  runGUI(vscode.window.activeTextEditor.document.uri.fsPath, cfg);
+  runGUI(fileUri.fsPath, cfg);
 }
 
 function buildModeName(val: number) {
@@ -1565,7 +1712,7 @@ function generateProenvStartWindows(path: string) {
 function compileFromExplorer(uri: vscode.Uri, uris?: vscode.Uri[]) {
   const targets = uris && uris.length > 0 ? uris : [uri];
   for (const uri of targets) {
-    client.sendRequest('proparse/buildResource', {
+    void client.sendRequest('proparse/buildResource', {
       uri: uri.toString(),
       forceBuild: false,
     });
@@ -1576,13 +1723,13 @@ function stripAppbuilderMarkup(uri: vscode.Uri, uris?: vscode.Uri[]) {
   if (uri) {
     const targets = uris && uris.length > 0 ? uris : [uri];
     for (const target of targets) {
-      client.sendRequest('proparse/stripAppBuilderMarkup', {
+      void client.sendRequest('proparse/stripAppBuilderMarkup', {
         fileUri: target.toString(),
       });
     }
   } else {
     if (vscode.window.activeTextEditor == undefined) return;
-    client.sendRequest('proparse/stripAppBuilderMarkup', {
+    void client.sendRequest('proparse/stripAppBuilderMarkup', {
       fileUri: vscode.window.activeTextEditor.document.uri.toString(),
     });
   }
@@ -1812,7 +1959,73 @@ function registerCommands(ctx: vscode.ExtensionContext) {
   vscode.commands.executeCommand('setContext', 'ablOutline.sortMode', 'name');
 }
 
-function readOEConfigFile(uri: vscode.Uri) {
+function startLanguageServerIfNeeded(): Promise<void> {
+  if (projects.length === 0) return Promise.resolve();
+
+  vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
+  if (client.isRunning()) return Promise.resolve();
+  if (languageServerStartPromise !== undefined)
+    return languageServerStartPromise;
+
+  outputChannel.info(`Now starting ABL language server...`);
+  const startPromise = client.start();
+  languageServerStartPromise = startPromise;
+  void startPromise.then(
+    () => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+    },
+    (error_) => {
+      if (languageServerStartPromise === startPromise)
+        languageServerStartPromise = undefined;
+      outputChannel.error(`Unable to start ABL language server: ${error_}`);
+    },
+  );
+  return startPromise;
+}
+
+// A single save can raise several file system events (e.g. truncate + write on Windows)
+const configChangeTimers = new Map<string, NodeJS.Timeout>();
+
+function scheduleProjectConfigChange(uri: vscode.Uri): void {
+  const key = uri.toString();
+  clearTimeout(configChangeTimers.get(key));
+  configChangeTimers.set(
+    key,
+    setTimeout(() => {
+      configChangeTimers.delete(key);
+      void handleProjectConfigChange(uri);
+    }, 200),
+  );
+}
+
+async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
+  if (!readOEConfigFile(uri)) return;
+
+  if (languageServerManuallyStopped) return;
+
+  const reloadAfterStartup =
+    client.isRunning() || languageServerStartPromise !== undefined;
+
+  try {
+    await startLanguageServerIfNeeded();
+  } catch {
+    return;
+  }
+
+  if (!reloadAfterStartup || !client.isRunning()) return;
+
+  const projectUri = vscode.Uri.file(path.dirname(uri.fsPath)).toString();
+  try {
+    await client.sendRequest('proparse/reloadProject', { projectUri });
+  } catch (error_) {
+    outputChannel.error(
+      `Unable to reload ABL project ${projectUri}: ${error_}`,
+    );
+  }
+}
+
+function readOEConfigFile(uri: vscode.Uri): boolean {
   outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
   const config = loadConfigFile(uri.fsPath);
   if (config) {
@@ -1841,7 +2054,9 @@ function readOEConfigFile(uri: vscode.Uri) {
         }
       } else {
         projects.push(prjConfig);
+        return true;
       }
+      return idx > -1 && projects[idx].rootDir == prjConfig.rootDir;
     } else {
       outputChannel.info(
         `Skip OpenEdge project in ${prjConfig.rootDir} -- OpenEdge install not found`,
@@ -1850,15 +2065,14 @@ function readOEConfigFile(uri: vscode.Uri) {
   } else {
     outputChannel.info(`--> Invalid config file`);
   }
+  return false;
 }
 
 function readWorkspaceOEConfigFiles() {
   vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
     list.forEach((uri) => readOEConfigFile(uri));
     if (projects.length > 0) {
-      vscode.commands.executeCommand('setContext', 'abl.isABLProject', true);
-      outputChannel.info(`Now starting ABL language server...`);
-      client.start();
+      void startLanguageServerIfNeeded();
     } else {
       outputChannel.info(`No OpenEdge projects found in workspace`);
     }
