@@ -37,7 +37,8 @@
     "Formatters"
   ],
   "activationEvents": [
-    "workspaceContains:openedge-project.json"
+    "workspaceContains:openedge-project.json",
+    "workspaceContains:openedge-project.jsonc"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -189,6 +190,7 @@
       {
         "id": "jsonc",
         "filenames": [
+          "openedge-project.jsonc",
           "openedge-project.json"
         ]
       }
@@ -1209,6 +1211,10 @@
       }
     ],
     "jsonValidation": [
+      {
+        "fileMatch": "openedge-project.jsonc",
+        "url": "./resources/openedge.schema.json"
+      },
       {
         "fileMatch": "openedge-project.json",
         "url": "./resources/openedge.schema.json"

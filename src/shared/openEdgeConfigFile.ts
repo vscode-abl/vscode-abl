@@ -19,7 +19,7 @@ export interface Command {
 }
 
 export interface OpenEdgeConfig {
-  // Content of a profile section in openedge-project.json
+  // Content of a profile section in openedge-project.jsonc
   oeversion?: string;
   numThreads: number;
   graphicalMode?: boolean;
@@ -38,7 +38,7 @@ export interface DatabaseConnection {
 }
 
 export interface OpenEdgeMainConfig extends OpenEdgeConfig {
-  // JSON mapping of openedge-project.json
+  // JSONC mapping of openedge-project.jsonc
   groupId?: string;
   artifactId?: string;
   name?: string;

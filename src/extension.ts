@@ -38,6 +38,10 @@ import {
   OpenEdgeProjectConfig,
   ProfileConfig,
 } from './shared/openEdgeConfigFile';
+import {
+  findProjectConfigFile,
+  projectConfigGlob,
+} from './shared/projectConfigFiles';
 import { machineIdSync } from 'node-machine-id';
 import { usernameSync } from 'username';
 import { AblCompileTool } from './tools/AblCompileTool';
@@ -176,9 +180,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     },
   );
 
-  // Monitor changes in all openedge-project.json files
+  // Monitor changes in both project configuration filenames.
   const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
-    '**/openedge-project.json',
+    projectConfigGlob,
   );
   projectConfigWatcher.onDidCreate((uri) => {
     scheduleProjectConfigChange(uri);
@@ -2026,6 +2030,9 @@ async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
 }
 
 function readOEConfigFile(uri: vscode.Uri): boolean {
+  const filename = findProjectConfigFile(path.dirname(uri.fsPath));
+  if (!filename) return false;
+  uri = vscode.Uri.file(filename);
   outputChannel.info(`OpenEdge project config file found: ${uri.fsPath}`);
   const config = loadConfigFile(uri.fsPath);
   if (config) {
@@ -2069,8 +2076,12 @@ function readOEConfigFile(uri: vscode.Uri): boolean {
 }
 
 function readWorkspaceOEConfigFiles() {
-  vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
-    list.forEach((uri) => readOEConfigFile(uri));
+  vscode.workspace.findFiles(projectConfigGlob).then((list) => {
+    const directories = new Set(list.map((uri) => path.dirname(uri.fsPath)));
+    directories.forEach((directory) => {
+      const filename = findProjectConfigFile(directory);
+      if (filename) readOEConfigFile(vscode.Uri.file(filename));
+    });
     if (projects.length > 0) {
       void startLanguageServerIfNeeded();
     } else {
