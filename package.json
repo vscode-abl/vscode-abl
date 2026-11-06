@@ -153,6 +153,76 @@
             }
           }
         }
+      },
+      {
+        "name": "abl_start_language_server",
+        "displayName": "ABL Start Language Server",
+        "modelDescription": "Starts the ABL language server, or restarts it if it is already running.",
+        "userDescription": "Start the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablStartLanguageServer",
+        "icon": "$(play)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "abl_stop_language_server",
+        "displayName": "ABL Stop Language Server",
+        "modelDescription": "Stops the ABL language server.",
+        "userDescription": "Stop the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablStopLanguageServer",
+        "icon": "$(debug-stop)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "abl_restart_language_server",
+        "displayName": "ABL Restart Language Server",
+        "modelDescription": "Restarts the ABL language server. Use after changing the build mode or openedge-project.json, or when compile results look stale.",
+        "userDescription": "Restart the ABL language server",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablRestartLanguageServer",
+        "icon": "$(debug-restart)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "abl_set_build_mode",
+        "displayName": "ABL Set Build Mode",
+        "modelDescription": "Changes the ABL build mode (abl.buildMode setting) of the language server. Use 'none' to disable automatic builds, for example when sources have to be compiled in a particular order. Optionally restarts the language server afterwards.",
+        "userDescription": "Change the ABL build mode",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "ablSetBuildMode",
+        "icon": "$(tools)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "everything",
+                "classes",
+                "modified",
+                "none"
+              ],
+              "description": "everything = build all sources; classes = build only classes; modified = only build files modified after startup; none = never build"
+            },
+            "restart": {
+              "type": "boolean",
+              "description": "Restart the language server after changing the mode"
+            }
+          },
+          "required": [
+            "mode"
+          ]
+        }
       }
     ],
     "configurationDefaults": {
