@@ -1,6 +1,8 @@
 1.39.x
 ======
 
+* 💥 `abl.langServerJavaExecutable`, `abl.langServerExtraJavaArgs`, `abl.debugAdapterExtraJavaArgs` and `abl.licenseKey` can only be set in user settings. Values in workspace settings (`.vscode/settings.json` or `.code-workspace`) are now ignored.
+* ✨ Add Language Model tools for language server status and build mode (#627)
 * ⬆️ ABL-LS 1.29.0-SNAPSHOT
 
 1.38.0 (November 5th, 2026)

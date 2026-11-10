@@ -707,6 +707,7 @@
         "type": "object",
         "properties": {
           "abl.configuration.runtimes": {
+            "scope": "machine-overridable",
             "order": 1,
             "type": "array",
             "description": "Map OpenEdge Execution Environments to local installation",
@@ -749,6 +750,7 @@
             "default": []
           },
           "abl.configuration.defaultRuntime": {
+            "scope": "window",
             "order": 2,
             "type": "string",
             "description": "Default OpenEdge Execution Environment name",
@@ -770,6 +772,7 @@
             ]
           },
           "abl.buildMode": {
+            "scope": "window",
             "order": 3,
             "type": "integer",
             "default": 1,
@@ -794,47 +797,55 @@
             ]
           },
           "abl.licenseKey": {
+            "scope": "application",
             "type": "string",
             "default": "",
             "description": "License key",
             "order": 4
           },
           "abl.useProcedureEditorKeyBindings": {
+            "scope": "window",
             "type": "boolean",
             "default": true,
             "description": "If true, use the same shortcuts as the Progress Procedure Editor (F2, Shift+F2, ...)",
             "order": 5
           },
           "abl.closeEditorAfterOpenExternal": {
+            "scope": "window",
             "type": "boolean",
             "default": true,
             "description": "Close the active editor after opening the file in AppBuilder or Procedure Editor. When true, saving the file in the external editor will not trigger compilation by the language server.",
             "order": 6
           },
           "abl.defaultProject": {
+            "scope": "window",
             "type": "string",
             "description": "Default project in multi-project workspaces",
             "order": 7
           },
           "abl.showCommandsInContextMenu": {
+            "scope": "window",
             "type": "boolean",
             "default": true,
             "description": "Shows commands in the Editor Context menu",
             "order": 8
           },
           "abl.showProjectCommandsInContextMenu": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "description": "Shows project management commands in the Editor Context menu",
             "order": 9
           },
           "abl.configuration.maxThreads": {
+            "scope": "window",
             "type": "integer",
             "default": -1,
             "description": "Maximum number of AVM per OpenEdge project (-1 means no limit)",
             "order": 10
           },
           "abl.configuration.hideAvmWindow": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "description": "Hide AVM windows in taskbar (only if graphicalMode set to true)",
@@ -853,42 +864,49 @@
         "title": "JVM Options",
         "properties": {
           "abl.langServerJavaExecutable": {
+            "scope": "machine",
             "type": "string",
             "default": "",
             "order": 0,
             "description": "Language Server Java executable"
           },
           "abl.langServerDebug": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "order": 1,
             "description": "Enable language server verbose logging"
           },
           "abl.langServerTrace": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "order": 2,
             "markdownDescription": "Enable language server trace logging (in `$TMP/vscode-language-server-trace.txt`)"
           },
           "abl.langServerExtraJavaArgs": {
+            "scope": "machine",
             "type": "string",
             "default": "",
             "order": 3,
             "description": "Extra arguments on the Language Server command line"
           },
           "abl.debugAdapterDebug": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "order": 4,
             "markdownDescription": "Enable debug adapter verbose logging (in `$TMP/vscode-debug-adapter.txt`)"
           },
           "abl.debugAdapterTrace": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "order": 5,
             "markdownDescription": "Enable debug adapter trace logging (in `$TMP/vscode-debug-adapter-trace.txt`)"
           },
           "abl.debugAdapterExtraJavaArgs": {
+            "scope": "machine",
             "type": "string",
             "default": "",
             "order": 6,
@@ -925,6 +943,7 @@
             "order": 4
           },
           "abl.methodSignature.perspective": {
+            "scope": "window",
             "type": "string",
             "enum": [
               "chronological",
@@ -987,12 +1006,14 @@
         "title": "Outline",
         "properties": {
           "abl.outline.showIncludeFiles": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "description": "When enabled outline shows list of include files",
             "order": 1
           },
           "abl.outline.showContentInIncludeFiles": {
+            "scope": "window",
             "type": "boolean",
             "default": false,
             "description": "When enabled outline shows objects declared in include files",
@@ -1005,18 +1026,21 @@
         "title": "Inlay Hints",
         "properties": {
           "abl.inlayHints.externalProcedureHints": {
+            "scope": "window",
             "order": 1,
             "type": "boolean",
             "default": true,
             "markdownDescription": "Enable/disable inlay hints for parameters of external procedures\n```abl\nRUN foo/bar/proc.p(/* custName: */ x1, /* shippingId: */ x2, /* offset: */ 10).\n```"
           },
           "abl.inlayHints.constantsOnly": {
+            "scope": "window",
             "order": 2,
             "type": "boolean",
             "default": false,
             "markdownDescription": "Restrict inlay hints to parameters with constant values\n```abl\nobjRef1:method01(Customer.custNum, /* shippingType: */ 1).\n```"
           },
           "abl.inlayHints.shortVariableLength": {
+            "scope": "window",
             "order": 3,
             "type": "integer",
             "default": 2,
