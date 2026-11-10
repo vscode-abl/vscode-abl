@@ -110,6 +110,11 @@
       "description": "Extra parameters passed to Progress executable",
       "type": "string"
     },
+    "xcodeKey": {
+      "id": "/properties/xcodeKey",
+      "description": "Key used to compile source code encrypted with XCODE. Can't be overridden in profiles.",
+      "type": "string"
+    },
     "buildDirectory": {
       "id": "/properties/buildDirectory",
       "description": "Default build directory (if not specified in source directory)",

@@ -49,6 +49,7 @@ OpenEdge projects can be configured in a file called `openedge-project.json`. Th
   "graphicalMode": true, // True for prowin[32], false for _progres
   "charset": "utf-8",  // Charset
   "extraParameters": "", // Extra Progress command line parameters
+  "xcodeKey": "", // Optional key to compile source code encrypted with XCODE (can't be overridden in profiles)
   "preprocessor": { // Customize parser behavior (optional)
     // "windowSystem": "MS-WINDOWS",
     // "processArchitecture": 32
