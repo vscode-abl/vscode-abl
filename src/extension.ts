@@ -224,6 +224,9 @@ export function activate(ctx: vscode.ExtensionContext) {
     async getFileInfo(uri: string) {
       return await client.sendRequest('proparse/fileInfo', { fileUri: uri });
     },
+    async waitForCompilation(uri: string) {
+      return await client.sendRequest('proparse/waitForCompilation', { fileUri: uri });
+    },
     async compile(uri: string) {
       return await client.sendRequest('proparse/compileFile', { fileUri: uri });
     },
