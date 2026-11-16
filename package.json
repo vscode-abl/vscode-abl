@@ -885,7 +885,7 @@
             "markdownDescription": "Enable language server trace logging (in `$TMP/vscode-language-server-trace.txt`)"
           },
           "abl.langServerExtraJavaArgs": {
-            "scope": "machine",
+            "scope": "window",
             "type": "string",
             "default": "",
             "order": 3,
@@ -906,7 +906,7 @@
             "markdownDescription": "Enable debug adapter trace logging (in `$TMP/vscode-debug-adapter-trace.txt`)"
           },
           "abl.debugAdapterExtraJavaArgs": {
-            "scope": "machine",
+            "scope": "window",
             "type": "string",
             "default": "",
             "order": 6,
