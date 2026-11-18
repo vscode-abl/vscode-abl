@@ -225,7 +225,9 @@ export function activate(ctx: vscode.ExtensionContext) {
       return await client.sendRequest('proparse/fileInfo', { fileUri: uri });
     },
     async waitForCompilation(uri: string) {
-      return await client.sendRequest('proparse/waitForCompilation', { fileUri: uri });
+      return await client.sendRequest('proparse/waitForCompilation', {
+        fileUri: uri,
+      });
     },
     async compile(uri: string) {
       return await client.sendRequest('proparse/compileFile', { fileUri: uri });
@@ -687,6 +689,7 @@ function restartLangServer(): Promise<void> {
   const fn = () => {
     client = createLanguageClient();
     outputChannel.info('Starting new ABL Language Server');
+    snapshotProjectConfigHashes();
     return client.start();
   };
 
@@ -1171,7 +1174,7 @@ function fixUpperCasing() {
   return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: true,
     textDocument: {
-      uri: editor.document.uri.toString()
+      uri: editor.document.uri.toString(),
     },
     preprocessorDirectives: preprocessor,
   });
@@ -1192,7 +1195,7 @@ function fixLowerCasing() {
   return requestAndApplyEdits(editor.document, 'proparse/fixCasing', {
     upper: false,
     textDocument: {
-      uri: editor.document.uri.toString()
+      uri: editor.document.uri.toString(),
     },
     preprocessorDirectives: preprocessor,
   });
@@ -1216,7 +1219,7 @@ function expandKeywords() {
 
   return requestAndApplyEdits(editor.document, 'proparse/expandKeywords', {
     textDocument: {
-      uri: editor.document.uri.toString()
+      uri: editor.document.uri.toString(),
     },
     bufferName: bufferName,
     databaseName: databaseName,
@@ -1242,7 +1245,7 @@ function organizeUsings() {
 
   return requestAndApplyEdits(editor.document, 'proparse/organizeUsing', {
     textDocument: {
-      uri: editor.document.uri.toString()
+      uri: editor.document.uri.toString(),
     },
   });
 }
@@ -1340,6 +1343,9 @@ function rebuildProject() {
 function reloadProject() {
   if (projects.length == 1) {
     setStatusBarPending('Reloading ' + projects[0].name + '...');
+    outputChannel.info('Reloading ' + projects[0].name + '...');
+    const configFile = projectConfigFile(projects[0]);
+    storeConfigHash(configFile, computeConfigHash(configFile));
     void client.sendRequest('proparse/reloadProject', {
       projectUri: projects[0].uri.toString(),
     });
@@ -1359,6 +1365,9 @@ function reloadProject() {
       quickPick.hide();
       const selectedProject = quickPick.selectedItems[0].project;
       setStatusBarPending('Reloading ' + selectedProject.name + '...');
+      outputChannel.info('Reloading ' + selectedProject.name + '...');
+      const configFile = projectConfigFile(selectedProject);
+      storeConfigHash(configFile, computeConfigHash(configFile));
       void client.sendRequest('proparse/reloadProject', {
         projectUri: selectedProject.uri.toString(),
       });
@@ -1999,6 +2008,7 @@ function startLanguageServerIfNeeded(): Promise<void> {
     return languageServerStartPromise;
 
   outputChannel.info(`Now starting ABL language server...`);
+  snapshotProjectConfigHashes();
   const startPromise = client.start();
   languageServerStartPromise = startPromise;
   void startPromise.then(
@@ -2013,6 +2023,46 @@ function startLanguageServerIfNeeded(): Promise<void> {
     },
   );
   return startPromise;
+}
+
+// SHA-256 of each openedge-project.json, as read by the language server (at startup, or at the last reload).
+// Used to avoid reloading a project when the file watcher reports an event on an unchanged file, typically
+// just after the language server startup.
+const projectConfigHashes = new Map<string, string>();
+
+function configHashKey(configFile: string): string {
+  const normalized = path.normalize(configFile);
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+}
+
+function computeConfigHash(configFile: string): string | undefined {
+  try {
+    return crypto
+      .createHash('sha256')
+      .update(fs.readFileSync(configFile))
+      .digest('hex');
+  } catch {
+    return undefined;
+  }
+}
+
+function storeConfigHash(configFile: string, hash: string | undefined): void {
+  const key = configHashKey(configFile);
+  if (hash === undefined) projectConfigHashes.delete(key);
+  else projectConfigHashes.set(key, hash);
+}
+
+function projectConfigFile(project: OpenEdgeProjectConfig): string {
+  return path.join(project.rootDir, 'openedge-project.json');
+}
+
+// To be called just before starting the language server, as it reads all config files during initialization
+function snapshotProjectConfigHashes(): void {
+  projectConfigHashes.clear();
+  projects.forEach((project) => {
+    const configFile = projectConfigFile(project);
+    storeConfigHash(configFile, computeConfigHash(configFile));
+  });
 }
 
 // A single save can raise several file system events (e.g. truncate + write on Windows)
@@ -2046,8 +2096,23 @@ async function handleProjectConfigChange(uri: vscode.Uri): Promise<void> {
 
   if (!reloadAfterStartup || !client.isRunning()) return;
 
+  const hash = computeConfigHash(uri.fsPath);
+  if (
+    hash !== undefined &&
+    projectConfigHashes.get(configHashKey(uri.fsPath)) === hash
+  ) {
+    outputChannel.info(
+      `Project config file ${uri.fsPath} unchanged, reload skipped`,
+    );
+    return;
+  }
+  storeConfigHash(uri.fsPath, hash);
+
   const projectUri = vscode.Uri.file(path.dirname(uri.fsPath)).toString();
   try {
+    outputChannel.info(
+      'Reloading ' + projectUri + ' due to project config change...',
+    );
     await client.sendRequest('proparse/reloadProject', { projectUri });
   } catch (error_) {
     outputChannel.error(
