@@ -218,7 +218,7 @@ export function activate(ctx: vscode.ExtensionContext) {
       return await client.sendRequest('proparse/fileInfo', { fileUri: uri });
     },
     async compile(uri: string) {
-      return await client.sendRequest('proparse/compileFile', { fileUri: uri });
+      return await client.sendRequest('proparse/compile', { fileUri: uri });
     },
     async getSchema(uri: string) {
       return await client.sendRequest('proparse/schema', { projectUri: uri });
