@@ -1,6 +1,7 @@
 1.39.x
 ======
 
+* 🐛 Fix synchronization issue between extension and LS that could lead to stale project (#637, #641)
 * 💥 `abl.langServerJavaExecutable`, `abl.langServerExtraJavaArgs`, `abl.debugAdapterExtraJavaArgs` and `abl.licenseKey` can only be set in user settings. Values in workspace settings (`.vscode/settings.json` or `.code-workspace`) are now ignored.
 * ✨ New `xcodeKey` attribute in `openedge-project.json` to compile source code encrypted with XCODE
 * ✨ Add Language Model tools for language server status and build mode (#627)
