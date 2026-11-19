@@ -151,9 +151,27 @@ export function activate(ctx: vscode.ExtensionContext) {
     showWhatsNew(ctx, currentVersion);
   }
 
-  readWorkspaceOEConfigFiles();
-
   client = createLanguageClient();
+
+  // Initial project discovery - needed to trigger LS startup
+  vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
+    list.forEach((uri) => readOEConfigFile(uri));
+    if (projects.length > 0) {
+      void startLanguageServerIfNeeded();
+    }
+  });
+
+  // Monitor changes in all openedge-project.json files
+  const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
+    '**/openedge-project.json',
+  );
+  projectConfigWatcher.onDidCreate((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+  projectConfigWatcher.onDidChange((uri) => {
+    scheduleProjectConfigChange(uri);
+  });
+  ctx.subscriptions.push(projectConfigWatcher);
 
   // Show status bar
   oeStatusBarItem = vscode.window.createStatusBarItem(
@@ -169,23 +187,11 @@ export function activate(ctx: vscode.ExtensionContext) {
   oeStatusBarItem.command = 'abl.changeBuildMode';
   ctx.subscriptions.push(oeStatusBarItem);
 
-  // Monitor configuration changes
   const oeRuntimeConfigWatcher = vscode.workspace.onDidChangeConfiguration(
     (event) => {
       readGlobalOpenEdgeRuntimes();
     },
   );
-
-  // Monitor changes in all openedge-project.json files
-  const projectConfigWatcher = vscode.workspace.createFileSystemWatcher(
-    '**/openedge-project.json',
-  );
-  projectConfigWatcher.onDidCreate((uri) => {
-    scheduleProjectConfigChange(uri);
-  });
-  projectConfigWatcher.onDidChange((uri) => {
-    scheduleProjectConfigChange(uri);
-  });
 
   const debugAdapterDescriptorFactory =
     vscode.debug.registerDebugAdapterDescriptorFactory(
@@ -2129,17 +2135,6 @@ function readOEConfigFile(uri: vscode.Uri): boolean {
     outputChannel.info(`--> Invalid config file`);
   }
   return false;
-}
-
-function readWorkspaceOEConfigFiles() {
-  vscode.workspace.findFiles('**/openedge-project.json').then((list) => {
-    list.forEach((uri) => readOEConfigFile(uri));
-    if (projects.length > 0) {
-      void startLanguageServerIfNeeded();
-    } else {
-      outputChannel.info(`No OpenEdge projects found in workspace`);
-    }
-  });
 }
 
 function parseOpenEdgeProjectConfig(
