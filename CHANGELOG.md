@@ -1,3 +1,11 @@
+1.38.1 (November 19th, 2026)
+============================
+
+* 🐛 Fix synchronization issue between extension and LS that could lead to stale project (#637, #641)
+* 🐛 Fix `compile` entrypoint (#639)
+* 🐛 Fix NullPointerException in Proparse (#636)
+* ⬆️ ABL-LS 1.28.1
+
 1.38.0 (November 5th, 2026)
 ===========================
 
